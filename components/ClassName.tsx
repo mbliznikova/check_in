@@ -6,28 +6,35 @@ type StudentType = {
     firstName: string;
     lastName: string;
     id: string;
-    classes: string[];
+    classes?: Set<string>;
 };
 
+type ClassNameProps = {
+    id: string;
+    name: string;
+    students?: StudentType[];
+};
 
 const ClassName = ({
-    name = "Class name",
-    students=[],
-}) => {
-    const colorScheme = useColorScheme();
-    return (
-        <View style={styles.container}>
-            <View style={styles.headerRow}>
-                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.leftText]}>
-                    Class
-                </Text>
-                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.rightText]}>
-                    {name}
-                </Text>
+        id,
+        name = "Class name",
+        students = []
+    }: ClassNameProps) => {
+        const colorScheme = useColorScheme();
+        console.log('STUDENT LISTS', students)
+        return (
+            <View style={styles.container}>
+                <View style={styles.headerRow}>
+                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.leftText]}>
+                        Class
+                    </Text>
+                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.rightText]}>
+                        {name}
+                    </Text>
+                </View>
+                <StudentList studentList={students}></StudentList>
             </View>
-            <StudentList studentList={students}></StudentList>
-        </View>
-    );
+        );
 };
 
 const styles = StyleSheet.create({
