@@ -1,20 +1,21 @@
 import * as React from 'react';  
 import {View, Text, StyleSheet, useColorScheme} from 'react-native';
 
-// type studentData = {
-//     firstName: string;
-//     lastName: string;
-//     id: string;
-//     classes: string[];
-// };
+type StudentType = {
+    firstName: string;
+    lastName: string;
+    id: string;
+    classes?: Set<string>;
+};
 
 const Student = ({
     firstName='John',
     lastName='Smith',
-    id='12123123123',
-    classes=[]
-}) => {
+    id,
+    classes,
+}: StudentType) => {
     const colorScheme = useColorScheme();
+
     return (
         <View style={styles.container}>
             <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{firstName} {lastName}</Text>
