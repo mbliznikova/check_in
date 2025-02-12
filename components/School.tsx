@@ -21,19 +21,39 @@ const School = () => {
         { id: '103', name: 'Self-defence' }
     ];
 
-    const [students, setStudents] = useState([
+   const [students, setStudents] = useState([
         // Add functionality to fetch students from backend and place them here
-        { firstName: "James", lastName: "Harrington", id: "1", classes: new Set('101')},
-        { firstName: "William", lastName: "Kensington", id: "2", classes: new Set('102')},
-        { firstName: "Edward", lastName: "Montgomery", id: "3", classes: new Set('103')},
+        { firstName: "James", lastName: "Harrington", id: "1", classes: new Set(['101'])},
+        { firstName: "William", lastName: "Kensington", id: "2", classes: new Set(['102'])},
+        { firstName: "Edward", lastName: "Montgomery", id: "3", classes: new Set(['103'])},
         { firstName: 'Henry', lastName: 'Fairchild', id: '4', classes: new Set<string>() },
         { firstName: 'Arthur', lastName: 'Whitmore', id: '5', classes: new Set<string>() },
         { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set<string>() },
     ]);
 
-    const [checkedInStudents, setCheckedInStudents] = useState<Map<string, StudentType[]>>(
-        new Map(classList.map(cls => [cls.id, []]))
-    );
+
+    function assignStudentsToClasses() {
+        const studentClassMap = new Map<string, StudentType[]>();
+
+        classList.forEach(cls => {
+            studentClassMap.set(cls.id, []);
+        })
+
+        students.forEach(student => {
+            Array.from(student.classes).forEach(clsId => {
+                if (studentClassMap.has(clsId)) {
+                    studentClassMap.get(clsId)?.push(student);
+                }
+            });
+        });
+
+        console.log(studentClassMap);
+
+        return studentClassMap;
+    }
+
+    const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
+
 
     return (
         <View style={styles.container}>
