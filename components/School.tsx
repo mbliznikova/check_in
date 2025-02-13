@@ -47,12 +47,25 @@ const School = () => {
             });
         });
 
-        console.log(studentClassMap);
-
         return studentClassMap;
     }
 
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
+
+    function checkIn(studentId: string, classId: string) {
+        setStudents(prevStudents => {
+            const updatesStudents = prevStudents.map(student => {
+                if (student.id === studentId) {
+                    student.classes.add(classId)
+                }
+                return student;
+            });
+
+            return updatesStudents;
+        });
+        
+        setCheckedInStudents(assignStudentsToClasses);
+    }
 
 
     return (
@@ -71,6 +84,7 @@ const School = () => {
 
             <StudentList 
                 studentList={students.filter((student) => student.classes.size === 0)}
+                onStudentPress={(studentId) => checkIn(studentId, '101')}
             />
         </View>
     );
