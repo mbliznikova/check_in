@@ -1,6 +1,7 @@
 import * as React from 'react';  
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import {Pressable, View, Text, StyleSheet, FlatList, Alert} from 'react-native';
 import Student from './Student';
+// import { Pressable } from 'react-native-gesture-handler';
 
 
 type StudentType = {
@@ -12,15 +13,20 @@ type StudentType = {
 
 type StudentListProps = {
     studentList?: StudentType[];
+    onStudentPress?: (studentId: string) => void;
 };
 
 const StudentList = ({
-        studentList = defaultStudentList}
-    : StudentListProps) => {
+        studentList = defaultStudentList,
+        onStudentPress = () => {}
+    }: StudentListProps) => {
+
         const renderItem = ({ item }: {item: StudentType}) => (
+            <Pressable onPress={() => onStudentPress(item.id)}>
             <View style={styles.itemContainer}>
                 <Student firstName={item.firstName} lastName={item.lastName} id={item.id}></Student>
             </View>
+            </Pressable>
         )
         return (
             <View style={styles.container}>
