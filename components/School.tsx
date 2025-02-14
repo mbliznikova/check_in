@@ -1,6 +1,6 @@
 import * as React from 'react';  
 import { useState } from 'react';
-import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+import {View, Modal, StyleSheet, Pressable, Button, Text} from 'react-native';
 
 import ClassName from '@/components/ClassName';
 import Student from './Student';
@@ -30,7 +30,10 @@ const School = () => {
         { firstName: 'Arthur', lastName: 'Whitmore', id: '5', classes: new Set<string>() },
         { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set<string>() },
     ]);
+    
+    const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     function assignStudentsToClasses() {
         const studentClassMap = new Map<string, StudentType[]>();
@@ -50,8 +53,6 @@ const School = () => {
         return studentClassMap;
     }
 
-    const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
-
     function checkIn(studentId: string, classId: string) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
@@ -63,6 +64,7 @@ const School = () => {
 
             return updatesStudents;
         });
+        setIsModalVisible(true);
         
         setCheckedInStudents(assignStudentsToClasses);
     }
@@ -79,8 +81,29 @@ const School = () => {
                 />
             )
             )}
-
             <View style={styles.separator} />
+            <Modal 
+                visible={isModalVisible}
+                transparent={true}
+                animationType='fade'
+                onRequestClose={() =>  setIsModalVisible(false)}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalTitle}>Check in student</Text>
+                        <View style={styles.modalList}>
+                            {classList.map((cls) => (
+                                <Text key={cls.id} style={styles.modalList}>{cls.name}</Text>
+                            ))}
+                        </View>
+                        <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
+                            <Text>Confirm</Text>
+                        </Pressable>
+                        <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
+                            <Text>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
 
             <StudentList 
                 studentList={students.filter((student) => student.classes.size === 0)}
@@ -100,6 +123,39 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'gray',
         marginVertical: 10,
+      },
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        padding: 35,
+        borderRadius: 20,
+        alignItems: 'center',
+      },
+      modalTitle: {
+        fontSize: 20, 
+        fontWeight: 'bold',
+        padding: 10
+      },
+      modalList: {
+        paddingVertical: 15,
+      },
+      modalListItem: {
+        paddingVertical: 10,
+      },
+      modalButton: {
+        // width: '100%',
+        // flex: 1,
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 8,
+        backgroundColor: 'blue',
       },
   });
 
