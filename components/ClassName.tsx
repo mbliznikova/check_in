@@ -21,7 +21,6 @@ const ClassName = ({
         students = []
     }: ClassNameProps) => {
         const colorScheme = useColorScheme();
-        console.log('STUDENT LISTS', students)
         return (
             <View style={styles.container}>
                 <View style={styles.headerRow}>
