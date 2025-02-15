@@ -36,7 +36,7 @@ const School = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const [selectedClasses, setSelectedClasses] = useState(() => { // For list of classes in Modal 
+    const [selectedClasses, setSelectedClasses] = useState(() => { // For list of classes in Modal
         return new Map(classList.map(cls => [cls.id, false]));
     });
 
@@ -75,6 +75,10 @@ const School = () => {
         setCheckedInStudents(assignStudentsToClasses);
     }
 
+    function unselectAllClasses() {
+        setSelectedClasses(new Map(classList.map(cls => [cls.id, false])));
+    }
+
     function toggleClass(classId: string) {
         setSelectedClasses(prevSelectedClasses => {
             return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses.get(classId));
@@ -98,7 +102,7 @@ const School = () => {
                 visible={isModalVisible}
                 transparent={true}
                 animationType='fade'
-                onRequestClose={() =>  setIsModalVisible(false)}>
+                onRequestClose={() => {setIsModalVisible(false); unselectAllClasses();}}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
                         <Text style={styles.modalTitle}>Check in student</Text>
@@ -115,7 +119,7 @@ const School = () => {
                         <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
                             <Text>Confirm</Text>
                         </Pressable>
-                        <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
+                        <Pressable style={styles.modalButton} onPress={() => {setIsModalVisible(false); unselectAllClasses();}}>
                             <Text>Cancel</Text>
                         </Pressable>
                     </View>
