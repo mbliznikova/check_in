@@ -3,8 +3,8 @@ import { useState } from 'react';
 import {View, Modal, StyleSheet, Pressable, Button, Text} from 'react-native';
 
 import ClassName from '@/components/ClassName';
-import Student from './Student';
 import StudentList from './StudentList';
+import Checkbox from './Checkbox';
 
 type StudentType = {
     firstName: string;
@@ -15,6 +15,7 @@ type StudentType = {
 
 const School = () => {
 
+    // Add functionality to fetch classes from backend and place them here
     const classList = [
         { id: '101', name: 'Longsword' },
         { id: '102', name: 'Private Lessons' },
@@ -30,10 +31,14 @@ const School = () => {
         { firstName: 'Arthur', lastName: 'Whitmore', id: '5', classes: new Set<string>() },
         { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set<string>() },
     ]);
-    
+
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [selectedClasses, setSelectedClasses] = useState(() => { // For list of classes in Modal 
+        return new Map(classList.map(cls => [cls.id, false]));
+    });
 
     function assignStudentsToClasses() {
         const studentClassMap = new Map<string, StudentType[]>();
@@ -58,6 +63,7 @@ const School = () => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
                     student.classes.add(classId)
+                    // Add the array of classes ids here
                 }
                 return student;
             });
@@ -67,6 +73,12 @@ const School = () => {
         setIsModalVisible(true);
         
         setCheckedInStudents(assignStudentsToClasses);
+    }
+
+    function toggleClass(classId: string) {
+        setSelectedClasses(prevSelectedClasses => {
+            return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses.get(classId));
+        })
     }
 
 
@@ -82,7 +94,7 @@ const School = () => {
             )
             )}
             <View style={styles.separator} />
-            <Modal 
+            <Modal
                 visible={isModalVisible}
                 transparent={true}
                 animationType='fade'
@@ -92,7 +104,12 @@ const School = () => {
                         <Text style={styles.modalTitle}>Check in student</Text>
                         <View style={styles.modalList}>
                             {classList.map((cls) => (
-                                <Text key={cls.id} style={styles.modalList}>{cls.name}</Text>
+                                <Checkbox
+                                    key={cls.id}
+                                    label={cls.name}
+                                    checked={selectedClasses.get(cls.id)!}
+                                    onChange={() => {toggleClass(cls.id)}}>
+                                </Checkbox>
                             ))}
                         </View>
                         <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
