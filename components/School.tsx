@@ -64,6 +64,7 @@ const School = () => {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
+                    student.classes = new Set();
                     classIds.forEach(cls => {
                         student.classes.add(cls)
                     })
@@ -76,9 +77,19 @@ const School = () => {
         setCheckedInStudents(assignStudentsToClasses);
     }
 
+    function toggleSelectedClasses(student: StudentType) { // For a student who has already checked in. Pass a list of checked into classes to Modal when Adding a Class
+        if (student.classes?.size !== 0) {
+            Array.from(student.classes!).forEach(clsId => {
+                setSelectedClasses(prevSelectedClasses => {
+                    return new Map(prevSelectedClasses).set(clsId, true);
+                })
+            })
+        }
+    }
+
     function getSelectedClassesIds() {
         const classesIds: string[] = [];
-        const selectedClassesIds = selectedClasses.forEach((value, key) => {
+        selectedClasses.forEach((value, key) => {
             if (value === true) {
                 classesIds.push(key);
             }
@@ -100,12 +111,20 @@ const School = () => {
     return (
         <View style={styles.container}>
             {classList.map((cls) => (
-                <ClassName
-                    key={cls.id}
-                    id={cls.id}
-                    name={cls.name}
-                    students={checkedInStudents.get(cls.id) || []}
-                />
+                <View key={crypto.randomUUID()}>
+                    <ClassName
+                        id={cls.id}
+                        name={cls.name}
+                    />
+                    <StudentList
+                        studentList={checkedInStudents.get(cls.id) || []}
+                        onStudentPress={(student => {
+                            setCurrentStudent(student);
+                            toggleSelectedClasses(student);
+                            setIsModalVisible(true);
+                        })}
+                        />
+                </View>
             )
             )}
             <View style={styles.separator} />
@@ -132,18 +151,18 @@ const School = () => {
                                 </Checkbox>
                             ))}
                         </View>
-                        <Pressable style={styles.modalButton} onPress={() => {
+                        <Pressable style={styles.modalConfirmButton} onPress={() => {
                             setIsModalVisible(false);
                             checkIn(currentStudent?.id!, getSelectedClassesIds());
                             unselectAllClasses();
                             }}>
-                            <Text>Confirm</Text>
+                            <Text style={styles.modalText}>Confirm</Text>
                         </Pressable>
-                        <Pressable style={styles.modalButton} onPress={() => {
+                        <Pressable style={styles.modalCancelButton} onPress={() => {
                             setIsModalVisible(false);
                             unselectAllClasses();
                             }}>
-                            <Text>Cancel</Text>
+                            <Text style={styles.modalText}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -194,15 +213,26 @@ const styles = StyleSheet.create({
       modalListItem: {
         paddingVertical: 10,
       },
-      modalButton: {
+      modalConfirmButton: {
         // width: '100%',
         // flex: 1,
         alignItems: 'center',
         paddingVertical: 5,
         paddingHorizontal: 10,
         marginVertical: 10,
-        borderRadius: 8,
+        borderRadius: 15,
         backgroundColor: 'blue',
+      },
+      modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
+      },
+      modalText: {
+        color: 'white',
       },
   });
 

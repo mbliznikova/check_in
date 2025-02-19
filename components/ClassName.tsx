@@ -1,6 +1,5 @@
 import * as React from 'react';  
 import {View, Text, StyleSheet, useColorScheme} from 'react-native';
-import StudentList from './StudentList';
 
 type StudentType = {
     firstName: string;
@@ -12,13 +11,11 @@ type StudentType = {
 type ClassNameProps = {
     id: string;
     name: string;
-    students?: StudentType[];
 };
 
 const ClassName = ({
         id,
         name = "Class name",
-        students = []
     }: ClassNameProps) => {
         const colorScheme = useColorScheme();
         return (
@@ -31,7 +28,6 @@ const ClassName = ({
                         {name}
                     </Text>
                 </View>
-                <StudentList studentList={students}></StudentList>
             </View>
         );
 };
