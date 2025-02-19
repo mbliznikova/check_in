@@ -12,7 +12,7 @@ type StudentType = {
 
 type StudentListProps = {
     studentList?: StudentType[];
-    onStudentPress?: (studentId: string) => void;
+    onStudentPress?: (studentObj: StudentType) => void;
 };
 
 const StudentList = ({
@@ -31,7 +31,7 @@ const StudentList = ({
                         ? (pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed)
                         : (pressed? styles.secondaryButtonPressed : styles.secondaryButtonUnpressed)
                     ]}
-                    onPress={() => onStudentPress(item.id)}>
+                    onPress={() => onStudentPress(item)}>
                     <Text style={item.classes?.size === 0 ? styles.primaryButtonText : styles.secondaryButtonText}>
                         {item.classes?.size !== 0 ? '+ Add class' : 'Check in'}
                     </Text>

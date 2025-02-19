@@ -40,6 +40,8 @@ const School = () => {
         return new Map(classList.map(cls => [cls.id, false]));
     });
 
+    const [currentStudent, setCurrentStudent] = useState<StudentType | null>(null);
+
     function assignStudentsToClasses() {
         const studentClassMap = new Map<string, StudentType[]>();
 
@@ -58,21 +60,30 @@ const School = () => {
         return studentClassMap;
     }
 
-    function checkIn(studentId: string, classId: string) {
+    function checkIn(studentId: string, classIds: string[]) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
-                    student.classes.add(classId)
-                    // Add the array of classes ids here
+                    classIds.forEach(cls => {
+                        student.classes.add(cls)
+                    })
                 }
                 return student;
             });
 
             return updatesStudents;
         });
-        setIsModalVisible(true);
-        
         setCheckedInStudents(assignStudentsToClasses);
+    }
+
+    function getSelectedClassesIds() {
+        const classesIds: string[] = [];
+        const selectedClassesIds = selectedClasses.forEach((value, key) => {
+            if (value === true) {
+                classesIds.push(key);
+            }
+        })
+        return classesIds;
     }
 
     function unselectAllClasses() {
@@ -98,14 +109,19 @@ const School = () => {
             )
             )}
             <View style={styles.separator} />
+
             <Modal
                 visible={isModalVisible}
                 transparent={true}
                 animationType='fade'
-                onRequestClose={() => {setIsModalVisible(false); unselectAllClasses();}}>
+                onRequestClose={() => {
+                    setIsModalVisible(false);
+                    checkIn(currentStudent?.id!, getSelectedClassesIds());
+                    unselectAllClasses();}
+                    }>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalTitle}>Check in student</Text>
+                        <Text style={styles.modalTitle}>Check in {currentStudent?.firstName} {currentStudent?.lastName}</Text>
                         <View style={styles.modalList}>
                             {classList.map((cls) => (
                                 <Checkbox
@@ -116,10 +132,17 @@ const School = () => {
                                 </Checkbox>
                             ))}
                         </View>
-                        <Pressable style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
+                        <Pressable style={styles.modalButton} onPress={() => {
+                            setIsModalVisible(false);
+                            checkIn(currentStudent?.id!, getSelectedClassesIds());
+                            unselectAllClasses();
+                            }}>
                             <Text>Confirm</Text>
                         </Pressable>
-                        <Pressable style={styles.modalButton} onPress={() => {setIsModalVisible(false); unselectAllClasses();}}>
+                        <Pressable style={styles.modalButton} onPress={() => {
+                            setIsModalVisible(false);
+                            unselectAllClasses();
+                            }}>
                             <Text>Cancel</Text>
                         </Pressable>
                     </View>
@@ -128,7 +151,10 @@ const School = () => {
 
             <StudentList 
                 studentList={students.filter((student) => student.classes.size === 0)}
-                onStudentPress={(studentId) => checkIn(studentId, '101')}
+                onStudentPress={(student) => {
+                    setCurrentStudent(student);
+                    setIsModalVisible(true);
+                }}
             />
         </View>
     );
