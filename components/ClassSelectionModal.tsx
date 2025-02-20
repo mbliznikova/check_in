@@ -32,31 +32,28 @@ const ClassSelectionModal = ({
     allClassesList
 }: ClassSelectionModalProps) => {
 
-    const [selectedClasses, setSelectedClasses] = useState(() => { // For list of classes in Modal
-        if (student !== null) {
-            if (student!.classes?.size !== 0) {
-                toggleSelectedClasses(student!);
-                return;
-            }
-        }
-        return new Map(allClassesList.map(cls => [cls.id, false]));
+    const [classSelectionState, setClassSelectionState] = useState(() => {
+        return new Map(allClassesList.map(cls => [cls.id, false]))
     });
 
     const [isModalVisible, setIsModalVisible] = useState(isVisible);
 
     useEffect(() => {
         setIsModalVisible(isVisible);
-        if (student !== null) {
-            toggleSelectedClasses(student!);
+
+        if (student?.classes?.size) {
+            initializeClassSelection(student);
         }
+
         return () => {
-            unselectAllClasses()
+            resetClassSelection();
         };
+
     }, [isVisible, student]);
 
     function getSelectedClassesIds() {
         const classesIds: string[] = [];
-        selectedClasses!.forEach((value, key) => {
+        classSelectionState?.forEach((value, key) => {
             if (value === true) {
                 classesIds.push(key);
             }
@@ -65,26 +62,26 @@ const ClassSelectionModal = ({
     }
 
     function toggleClass(classId: string) {
-        setSelectedClasses(prevSelectedClasses => {
-            return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses!.get(classId));
+        setClassSelectionState(prevSelectedClasses => {
+            return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses?.get(classId));
         })
     }
 
-    function toggleSelectedClasses(student: StudentType) { // For a student who has already checked in. Pass a list of checked into classes to Modal when Adding a Class
-        if (student.classes?.size !== 0) {
-            Array.from(student.classes!).forEach(clsId => {
-                setSelectedClasses(prevSelectedClasses => {
+    function initializeClassSelection(student: StudentType) {
+        if (student.classes?.size) {
+            Array.from(student.classes).forEach(clsId => {
+                setClassSelectionState(prevSelectedClasses => {
                     return new Map(prevSelectedClasses).set(clsId, true);
                 })
             })
         }
     }
 
-    function unselectAllClasses() {
-        setSelectedClasses(new Map(allClassesList.map(cls => [cls.id, false])));
+    function resetClassSelection() {
+        setClassSelectionState(new Map(allClassesList.map(cls => [cls.id, false])));
     }
 
-    function performCommonClose() {
+    function closeModal() {
         setIsModalVisible(false);
         onModalClose();
     }
@@ -95,7 +92,7 @@ const ClassSelectionModal = ({
             transparent={true}
             animationType='fade'
             onRequestClose={() => {
-                performCommonClose();
+                closeModal();
             }}
         >
             <View style={styles.modalContainer}>
@@ -106,19 +103,19 @@ const ClassSelectionModal = ({
                                 <Checkbox
                                     key={cls.id}
                                     label={cls.name}
-                                    checked={selectedClasses!.get(cls.id)!}
+                                    checked={classSelectionState?.get(cls.id) ?? false}
                                     onChange={() => {toggleClass(cls.id)}}>
                                 </Checkbox>
                             ))}
                      </View>
                      <Pressable style={styles.modalConfirmButton} onPress={() => {
                         onConfirm(getSelectedClassesIds());
-                        performCommonClose();
+                        closeModal();
                      }}>
                         <Text style={styles.modalText}>Confirm</Text>
                      </Pressable>
                      <Pressable style={styles.modalCancelButton} onPress={() => {
-                        performCommonClose();
+                        closeModal();
                      }}>
                         <Text style={styles.modalText}>Cancel</Text>
                      </Pressable>
