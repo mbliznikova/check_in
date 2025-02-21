@@ -1,12 +1,10 @@
 import { Image, StyleSheet, Platform } from 'react-native';
 
-import ClassName from '@/components/ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
 import CurrentDate from '@/components/CurrentDate';
-import StudentList from '@/components/StudentList';
+import School from '@/components/School';
 
-import { View, SafeAreaView, ScrollView } from 'react-native';
-import Student from '@/components/Student';
+import { View, SafeAreaView } from 'react-native';
 
 export default function HomeScreen() {
   return (
@@ -14,12 +12,7 @@ export default function HomeScreen() {
       <View style={styles.contentContainer}>
           <CurrentDate/>
           <ScreenTitle titleText='Checked-in today'></ScreenTitle>
-          <ClassName name='Longsword' />
-          <ClassName name='Private Lessons' />
-          <ClassName name='Self-defence' />
-          <ClassName name='Junior knights' />
-          <View style={styles.separator} />
-          <StudentList></StudentList>
+          <School/>
       </View>
     </SafeAreaView>
   );

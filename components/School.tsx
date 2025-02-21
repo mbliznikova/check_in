@@ -1,10 +1,10 @@
 import * as React from 'react';  
 import { useState } from 'react';
-import {View, Modal, StyleSheet, Pressable, Button, Text} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text} from 'react-native';
 
-import ClassName from '@/components/ClassName';
+import ClassName from './ClassName';
+import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
-import Checkbox from './Checkbox';
 
 type StudentType = {
     firstName: string;
@@ -35,10 +35,6 @@ const School = () => {
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
-
-    const [selectedClasses, setSelectedClasses] = useState(() => { // For list of classes in Modal
-        return new Map(classList.map(cls => [cls.id, false]));
-    });
 
     const [currentStudent, setCurrentStudent] = useState<StudentType | null>(null);
 
@@ -77,96 +73,41 @@ const School = () => {
         setCheckedInStudents(assignStudentsToClasses);
     }
 
-    function toggleSelectedClasses(student: StudentType) { // For a student who has already checked in. Pass a list of checked into classes to Modal when Adding a Class
-        if (student.classes?.size !== 0) {
-            Array.from(student.classes!).forEach(clsId => {
-                setSelectedClasses(prevSelectedClasses => {
-                    return new Map(prevSelectedClasses).set(clsId, true);
-                })
-            })
-        }
-    }
-
-    function getSelectedClassesIds() {
-        const classesIds: string[] = [];
-        selectedClasses.forEach((value, key) => {
-            if (value === true) {
-                classesIds.push(key);
-            }
-        })
-        return classesIds;
-    }
-
-    function unselectAllClasses() {
-        setSelectedClasses(new Map(classList.map(cls => [cls.id, false])));
-    }
-
-    function toggleClass(classId: string) {
-        setSelectedClasses(prevSelectedClasses => {
-            return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses.get(classId));
-        })
-    }
-
-
     return (
         <View style={styles.container}>
-            {classList.map((cls) => (
-                <View key={crypto.randomUUID()}>
-                    <ClassName
-                        id={cls.id}
-                        name={cls.name}
-                    />
-                    <StudentList
-                        studentList={checkedInStudents.get(cls.id) || []}
-                        onStudentPress={(student => {
-                            setCurrentStudent(student);
-                            toggleSelectedClasses(student);
-                            setIsModalVisible(true);
+
+            <FlatList
+                data={classList}
+                keyExtractor={cls => cls.id}
+                renderItem={({ item: cls }) => (
+                    <View>
+                        <ClassName
+                            id={cls.id}
+                            name={cls.name}
+                        />
+                        <StudentList
+                            studentList={checkedInStudents.get(cls.id) || []}
+                            onStudentPress={(student => {
+                                setCurrentStudent(student);
+                                setIsModalVisible(true);
                         })}
                         />
-                </View>
-            )
-            )}
+                    </View>
+                )}
+            />
+
             <View style={styles.separator} />
 
-            <Modal
-                visible={isModalVisible}
-                transparent={true}
-                animationType='fade'
-                onRequestClose={() => {
+            <ClassSelectionModal
+                isVisible={isModalVisible}
+                student={currentStudent}
+                allClassesList={classList}
+                onModalClose={() => setIsModalVisible(false)}
+                onConfirm={(selectedClassesIds: string[]) => {
+                    checkIn(currentStudent?.id!, selectedClassesIds);
                     setIsModalVisible(false);
-                    checkIn(currentStudent?.id!, getSelectedClassesIds());
-                    unselectAllClasses();}
-                    }>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTitle}>Check in {currentStudent?.firstName} {currentStudent?.lastName}</Text>
-                        <View style={styles.modalList}>
-                            {classList.map((cls) => (
-                                <Checkbox
-                                    key={cls.id}
-                                    label={cls.name}
-                                    checked={selectedClasses.get(cls.id)!}
-                                    onChange={() => {toggleClass(cls.id)}}>
-                                </Checkbox>
-                            ))}
-                        </View>
-                        <Pressable style={styles.modalConfirmButton} onPress={() => {
-                            setIsModalVisible(false);
-                            checkIn(currentStudent?.id!, getSelectedClassesIds());
-                            unselectAllClasses();
-                            }}>
-                            <Text style={styles.modalText}>Confirm</Text>
-                        </Pressable>
-                        <Pressable style={styles.modalCancelButton} onPress={() => {
-                            setIsModalVisible(false);
-                            unselectAllClasses();
-                            }}>
-                            <Text style={styles.modalText}>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
+                }}
+            />
 
             <StudentList 
                 studentList={students.filter((student) => student.classes.size === 0)}
@@ -189,50 +130,6 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'gray',
         marginVertical: 10,
-      },
-      modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        padding: 35,
-        borderRadius: 20,
-        alignItems: 'center',
-      },
-      modalTitle: {
-        fontSize: 20, 
-        fontWeight: 'bold',
-        padding: 10
-      },
-      modalList: {
-        paddingVertical: 15,
-      },
-      modalListItem: {
-        paddingVertical: 10,
-      },
-      modalConfirmButton: {
-        // width: '100%',
-        // flex: 1,
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'blue',
-      },
-      modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
-      },
-      modalText: {
-        color: 'white',
       },
   });
 
