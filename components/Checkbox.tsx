@@ -1,16 +1,20 @@
 import * as React from 'react';  
-import { useState } from 'react';
-import {View, StyleSheet, Pressable, Button, Text} from 'react-native';
+import {View, StyleSheet, Pressable, Text, useColorScheme, StyleProp, TextStyle} from 'react-native';
 
 type CheckboxProps = {
     label: string;
     checked: boolean;
     onChange: () => void;
+    labelStyle?: StyleProp<TextStyle>;
 }
 
 const Checkbox = ({
-    label, checked=false, onChange
+    label,
+    checked=false,
+    onChange,
+    labelStyle,
 }: CheckboxProps) => {
+    const colorScheme = useColorScheme();
     return (
         <Pressable
             style={styles.checkboxContainer}
@@ -18,7 +22,7 @@ const Checkbox = ({
             <View style={[styles.checkbox, checked && styles.checkedCheckbox]}>
                 {checked && <Text style={styles.checkMark}>x</Text>}
             </View>
-            <Text>{label}</Text>
+            <Text style={[styles.defaultLabel, labelStyle? labelStyle : null, ]}>{label}</Text>
         </Pressable>
     );
 }
@@ -37,11 +41,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 10,
+        backgroundColor: 'white',
     },
     label: {},
     checkedCheckbox: {
         backgroundColor: 'white',
     },
+    defaultLabel: {},
     checkMark: {
         // color: 'white',
         fontWeight: 'bold',
