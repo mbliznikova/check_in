@@ -30,6 +30,7 @@ const AttendancePaymentsReport = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.bigFlex}>
             <ScreenTitle titleText='Attendance and Payments report'/>
             <View style={styles.headerRow}>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
@@ -61,7 +62,9 @@ const AttendancePaymentsReport = () => {
                     </View>
                 )}
             />
+            </View>
 
+            <View style={styles.smallFlex}>
             <View style={styles.separator} />
 
             <ScreenTitle titleText='Students who did not attend at the selected time period'/>
@@ -72,7 +75,7 @@ const AttendancePaymentsReport = () => {
                     const balanceEntries = Array.from(student.balance.entries())
 
                     return(
-                        <View style={styles.regularRow} key={student.id}>
+                        <View style={styles.regularRow}>
                             <Student
                                 id={student.id}
                                 firstName={student.firstName}
@@ -80,10 +83,13 @@ const AttendancePaymentsReport = () => {
                             />
 
                             <View>
-                                {balanceEntries.map(([classId]) => {
+                                {balanceEntries.map(([classId], index) => {
                                     const className = classList.find((cls) => cls.id === classId)?.name || 'Unknown class';
                                     return (
-                                        <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>
+                                        <Text
+                                            style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                            key={`${student.id} - class - ${index}`}
+                                        >
                                             {className}
                                         </Text>
                                     )
@@ -91,8 +97,11 @@ const AttendancePaymentsReport = () => {
                             </View>
 
                             <View>
-                                {balanceEntries.map(([, balance]) => (
-                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>
+                                {balanceEntries.map(([, balance], index) => (
+                                    <Text
+                                        style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                        key={`${student.id} - balance - ${index}`}
+                                    >
                                         {balance}
                                     </Text>
                                 ))}
@@ -102,6 +111,7 @@ const AttendancePaymentsReport = () => {
                     )
                 }}
             />
+            </View>
         </View>
     );
 };
@@ -111,6 +121,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
+    },
+    bigFlex: {
+        flex: 3,
+    },
+    smallFlex: {
+        flex: 2,
     },
     headerRow: {
         flexDirection: 'row',
