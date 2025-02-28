@@ -20,12 +20,12 @@ const AttendancePaymentsReport = () => {
         { firstName: "James", lastName: "Harrington", id: "1", attendance: new Map<string, number>([['101', 5], ['102', 1], ['103', 2]]), balance: new Map<string, number>([['101', 255], ['102', 10], ['103', 0]])},
         { firstName: "William", lastName: "Kensington", id: "2", attendance: new Map<string, number>([['101', 1], ['102', 1]]), balance: new Map<string, number>([['101', 255], ['102', 0]])},
         { firstName: "Edward", lastName: "Montgomery", id: "3", attendance: new Map<string, number>([['101', 4], ['103', 1]]), balance: new Map<string, number>([['101', 255], ['103', 20]])},
-        { firstName: 'Henry', lastName: 'Fairchild', id: '4', attendance: new Map<string, number>([['101', 5], ['103', 2]]), balance: new Map<string, number>([['101', 0], ['103', 0]])},
+        { firstName: 'Henry', lastName: 'Fairchild', id: '4', attendance: new Map<string, number>([['101', 5], ['103', 2]]), balance: new Map<string, number>([['101', 255], ['103', 0]])},
         { firstName: 'Arthur', lastName: 'Whitmore', id: '5', attendance: new Map<string, number>([['101', 3], ['102', 1], ['103', 1]]), balance: new Map<string, number>([['101', 255], ['102', 40], ['103', 10]])},
         { firstName: 'Charles', lastName: 'Waverly', id: '6', attendance: new Map<string, number>([['102', 3], ['103', 3]]), balance: new Map<string, number>([['102', 10], ['103', 30]])},
         { firstName: 'Nathaniel', lastName: 'Sinclair', id: '14', attendance: new Map<string, number>([]), balance: new Map<string, number>([])},
-        { firstName: 'Theodore', lastName: 'Langley', id: '15', attendance: new Map<string, number>([]), balance: new Map<string, number>([])},
-        { firstName: 'Sebastian', lastName: 'Hawthorne', id: '16', attendance: new Map<string, number>([]), balance: new Map<string, number>([['102', 30], ['103', 10]])},
+        { firstName: 'Theodore', lastName: 'Langley', id: '15', attendance: new Map<string, number>([]), balance: new Map<string, number>([['102', 30], ['103', 10]])},
+        { firstName: 'Sebastian', lastName: 'Hawthorne', id: '16', attendance: new Map<string, number>([]), balance: new Map<string, number>([])},
     ];
 
     return (
@@ -52,9 +52,15 @@ const AttendancePaymentsReport = () => {
                                 const balanceStr = '$ ' + student.balance.get(cls.id)
                                 return (
                                     <View style={styles.regularRow}>
-                                        <Student id={student.id} firstName={student.firstName} lastName={student.lastName}/>
-                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{student.attendance.get(cls.id)}</Text>
-                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{balanceStr}</Text>
+                                        <View style={styles.studentName}>
+                                            <Student id={student.id} firstName={student.firstName} lastName={student.lastName}/>
+                                        </View>
+                                        <View style={styles.attendance}>
+                                            <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{student.attendance.get(cls.id)}</Text>
+                                        </View>
+                                        <View style={styles.balance}>
+                                            <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{balanceStr}</Text>
+                                        </View>
                                     </View>
                                 );
                             }}
@@ -67,7 +73,7 @@ const AttendancePaymentsReport = () => {
             <View style={styles.smallFlex}>
             <View style={styles.separator} />
 
-            <ScreenTitle titleText='Students who did not attend at the selected time period'/>
+            <ScreenTitle titleText='Students with balance and no attendance'/>
             <FlatList 
                 data={students.filter((student) => student.attendance.size === 0)}
                 keyExtractor={student => student.id}
@@ -75,7 +81,7 @@ const AttendancePaymentsReport = () => {
                     const balanceEntries = Array.from(student.balance.entries())
 
                     return(
-                        <View style={styles.regularRow}>
+                        <View style={[styles.regularRow, {paddingVertical: 10}]}>
                             <Student
                                 id={student.id}
                                 firstName={student.firstName}
@@ -144,6 +150,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    studentName: {
+        flex: 1,
+        minWidth: 100,
+    },
+    attendance: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    balance: {
+        flex: 1,
+        alignItems: 'flex-end',
     },
     darkColor: {
         color: 'black',
