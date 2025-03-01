@@ -63,7 +63,7 @@ const CheckInConfirmation = () => {
 
     return (
         <SafeAreaView style={styles.appContainer}>
-            <View style={styles.contentContainer}>
+            <View style={[styles.contentContainer, styles.bigFlex]}>
                 <CurrentDate/>
                 <ScreenTitle titleText='Confirm check in'></ScreenTitle>
 
@@ -102,8 +102,9 @@ const CheckInConfirmation = () => {
                 />
             </View>
 
-            <View style={styles.confirmButtonContainer}>
-                    <Pressable style={styles.confirmButton} onPress={() => {
+            <View style={[styles.confirmButtonContainer, styles.smallFlex]}>
+                    <Pressable
+                    style={styles.confirmButton} onPress={() => {
                             console.log('Button Pressed');
                             alert('Students have been confirmed');
                         }}
@@ -120,6 +121,12 @@ const styles = StyleSheet.create({
     appContainer: {
       flex: 1,
     },
+    bigFlex: {
+        flex: 5,
+    },
+    smallFlex: {
+        flex: 1,
+    },
     contentContainer: {
       paddingHorizontal: 16, 
     },
@@ -130,6 +137,7 @@ const styles = StyleSheet.create({
     confirmButtonContainer: {
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 20,
     },
     confirmButton: {
         paddingVertical: 5,
