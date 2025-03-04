@@ -26,13 +26,10 @@ const StudentList = ({
                 <Pressable
                     style={({ pressed }) => [
                         styles.button,
-                        // item.classes?.size === 0 ? styles.primaryButtonUnpressed : styles.secondaryButtonUnpressed
-                        item.classes?.size === 0
-                        ? (pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed)
-                        : (pressed? styles.secondaryButtonPressed : styles.secondaryButtonUnpressed)
+                        pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
                     ]}
                     onPress={() => onStudentPress(item)}>
-                    <Text style={item.classes?.size === 0 ? styles.primaryButtonText : styles.secondaryButtonText}>
+                    <Text style={styles.primaryButtonText}>
                         {item.classes?.size !== 0 ? '+ Add class' : 'Check in'}
                     </Text>
                 </Pressable>
