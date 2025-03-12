@@ -1,6 +1,6 @@
 import * as React from 'react';  
-import { useState } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text} from 'react-native';
+import { useState, useEffect } from 'react';
+import {View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
@@ -13,14 +13,13 @@ type StudentType = {
     classes?: Set<string>;
 };
 
-const School = () => {
+type ClassType = {
+    id: string;
+    name: string;
+};
 
-    // Add functionality to fetch classes from backend and place them here
-    const classList = [
-        { id: '101', name: 'Longsword' },
-        { id: '102', name: 'Private Lessons' },
-        { id: '103', name: 'Self-defence' }
-    ];
+
+const School = () => {
 
    const [students, setStudents] = useState([
         // Add functionality to fetch students from backend and place them here
@@ -32,11 +31,42 @@ const School = () => {
         { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set<string>() },
     ]);
 
+    const [classList, setClassList] = useState<ClassType[]>([]);
+
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const [currentStudent, setCurrentStudent] = useState<StudentType | null>(null);
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/classes/');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("The fetched classes are: ");
+                    console.log(data);
+                    const dataClassesList: ClassType[] = data.response;
+                    const fetchedClasses = dataClassesList.map(cls => ({
+                        id: cls.id.toString(),
+                        name: cls.name
+                    }));
+                    setClassList(fetchedClasses);
+                } else {
+                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of classes: ", err)
+            }
+        }
+        fetchClasses();
+        setLoading(false);
+    },
+        []);
+
 
     function assignStudentsToClasses() {
         const studentClassMap = new Map<string, StudentType[]>();
@@ -71,6 +101,10 @@ const School = () => {
             return updatesStudents;
         });
         setCheckedInStudents(assignStudentsToClasses);
+    }
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
     }
 
     return (
