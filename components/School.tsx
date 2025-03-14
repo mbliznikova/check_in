@@ -20,18 +20,9 @@ type ClassType = {
 
 
 const School = () => {
-
-   const [students, setStudents] = useState([
-        // Add functionality to fetch students from backend and place them here
-        { firstName: "James", lastName: "Harrington", id: "1", classes: new Set(['101'])},
-        { firstName: "William", lastName: "Kensington", id: "2", classes: new Set(['102'])},
-        { firstName: "Edward", lastName: "Montgomery", id: "3", classes: new Set(['103'])},
-        { firstName: 'Henry', lastName: 'Fairchild', id: '4', classes: new Set<string>() },
-        { firstName: 'Arthur', lastName: 'Whitmore', id: '5', classes: new Set<string>() },
-        { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set<string>() },
-    ]);
-
     const [classList, setClassList] = useState<ClassType[]>([]);
+
+    const [students, setStudents] = useState<StudentType[]>([]);
 
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
@@ -47,8 +38,6 @@ const School = () => {
                 const response = await fetch('http://127.0.0.1:8000/backend/classes/');
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("The fetched classes are: ");
-                    console.log(data);
                     const dataClassesList: ClassType[] = data.response;
                     const fetchedClasses = dataClassesList.map(cls => ({
                         id: cls.id.toString(),
@@ -62,7 +51,30 @@ const School = () => {
                 console.error("Error while fetching the list of classes: ", err)
             }
         }
+
+        const fetchStudents = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/students/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const dataStudentsList: StudentType[] = data.response;
+                    const fetchedStudents = dataStudentsList.map(std => ({
+                        id: std.id.toString(),
+                        firstName: std.firstName,
+                        lastName: std.lastName,
+                        classes: new Set<string>(),
+                    }));
+                    setStudents(fetchedStudents);
+                } else {
+                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of students: ", err)
+            }
+        }
+
         fetchClasses();
+        fetchStudents();
         setLoading(false);
     },
         []);
@@ -76,7 +88,7 @@ const School = () => {
         })
 
         students.forEach(student => {
-            Array.from(student.classes).forEach(clsId => {
+            Array.from(student.classes ?? []).forEach(clsId => {
                 if (studentClassMap.has(clsId)) {
                     studentClassMap.get(clsId)?.push(student);
                 }
@@ -92,7 +104,7 @@ const School = () => {
                 if (student.id === studentId) {
                     student.classes = new Set();
                     classIds.forEach(cls => {
-                        student.classes.add(cls)
+                        student.classes?.add(cls)
                     })
                 }
                 return student;
@@ -144,7 +156,7 @@ const School = () => {
             />
 
             <StudentList 
-                studentList={students.filter((student) => student.classes.size === 0)}
+                studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
                 onStudentPress={(student) => {
                     setCurrentStudent(student);
                     setIsModalVisible(true);
