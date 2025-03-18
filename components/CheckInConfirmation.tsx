@@ -17,28 +17,35 @@ const CheckInConfirmation = () => {
 
     // Add functionality to fetch today's classes that require a confirmation from backend and place them here
     const classList = [
-        { id: '101', name: 'Longsword' },
-        { id: '102', name: 'Private Lessons' },
-        { id: '103', name: 'Self-defence' }
+        { id: '1', name: 'Longsword' },
+        { id: '2', name: 'Private lesson' },
+        { id: '3', name: 'Self-defence' },
+        { id: '4', name: 'Fencing seminar' },
+        { id: '5', name: 'Sword and buckler'},
+        { id: '6', name: 'Rapier and dagger'}
     ];
+
 
     const [students, setStudents] = useState([
         // Add functionality to fetch students that checked in to today from backend and place them here
-        { firstName: "James", lastName: "Harrington", id: "1", classes: new Set(['101', '103'])},
-        { firstName: "William", lastName: "Kensington", id: "2", classes: new Set(['102', '103'])},
-        { firstName: "Edward", lastName: "Montgomery", id: "3", classes: new Set(['103'])},
-        { firstName: 'Henry', lastName: 'Fairchild', id: '4', classes: new Set(['101']) },
-        { firstName: 'Arthur', lastName: 'Whitmore', id: '5', classes: new Set(['101']) },
-        { firstName: 'Charles', lastName: 'Waverly', id: '6', classes: new Set(['102', '101']) },
+        { firstName: "John", lastName: "Smith", id: "1", classes: new Set(['1', '3'])},
+        { firstName: "Jane", lastName: "Coleman", id: "2", classes: new Set(['2', '3'])},
+        { firstName: "James", lastName: "Harrington", id: "3", classes: new Set(['3'])},
+        { firstName: 'William', lastName: 'Kensington', id: '4', classes: new Set(['1']) },
+        { firstName: 'Edward', lastName: 'Montgomery', id: '5', classes: new Set(['1']) },
+        { firstName: 'Henry', lastName: 'Fairchild', id: '6', classes: new Set(['2', '1']) },
     ]);
+
 
     const [confirmedClasses, setConfirmedClasses] = useState(setConfirmation);
 
     function setConfirmation() {
-        const confirmationMap = new Map<string, Set<string>>();
+        const confirmationMap = new Map<string, Map<string, boolean>>();
 
         students.forEach(student => {
-            confirmationMap.set(student.id, student.classes)
+            const classMap = new Map<string, boolean>();
+            student.classes.forEach(clsId => classMap.set(clsId, true));
+            confirmationMap.set(student.id, classMap)
         });
 
         return confirmationMap;
@@ -47,28 +54,42 @@ const CheckInConfirmation = () => {
     function toggleConfirmation(studentId: string, classId: string) {
         setConfirmedClasses(prevClasses => {
             const newConfirmedClasses = new Map(prevClasses);
-            const newClassesSet = new Set(newConfirmedClasses.get(studentId));
+            const newClassesMap = new Map(newConfirmedClasses.get(studentId));
 
-            if (newClassesSet.has(classId)) {
-                newClassesSet.delete(classId);
+            if (newClassesMap.has(classId)) {
+                newClassesMap.delete(classId);
             } else {
-                newClassesSet.add(classId);
+                newClassesMap.set(classId, true);
             }
 
-            newConfirmedClasses.set(studentId, newClassesSet);
+            newConfirmedClasses.set(studentId, newClassesMap);
 
             return newConfirmedClasses;
         });
     }
 
+    // Because of case of 24-hours Cancellation policy we need a way to confirm if a student attended a class
+
+    function toggleShowUpConfirmation(studentId: string, classId: string) {
+        setConfirmedClasses(prevClasses => {
+            const newConfirmedShowUp = new Map(prevClasses);
+            const newShowUpMap = new Map(newConfirmedShowUp.get(studentId));
+
+            newShowUpMap.set(classId, !newShowUpMap.get(classId))
+            newConfirmedShowUp.set(studentId, newShowUpMap);
+
+            return newConfirmedShowUp;
+        });
+    }
+
     const sendConfirmation = async () => {
         const data = {
-            confirmationList: Array.from(confirmedClasses.entries()).map(([studentId, classesSet]) => ({
-                [studentId]: Array.from(classesSet)
+            confirmationList: Array.from(confirmedClasses.entries()).map(([studentId, classesMap]) => ({
+                [studentId]: Object.fromEntries(classesMap)
             }))
         };
 
-        console.log('data is: ' + data)
+        console.log('data is: ' + JSON.stringify(data));
 
         try {
             const response = await fetch(
@@ -110,20 +131,35 @@ const CheckInConfirmation = () => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
                         return (
                             <View>
+                                <View style={styles.separator} />
                                 <ClassName
                                     id={cls.id}
                                     name={cls.name}
                                 />
+                                <View style={styles.spaceBetweenRow}>
+                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                        Student
+                                    </Text>
+                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                        Showed up
+                                    </Text>
+                                </View>
                                 <FlatList
                                     data={studentsAtClass}
                                     renderItem={({ item: student }) => {
                                         const name = student.firstName + ' ' + student.lastName
                                         return (
-                                        <View style={styles.checkboxListItem}>
+                                        <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                             <Checkbox
                                                 label={name}
                                                 checked={confirmedClasses.get(student.id)?.has(cls.id) ?? false}
                                                 onChange={() => {toggleConfirmation(student.id, cls.id)}}
+                                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                            />
+                                            <Checkbox
+                                                label={''}
+                                                checked={confirmedClasses.get(student.id)?.get(cls.id) ?? true}
+                                                onChange={() => {toggleShowUpConfirmation(student.id, cls.id)}}
                                                 labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                             />
                                             {/* <Student firstName={student.firstName} lastName={student.lastName} id={student.id}/> */}
@@ -170,6 +206,13 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         color: 'white',
     },
+    spaceBetweenRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+    },
     confirmButtonContainer: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -187,6 +230,11 @@ const styles = StyleSheet.create({
       },
     lightColor: {
         color: 'white',
+      },
+    separator: {
+        height: 1,
+        backgroundColor: 'gray',
+        marginVertical: 10,
       },
   });
 
