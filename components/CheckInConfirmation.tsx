@@ -61,6 +61,42 @@ const CheckInConfirmation = () => {
         });
     }
 
+    const sendConfirmation = async () => {
+        const data = {
+            confirmationList: Array.from(confirmedClasses.entries()).map(([studentId, classesSet]) => ({
+                [studentId]: Array.from(classesSet)
+            }))
+        };
+
+        console.log('data is: ' + data)
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/confirm/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            }
+
+            console.log('Confirmation was sent successfully!');
+
+            const responseData = await response.json();
+            console.log('Response data: ' + responseData);
+
+        } catch (err) {
+            console.error("Error while sending the data to the server: ", err);
+        }
+    }
+
     return (
         <SafeAreaView style={styles.appContainer}>
             <View style={[styles.contentContainer, styles.bigFlex]}>
@@ -72,7 +108,6 @@ const CheckInConfirmation = () => {
                     keyExtractor={cls => cls.id}
                     renderItem={({ item: cls }) => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
-                        console.log(studentsAtClass);
                         return (
                             <View>
                                 <ClassName
@@ -104,11 +139,12 @@ const CheckInConfirmation = () => {
 
             <View style={[styles.confirmButtonContainer, styles.smallFlex]}>
                     <Pressable
-                    style={styles.confirmButton} onPress={() => {
-                            console.log('Button Pressed');
+                        style={styles.confirmButton}
+                        onPress={() => {
+                            sendConfirmation();
                             alert('Students have been confirmed');
                         }}
-                        >
+                    >
                         <Text>Confirm</Text>
                     </Pressable>
             </View>

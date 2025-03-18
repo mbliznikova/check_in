@@ -66,7 +66,7 @@ const School = () => {
                     }));
                     setStudents(fetchedStudents);
                 } else {
-                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                    console.log("Request was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of students: ", err)
