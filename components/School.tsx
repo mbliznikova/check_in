@@ -98,6 +98,48 @@ const School = () => {
         return studentClassMap;
     }
 
+    const submitCheckInRequest = async(studentId: string, classIds: string[]) => {
+        // One student can check-in to multiple classes
+        const today = new Date();
+        const todayDate = today.toISOString().slice(0, 10);
+
+        const data = {
+            checkInData: {
+                studentId: studentId,
+                classesList: classIds,
+                todayDate: todayDate,
+            }
+        };
+
+        console.log('data is: ' + JSON.stringify(data));
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/check_in/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            }
+
+            console.log('Check-in was sent successfully!');
+
+            const responseData = await response.json();
+            console.log('Response data: ' + responseData);
+
+        } catch (err) {
+            console.error("Error while sending the data to the server at student check-in: ", err);
+        }
+    }
+
     function checkIn(studentId: string, classIds: string[]) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
@@ -113,6 +155,7 @@ const School = () => {
             return updatesStudents;
         });
         setCheckedInStudents(assignStudentsToClasses);
+        submitCheckInRequest(studentId=studentId, classIds=classIds);
     }
 
     if (loading) {
