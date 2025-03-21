@@ -9,12 +9,12 @@ import StudentList from './StudentList';
 type StudentType = {
     firstName: string;
     lastName: string;
-    id: string;
-    classes?: Set<string>;
+    id: number;
+    classes?: Set<number>;
 };
 
 type ClassType = {
-    id: string;
+    id: number;
     name: string;
 };
 
@@ -40,7 +40,7 @@ const School = () => {
                     const data = await response.json();
                     const dataClassesList: ClassType[] = data.response;
                     const fetchedClasses = dataClassesList.map(cls => ({
-                        id: cls.id.toString(),
+                        id: cls.id,
                         name: cls.name
                     }));
                     setClassList(fetchedClasses);
@@ -59,10 +59,10 @@ const School = () => {
                     const data = await response.json();
                     const dataStudentsList: StudentType[] = data.response;
                     const fetchedStudents = dataStudentsList.map(std => ({
-                        id: std.id.toString(),
+                        id: Number(std.id),
                         firstName: std.firstName,
                         lastName: std.lastName,
-                        classes: new Set<string>(),
+                        classes: new Set<number>(),
                     }));
                     setStudents(fetchedStudents);
                 } else {
@@ -81,7 +81,7 @@ const School = () => {
 
 
     function assignStudentsToClasses() {
-        const studentClassMap = new Map<string, StudentType[]>();
+        const studentClassMap = new Map<number, StudentType[]>();
 
         classList.forEach(cls => {
             studentClassMap.set(cls.id, []);
@@ -98,15 +98,15 @@ const School = () => {
         return studentClassMap;
     }
 
-    const submitCheckInRequest = async(studentId: string, classIds: string[]) => {
+    const submitCheckInRequest = async(studentId: number, classIds: number[]) => {
         // One student can check-in to multiple classes
         const today = new Date();
         const todayDate = today.toISOString().slice(0, 10);
 
         const data = {
             checkInData: {
-                studentId: studentId,
-                classesList: classIds,
+                studentId: Number(studentId),
+                classesList: classIds.map(Number),
                 todayDate: todayDate,
             }
         };
@@ -132,6 +132,7 @@ const School = () => {
 
             console.log('Check-in was sent successfully!');
 
+            // Add the response parsing and check if it's expected
             const responseData = await response.json();
             console.log('Response data: ' + responseData);
 
@@ -140,7 +141,7 @@ const School = () => {
         }
     }
 
-    function checkIn(studentId: string, classIds: string[]) {
+    function checkIn(studentId: number, classIds: number[]) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
@@ -167,7 +168,7 @@ const School = () => {
 
             <FlatList
                 data={classList}
-                keyExtractor={cls => cls.id}
+                keyExtractor={cls => cls.id.toString()}
                 renderItem={({ item: cls }) => (
                     <View>
                         <ClassName
@@ -192,7 +193,7 @@ const School = () => {
                 student={currentStudent}
                 allClassesList={classList}
                 onModalClose={() => setIsModalVisible(false)}
-                onConfirm={(selectedClassesIds: string[]) => {
+                onConfirm={(selectedClassesIds: number[]) => {
                     checkIn(currentStudent?.id!, selectedClassesIds);
                     setIsModalVisible(false);
                 }}

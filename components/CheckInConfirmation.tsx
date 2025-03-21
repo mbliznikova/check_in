@@ -17,33 +17,33 @@ const CheckInConfirmation = () => {
 
     // Add functionality to fetch today's classes that require a confirmation from backend and place them here
     const classList = [
-        { id: '1', name: 'Longsword' },
-        { id: '2', name: 'Private lesson' },
-        { id: '3', name: 'Self-defence' },
-        { id: '4', name: 'Fencing seminar' },
-        { id: '5', name: 'Sword and buckler'},
-        { id: '6', name: 'Rapier and dagger'}
+        { id: 1, name: 'Longsword' },
+        { id: 2, name: 'Private lesson' },
+        { id: 3, name: 'Self-defence' },
+        { id: 4, name: 'Fencing seminar' },
+        { id: 5, name: 'Sword and buckler'},
+        { id: 6, name: 'Rapier and dagger'}
     ];
 
 
     const [students, setStudents] = useState([
         // Add functionality to fetch students that checked in to today from backend and place them here
-        { firstName: "John", lastName: "Smith", id: "1", classes: new Set(['1', '3'])},
-        { firstName: "Jane", lastName: "Coleman", id: "2", classes: new Set(['2', '3'])},
-        { firstName: "James", lastName: "Harrington", id: "3", classes: new Set(['3'])},
-        { firstName: 'William', lastName: 'Kensington', id: '4', classes: new Set(['1']) },
-        { firstName: 'Edward', lastName: 'Montgomery', id: '5', classes: new Set(['1']) },
-        { firstName: 'Henry', lastName: 'Fairchild', id: '6', classes: new Set(['2', '1']) },
+        { firstName: "John", lastName: "Smith", id: 1, classes: new Set([1, 3])},
+        { firstName: "Jane", lastName: "Coleman", id: 2, classes: new Set([2, 3])},
+        { firstName: "James", lastName: "Harrington", id: 3, classes: new Set([1])},
+        { firstName: 'William', lastName: 'Kensington', id: 4, classes: new Set([3]) },
+        { firstName: 'Edward', lastName: 'Montgomery', id: 5, classes: new Set([2]) },
+        { firstName: 'Henry', lastName: 'Fairchild', id: 6, classes: new Set([2, 1]) },
     ]);
 
 
     const [confirmedClasses, setConfirmedClasses] = useState(setConfirmation);
 
     function setConfirmation() {
-        const confirmationMap = new Map<string, Map<string, boolean>>();
+        const confirmationMap = new Map<number, Map<number, boolean>>();
 
         students.forEach(student => {
-            const classMap = new Map<string, boolean>();
+            const classMap = new Map<number, boolean>();
             student.classes.forEach(clsId => classMap.set(clsId, true));
             confirmationMap.set(student.id, classMap)
         });
@@ -51,7 +51,7 @@ const CheckInConfirmation = () => {
         return confirmationMap;
     };
 
-    function toggleConfirmation(studentId: string, classId: string) {
+    function toggleConfirmation(studentId: number, classId: number) {
         setConfirmedClasses(prevClasses => {
             const newConfirmedClasses = new Map(prevClasses);
             const newClassesMap = new Map(newConfirmedClasses.get(studentId));
@@ -70,7 +70,7 @@ const CheckInConfirmation = () => {
 
     // Because of case of 24-hours Cancellation policy we need a way to confirm if a student attended a class
 
-    function toggleShowUpConfirmation(studentId: string, classId: string) {
+    function toggleShowUpConfirmation(studentId: number, classId: number) {
         setConfirmedClasses(prevClasses => {
             const newConfirmedShowUp = new Map(prevClasses);
             const newShowUpMap = new Map(newConfirmedShowUp.get(studentId));
@@ -126,7 +126,7 @@ const CheckInConfirmation = () => {
 
                 <FlatList
                     data={classList}
-                    keyExtractor={cls => cls.id}
+                    keyExtractor={cls => cls.id.toString()}
                     renderItem={({ item: cls }) => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
                         return (

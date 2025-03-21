@@ -7,19 +7,19 @@ import Checkbox from './Checkbox';
 type StudentType = {
     firstName: string;
     lastName: string;
-    id: string;
-    classes?: Set<string>;
+    id: number;
+    classes?: Set<number>;
 };
 
 type ClassType = {
-    id: string;
+    id: number;
     name: string;
 };
 
 type ClassSelectionModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onConfirm: (selectedClassesIds: string[]) => void;
+    onConfirm: (selectedClassesIds: number[]) => void;
     student?: StudentType | null;
     allClassesList: ClassType[];
 };
@@ -52,7 +52,7 @@ const ClassSelectionModal = ({
     }, [isVisible, student]);
 
     function getSelectedClassesIds() {
-        const classesIds: string[] = [];
+        const classesIds: number[] = [];
         classSelectionState?.forEach((value, key) => {
             if (value === true) {
                 classesIds.push(key);
@@ -61,7 +61,7 @@ const ClassSelectionModal = ({
         return classesIds;
     }
 
-    function toggleClass(classId: string) {
+    function toggleClass(classId: number) {
         setClassSelectionState(prevSelectedClasses => {
             return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses?.get(classId));
         })

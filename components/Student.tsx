@@ -4,8 +4,8 @@ import {View, Text, StyleSheet, useColorScheme} from 'react-native';
 type StudentType = {
     firstName: string;
     lastName: string;
-    id: string;
-    classes?: Set<string>;
+    id: number;
+    classes?: Set<number>;
 };
 
 const Student = ({
