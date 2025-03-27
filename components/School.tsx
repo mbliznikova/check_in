@@ -132,9 +132,22 @@ const School = () => {
 
             console.log('Check-in was sent successfully!');
 
-            // Add the response parsing and check if it's expected
             const responseData = await response.json();
-            console.log('Response data: ' + responseData);
+            if (
+                typeof responseData === 'object' &&
+                responseData !== null &&
+                'message' in responseData &&
+                'studentId' in responseData && responseData.studentId === Number(studentId) &&
+                'attendanceDate' in responseData && responseData.attendanceDate === todayDate &&
+                'checkedIn' in responseData &&
+                'checkedOut' in responseData &&
+                Array.isArray(responseData.checkedIn) && // TODO: Add check if responseData.checkedIn and classesList contains the same ids
+                Array.isArray(responseData.checkedOut)
+            ) {
+                console.log('The response from backend is valid. ' + responseData);
+            } else {
+                console.warn('The response from backend is NOT valid! '  + responseData);
+            }
 
         } catch (err) {
             console.error("Error while sending the data to the server at student check-in: ", err);
