@@ -98,6 +98,15 @@ const School = () => {
         return studentClassMap;
     }
 
+    function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): Boolean {
+        if (!Array.isArray(listOne) || !Array.isArray(listTwo)) {
+            console.log('False: one or both arguments is not a list');
+            return false;
+        }
+
+        return listOne.every((value) => listTwo.includes(value));
+    }
+
     const submitCheckInRequest = async(studentId: number, classIds: number[]) => {
         // One student can check-in to multiple classes
         const today = new Date();
@@ -141,7 +150,8 @@ const School = () => {
                 'attendanceDate' in responseData && responseData.attendanceDate === todayDate &&
                 'checkedIn' in responseData &&
                 'checkedOut' in responseData &&
-                Array.isArray(responseData.checkedIn) && // TODO: Add check if responseData.checkedIn and classesList contains the same ids
+                Array.isArray(responseData.checkedIn) &&
+                ifOneListsContainsAnother(responseData.checkedIn, classIds) &&
                 Array.isArray(responseData.checkedOut)
             ) {
                 console.log('The response from backend is valid. ' + responseData);
