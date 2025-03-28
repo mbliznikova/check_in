@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme} from 'react-native';
+import { useState, useEffect } from 'react';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
@@ -8,36 +8,89 @@ import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
 import Student from './Student';
 
+type ClassType = {
+    id: number;
+    name: string;
+};
+
+type AttendanceType = {
+    id: number;
+    firstName: string;
+    lastName: string;
+    classes: Set<number>;
+};
+
 const CheckInConfirmation = () => {
     const colorScheme = useColorScheme();
-    // have a list of the classes for today
-        // for each class that requires a confirmation have a list of students checked in to today
-        // for each student have a checkbox so a teacher can check/uncheck
-        // have a "Confirm button
 
-    // Add functionality to fetch today's classes that require a confirmation from backend and place them here
-    const classList = [
-        { id: 1, name: 'Longsword' },
-        { id: 2, name: 'Private lesson' },
-        { id: 3, name: 'Self-defence' },
-        { id: 4, name: 'Fencing seminar' },
-        { id: 5, name: 'Sword and buckler'},
-        { id: 6, name: 'Rapier and dagger'}
-    ];
+    const [students, setStudents] = useState<AttendanceType[]>([]);
 
+    const [classList, setClassList] = useState<ClassType[]>([]);
 
-    const [students, setStudents] = useState([
-        // Add functionality to fetch students that checked in to today from backend and place them here
-        { firstName: "John", lastName: "Smith", id: 1, classes: new Set([1, 3])},
-        { firstName: "Jane", lastName: "Coleman", id: 2, classes: new Set([2, 3])},
-        { firstName: "James", lastName: "Harrington", id: 3, classes: new Set([1])},
-        { firstName: 'William', lastName: 'Kensington', id: 4, classes: new Set([3]) },
-        { firstName: 'Edward', lastName: 'Montgomery', id: 5, classes: new Set([2]) },
-        { firstName: 'Henry', lastName: 'Fairchild', id: 6, classes: new Set([2, 1]) },
-    ]);
+    const [confirmedClasses, setConfirmedClasses] = useState(new Map<number, Map<number, boolean>>());
 
+    const [loading, setLoading] = useState(true);
 
-    const [confirmedClasses, setConfirmedClasses] = useState(setConfirmation);
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/classes/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const dataClassesList: ClassType[] = data.response;
+                    const fetchedClasses = dataClassesList.map(cls => ({
+                        id: cls.id,
+                        name: cls.name
+                    }));
+
+                    setClassList(fetchedClasses);
+                } else {
+                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of classes: ", err)
+            }
+        }
+
+        const fetchAttendedStudents = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
+                if (response.ok) {
+                    const responseData = await response.json();
+                    // TODO: add checks?
+                    const attendanceList: AttendanceType[] = responseData.confirmedAttendance;
+                    if (Array.isArray(attendanceList) && attendanceList.length > 0) {
+                        const fetchedAttendances = attendanceList.map(att => ({
+                            id: att.id,
+                            firstName: att.firstName,
+                            lastName: att.lastName,
+                            classes: new Set(att.classes),
+                        }));
+
+                        setStudents(fetchedAttendances);
+                    } else {
+                        console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                    }
+                } else {
+                    console.log("Request was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of attended students: ", err);
+            }
+        }
+
+        fetchClasses();
+        fetchAttendedStudents();
+        setLoading(false);
+    },
+    []);
+
+    useEffect(() => {
+        if (students.length === 0) return;
+
+        setConfirmedClasses(setConfirmation());
+
+    }, [students]);
 
     function setConfirmation() {
         const confirmationMap = new Map<number, Map<number, boolean>>();
@@ -118,6 +171,10 @@ const CheckInConfirmation = () => {
         }
     }
 
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
+
     return (
         <SafeAreaView style={styles.appContainer}>
             <View style={[styles.contentContainer, styles.bigFlex]}>
@@ -141,7 +198,7 @@ const CheckInConfirmation = () => {
                                         Student
                                     </Text>
                                     <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
-                                        Showed up
+                                        Did actually show up?
                                     </Text>
                                 </View>
                                 <FlatList
