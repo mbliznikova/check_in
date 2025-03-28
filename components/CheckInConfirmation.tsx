@@ -147,7 +147,7 @@ const CheckInConfirmation = () => {
         try {
             const response = await fetch(
                 'http://127.0.0.1:8000/backend/confirm/', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
