@@ -27,7 +27,9 @@ const CheckInConfirmation = () => {
 
     const [classList, setClassList] = useState<ClassType[]>([]);
 
-    const [confirmedClasses, setConfirmedClasses] = useState(new Map<number, Map<number, boolean>>());
+    const [confirmedClasses, setConfirmedClasses] =  useState(new Map<number, Set<number>>());
+
+    const [showUpStatus, setShowUpStatus] = useState(new Map<number, Map<number, boolean>>());
 
     const [loading, setLoading] = useState(true);
 
@@ -93,12 +95,12 @@ const CheckInConfirmation = () => {
     }, [students]);
 
     function setConfirmation() {
-        const confirmationMap = new Map<number, Map<number, boolean>>();
+        const confirmationMap = new Map<number, Set<number>>();
 
         students.forEach(student => {
-            const classMap = new Map<number, boolean>();
-            student.classes.forEach(clsId => classMap.set(clsId, true));
-            confirmationMap.set(student.id, classMap)
+            const classSet = new Set<number>();
+            student.classes.forEach(clsId => classSet.add(clsId));
+            confirmationMap.set(student.id, classSet)
         });
 
         return confirmationMap;
@@ -107,12 +109,12 @@ const CheckInConfirmation = () => {
     function toggleConfirmation(studentId: number, classId: number) {
         setConfirmedClasses(prevClasses => {
             const newConfirmedClasses = new Map(prevClasses);
-            const newClassesMap = new Map(newConfirmedClasses.get(studentId));
+            const newClassesMap = new Set(newConfirmedClasses.get(studentId) || []);
 
             if (newClassesMap.has(classId)) {
                 newClassesMap.delete(classId);
             } else {
-                newClassesMap.set(classId, true);
+                newClassesMap.add(classId);
             }
 
             newConfirmedClasses.set(studentId, newClassesMap);
@@ -124,11 +126,12 @@ const CheckInConfirmation = () => {
     // Because of case of 24-hours Cancellation policy we need a way to confirm if a student attended a class
 
     function toggleShowUpConfirmation(studentId: number, classId: number) {
-        setConfirmedClasses(prevClasses => {
-            const newConfirmedShowUp = new Map(prevClasses);
-            const newShowUpMap = new Map(newConfirmedShowUp.get(studentId));
+        setShowUpStatus(prevShowUp => {
+            const newConfirmedShowUp = new Map(prevShowUp);
+            const newShowUpMap = new Map(newConfirmedShowUp.get(studentId) || []);
 
-            newShowUpMap.set(classId, !newShowUpMap.get(classId))
+            const currentValue = newShowUpMap.get(classId) ?? true;
+            newShowUpMap.set(classId, !currentValue);
             newConfirmedShowUp.set(studentId, newShowUpMap);
 
             return newConfirmedShowUp;
@@ -137,8 +140,13 @@ const CheckInConfirmation = () => {
 
     const sendConfirmation = async () => {
         const data = {
-            confirmationList: Array.from(confirmedClasses.entries()).map(([studentId, classesMap]) => ({
-                [studentId]: Object.fromEntries(classesMap)
+            confirmationList: Array.from(confirmedClasses.entries()).map(([studentId, classesSet]) => ({
+                [studentId]: Object.fromEntries(
+                    Array.from(classesSet).map(classId => [
+                        classId,
+                        showUpStatus.get(studentId)?.get(classId) ?? true
+                    ])
+                )
             }))
         };
 
@@ -215,7 +223,7 @@ const CheckInConfirmation = () => {
                                             />
                                             <Checkbox
                                                 label={''}
-                                                checked={confirmedClasses.get(student.id)?.get(cls.id) ?? true}
+                                                checked={showUpStatus.get(student.id)?.get(cls.id) ?? true}
                                                 onChange={() => {toggleShowUpConfirmation(student.id, cls.id)}}
                                                 labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                             />
