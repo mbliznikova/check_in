@@ -33,6 +33,8 @@ const CheckInConfirmation = () => {
 
     const [loading, setLoading] = useState(true);
 
+    const [ifStudentsToConfirm, setIfStudentsToConfirm] = useState(false);
+
     useEffect(() => {
         const fetchClasses = async () => {
             try {
@@ -90,6 +92,7 @@ const CheckInConfirmation = () => {
     useEffect(() => {
         if (students.length === 0) return;
 
+        setIfStudentsToConfirm(true);
         setConfirmedClasses(setConfirmation());
 
     }, [students]);
@@ -241,6 +244,7 @@ const CheckInConfirmation = () => {
             <View style={[styles.confirmButtonContainer, styles.smallFlex]}>
                     <Pressable
                         style={styles.confirmButton}
+                        disabled={!ifStudentsToConfirm}
                         onPress={() => {
                             sendConfirmation();
                             alert('Students have been confirmed');
