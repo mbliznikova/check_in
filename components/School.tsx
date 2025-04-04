@@ -26,7 +26,7 @@ const School = () => {
 
     const [attendance, setAttendance] = useState<StudentType[]>([]);
 
-    const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
+    const [checkedInStudents, setCheckedInStudents] = useState(() => assignStudentsToClasses());
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -77,8 +77,6 @@ const School = () => {
             }
         }
 
-        // A functionality to fetch students from Attendance table, that are already checked-in for today
-
         const fetchAttendedStudents = async () => {
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
@@ -124,15 +122,13 @@ const School = () => {
             );
             setStudentsUpdated(true);
             return updatedStudents;
-        }
-        );
+        });
 
     }, [attendance]);
 
     useEffect(() => {
         if (!studentsUpdated) return;
-        console.log("Now students are: " + students.forEach(student => console.log(student.classes)));
-        setCheckedInStudents(assignStudentsToClasses);
+        setCheckedInStudents(assignStudentsToClasses());
         setStudentsUpdated(false);
 
     }, [studentsUpdated]);
