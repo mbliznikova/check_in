@@ -13,7 +13,7 @@ type ClassType = {
     name: string;
 };
 
-type AttendanceType = {
+type StudentAttendanceType = {
     id: number;
     firstName: string;
     lastName: string;
@@ -23,7 +23,7 @@ type AttendanceType = {
 const CheckInConfirmation = () => {
     const colorScheme = useColorScheme();
 
-    const [students, setStudents] = useState<AttendanceType[]>([]);
+    const [students, setStudents] = useState<StudentAttendanceType[]>([]);
 
     const [classList, setClassList] = useState<ClassType[]>([]);
 
@@ -62,7 +62,7 @@ const CheckInConfirmation = () => {
                 if (response.ok) {
                     const responseData = await response.json();
                     // TODO: add checks?
-                    const attendanceList: AttendanceType[] = responseData.confirmedAttendance;
+                    const attendanceList: StudentAttendanceType[] = responseData.confirmedAttendance;
                     if (Array.isArray(attendanceList) && attendanceList.length > 0) {
                         const fetchedAttendances = attendanceList.map(att => ({
                             id: att.id,

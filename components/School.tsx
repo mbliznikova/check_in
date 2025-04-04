@@ -24,6 +24,8 @@ const School = () => {
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
+    const [attendance, setAttendance] = useState<StudentType[]>([]);
+
     const [checkedInStudents, setCheckedInStudents] = useState(assignStudentsToClasses);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -31,6 +33,8 @@ const School = () => {
     const [currentStudent, setCurrentStudent] = useState<StudentType | null>(null);
 
     const [loading, setLoading] = useState(true);
+
+    const [studentsUpdated, setStudentsUpdated] = useState(false);
 
     useEffect(() => {
         const fetchClasses = async () => {
@@ -73,14 +77,69 @@ const School = () => {
             }
         }
 
+        // A functionality to fetch students from Attendance table, that are already checked-in for today
+
+        const fetchAttendedStudents = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
+                if (response.ok) {
+                    const responseData = await response.json();
+                    // TODO: add checks?
+                    const attendanceList: StudentType[] = responseData.confirmedAttendance;
+                    if (Array.isArray(attendanceList) && attendanceList.length > 0) {
+                        const fetchedAttendances = attendanceList.map(att => ({
+                            id:  Number(att.id),
+                            firstName: att.firstName,
+                            lastName: att.lastName,
+                            classes: new Set(att.classes),
+                        }));
+
+                        setAttendance(fetchedAttendances);
+                        console.log("Fetched attendance: ", fetchedAttendances);
+                    } else {
+                        console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                    }
+                } else {
+                    console.log("Request was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of attended students: ", err);
+            }
+        }
+
         fetchClasses();
         fetchStudents();
+        fetchAttendedStudents();
         setLoading(false);
-    },
-        []);
+    }, []);
+
+    useEffect(() => {
+        if (attendance.length === 0) return;
+
+        const attendanceMap = new Map(attendance.map(att => [att.id, att]));
+
+        setStudents(prevStudents => {
+            const updatedStudents = prevStudents.map(student =>
+                attendanceMap.has(student.id) ? attendanceMap.get(student.id)! : student
+            );
+            setStudentsUpdated(true);
+            return updatedStudents;
+        }
+        );
+
+    }, [attendance]);
+
+    useEffect(() => {
+        if (!studentsUpdated) return;
+        console.log("Now students are: " + students.forEach(student => console.log(student.classes)));
+        setCheckedInStudents(assignStudentsToClasses);
+        setStudentsUpdated(false);
+
+    }, [studentsUpdated]);
 
 
     function assignStudentsToClasses() {
+        // Add students who attends a certain class to the class map: [class_id, [student1, student2]]
         const studentClassMap = new Map<number, StudentType[]>();
 
         classList.forEach(cls => {
