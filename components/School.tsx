@@ -36,20 +36,39 @@ const School = () => {
 
     const [studentsUpdated, setStudentsUpdated] = useState(false);
 
+    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            key in responseData &&
+            Array.isArray(responseData[key])
+        );
+    }
+
     useEffect(() => {
         const fetchClasses = async () => {
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/classes/');
                 if (response.ok) {
-                    const data = await response.json();
-                    const dataClassesList: ClassType[] = data.response;
-                    const fetchedClasses = dataClassesList.map(cls => ({
-                        id: cls.id,
-                        name: cls.name
-                    }));
-                    setClassList(fetchedClasses);
+                    const responseData = await response.json();
+                    if (
+                        isValidArrayResponse(responseData, 'response')
+                    ) {
+                        console.log('Function fetchClasses. The response from backend is valid.' + JSON.stringify(responseData))
+
+                        const dataClassesList: ClassType[] = responseData.response;
+                        const fetchedClasses = dataClassesList.map(cls => ({
+                            id: cls.id,
+                            name: cls.name
+                        }));
+
+                        setClassList(fetchedClasses);
+                        console.log("Fetched classes: ", fetchedClasses);
+                    } else {
+                        console.warn('Function fetchClasses. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                    }
                 } else {
-                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                    console.log("Function fetchClasses. Response was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of classes: ", err)
@@ -60,17 +79,28 @@ const School = () => {
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/students/');
                 if (response.ok) {
-                    const data = await response.json();
-                    const dataStudentsList: StudentType[] = data.response;
-                    const fetchedStudents = dataStudentsList.map(std => ({
-                        id: Number(std.id),
-                        firstName: std.firstName,
-                        lastName: std.lastName,
-                        classes: new Set<number>(),
-                    }));
-                    setStudents(fetchedStudents);
+                    const responseData = await response.json();
+                    if (
+                        isValidArrayResponse(responseData, 'response')
+                    ) {
+                        console.log('Function fetchStudents. The response from backend is valid.' + JSON.stringify(responseData))
+
+                        const dataStudentsList: StudentType[] = responseData.response;
+                        const fetchedStudents = dataStudentsList.map(std => ({
+                            id: Number(std.id),
+                            firstName: std.firstName,
+                            lastName: std.lastName,
+                            classes: new Set<number>(),
+                        }));
+
+                        setStudents(fetchedStudents);
+                        console.log("Fetched students: ", fetchedStudents);
+
+                    } else {
+                        console.warn('Function fetchStudents. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                    }
                 } else {
-                    console.log("Request was unsuccessful: ", response.status, response.statusText)
+                    console.log("Function fetchStudents. Request was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of students: ", err)
@@ -82,23 +112,33 @@ const School = () => {
                 const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
                 if (response.ok) {
                     const responseData = await response.json();
-                    // TODO: add checks?
-                    const attendanceList: StudentType[] = responseData.confirmedAttendance;
-                    if (Array.isArray(attendanceList) && attendanceList.length > 0) {
-                        const fetchedAttendances = attendanceList.map(att => ({
-                            id:  Number(att.id),
-                            firstName: att.firstName,
-                            lastName: att.lastName,
-                            classes: new Set(att.classes),
-                        }));
+                    if (
+                        isValidArrayResponse(responseData, 'confirmedAttendance')
+                    ) {
+                        console.log('Function fetchAttendedStudents. The response from backend is valid.' + JSON.stringify(responseData))
 
-                        setAttendance(fetchedAttendances);
-                        console.log("Fetched attendance: ", fetchedAttendances);
+                        const attendanceList: StudentType[] = responseData.confirmedAttendance;
+
+                        if (attendanceList.length > 0) {
+                            const fetchedAttendances = attendanceList.map(att => ({
+                                id:  Number(att.id),
+                                firstName: att.firstName,
+                                lastName: att.lastName,
+                                classes: new Set(att.classes),
+                            }));
+
+                            setAttendance(fetchedAttendances);
+                            console.log("Fetched attendance: ", fetchedAttendances);
+
+                        } else {
+                            console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                        }
                     } else {
-                        console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                        console.warn('Function fetchAttendedStudents. The response from backend is NOT valid! '  + JSON.stringify(responseData));
                     }
+
                 } else {
-                    console.log("Request was unsuccessful: ", response.status, response.statusText)
+                    console.log("Function fetchAttendedStudents. Request was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of attended students: ", err);
@@ -190,7 +230,7 @@ const School = () => {
             );
 
             if (!response.ok) {
-                const errorMessage = `Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                const errorMessage = `Function submitCheckInRequest. Request was unsuccessful: ${response.status}, ${response.statusText}`;
                 throw Error(errorMessage);
             }
 
@@ -209,9 +249,9 @@ const School = () => {
                 ifOneListsContainsAnother(responseData.checkedIn, classIds) &&
                 Array.isArray(responseData.checkedOut)
             ) {
-                console.log('The response from backend is valid. ' + responseData);
+                console.log('Function submitCheckInRequest. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
-                console.warn('The response from backend is NOT valid! '  + responseData);
+                console.warn('Function submitCheckInRequest. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
 
         } catch (err) {

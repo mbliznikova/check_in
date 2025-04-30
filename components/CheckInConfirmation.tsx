@@ -6,7 +6,6 @@ import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
-import Student from './Student';
 
 type ClassType = {
     id: number;
@@ -35,21 +34,35 @@ const CheckInConfirmation = () => {
 
     const [ifStudentsToConfirm, setIfStudentsToConfirm] = useState(false);
 
+    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            key in responseData &&
+            Array.isArray(responseData[key])
+        );
+    }
+
     useEffect(() => {
         const fetchClasses = async () => {
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/classes/');
                 if (response.ok) {
-                    const data = await response.json();
-                    const dataClassesList: ClassType[] = data.response;
-                    const fetchedClasses = dataClassesList.map(cls => ({
-                        id: cls.id,
-                        name: cls.name
-                    }));
+                    const responseData = await response.json();
+                    if (isValidArrayResponse(responseData, 'response')) {
+                        console.log('Function fetchClasses. The response from backend is valid.' + JSON.stringify(responseData))
 
-                    setClassList(fetchedClasses);
+                        const dataClassesList: ClassType[] = responseData.response;
+                        const fetchedClasses = dataClassesList.map(cls => ({
+                            id: cls.id,
+                            name: cls.name
+                        }));
+
+                        setClassList(fetchedClasses);
+                        console.log("Fetched classes: ", fetchedClasses);
+                    }
                 } else {
-                    console.log("Response was unsuccessful: ", response.status, response.statusText)
+                    console.log("Function fetchClasses. Response was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of classes: ", err)
@@ -61,22 +74,29 @@ const CheckInConfirmation = () => {
                 const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
                 if (response.ok) {
                     const responseData = await response.json();
-                    // TODO: add checks?
-                    const attendanceList: StudentAttendanceType[] = responseData.confirmedAttendance;
-                    if (Array.isArray(attendanceList) && attendanceList.length > 0) {
-                        const fetchedAttendances = attendanceList.map(att => ({
-                            id: att.id,
-                            firstName: att.firstName,
-                            lastName: att.lastName,
-                            classes: new Set(att.classes),
-                        }));
+                    if (
+                        isValidArrayResponse(responseData, 'confirmedAttendance')
+                    ) {
+                        console.log('Function fetchAttendedStudents. The response from backend is valid.' + JSON.stringify(responseData))
 
-                        setStudents(fetchedAttendances);
-                    } else {
-                        console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                        const attendanceList: StudentAttendanceType[] = responseData.confirmedAttendance;
+                        if (Array.isArray(attendanceList) && attendanceList.length > 0) {
+                            const fetchedAttendances = attendanceList.map(att => ({
+                                id: att.id,
+                                firstName: att.firstName,
+                                lastName: att.lastName,
+                                classes: new Set(att.classes),
+                            }));
+
+                            setStudents(fetchedAttendances);
+                            console.log("Fetched attendance: ", fetchedAttendances);
+
+                        } else {
+                            console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                        }
                     }
                 } else {
-                    console.log("Request was unsuccessful: ", response.status, response.statusText)
+                    console.log("Function fetchAttendedStudents. Request was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of attended students: ", err);
@@ -175,7 +195,16 @@ const CheckInConfirmation = () => {
             console.log('Confirmation was sent successfully!');
 
             const responseData = await response.json();
-            console.log('Response data: ' + responseData);
+            if (
+                typeof responseData === 'object' &&
+                responseData !== null &&
+                'message' in responseData &&
+                responseData.message === 'Attendance confirmed successfully'
+            ) {
+                console.log('Function sendConfirmation. The response from backend is valid. ' + JSON.stringify(responseData));
+            } else {
+                console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+            }
 
         } catch (err) {
             console.error("Error while sending the data to the server: ", err);
