@@ -12,20 +12,24 @@ type ClassType = {
     name: string;
 };
 
-type AttendanceType = {
-    date: string;
-    classes: Map<number, AttendanceClassType>
-};
-
-type AttendanceClassType = {
-    name: string;
-    students: Map<number, AttendanceStudentType>
-}
-
 type AttendanceStudentType = {
     firstName: string;
     lastName: string;
     isShowedUp: boolean;
+}
+
+type AttendanceClassType = {
+    name: string;
+    students: {
+        [studentId: string]: AttendanceStudentType;
+    }
+}
+
+type AttendanceType = {
+    date: string;
+    classes: {
+        [classId: string]: AttendanceClassType;
+    }
 }
 
 const ConfirmationDetails = ({
@@ -56,6 +60,23 @@ const ConfirmationDetails = ({
                                         Did actually show up?
                                     </Text>
                                 </View>
+
+                                <FlatList
+                                    data={Object.entries(classInfo.students)}
+                                    keyExtractor={([studentId, _studentInfo]) => studentId.toString()}
+                                    renderItem={({ item }) => {
+                                        console.log('item is ' + JSON.stringify(item))
+                                        const [studentId, studentInfo] = item;
+                                        const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
+                                        return (
+                                            <View style={styles.studentRow}>
+                                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.leftText]}>{studentName}</Text>
+                                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.rightText]}>{studentInfo.isShowedUp}</Text>
+                                            </View>
+                                        );
+                                    }}
+                                />
+
                             </View>
                         );
                     }}
@@ -117,6 +138,11 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'blue',
+    },
+    studentRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 8,
     },
     leftText: {
         fontWeight: '600',

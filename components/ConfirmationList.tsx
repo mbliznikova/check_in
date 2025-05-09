@@ -41,13 +41,17 @@ type AttendanceStudentType = {
 
 type AttendanceClassType = {
     name: string;
-    students: Map<number, AttendanceStudentType>
+    students: {
+        [studentId: string]: AttendanceStudentType;
+    }
 }
 
 type AttendanceType = {
     date: string;
-    classes: Map<number, AttendanceClassType>
-};
+    classes: {
+        [classId: string]: AttendanceClassType;
+    }
+}
 
 const ConfirmationList = () => {
     const colorScheme = useColorScheme();
