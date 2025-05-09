@@ -99,16 +99,20 @@ const ConfirmationList = () => {
     }, 
     []);
     return (
-        <SafeAreaView>
-            <View>
+        <SafeAreaView style={styles.appContainer}>
                 <FlatList
                     data={attendances}
                     keyExtractor={att => att.date.toString()}
                     renderItem={({ item: att }) => <ConfirmationDetails date={att.date} classes={att.classes}/>}
                 />
-            </View>
         </SafeAreaView>
     );
 };
+
+const styles = StyleSheet.create({
+    appContainer: {
+        flex: 1,
+    },
+})
 
 export default ConfirmationList;
