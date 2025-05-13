@@ -32,11 +32,47 @@ type AttendanceType = {
     }
 }
 
+type ConfirmationMap =
+    Map<number,
+        Map<number,
+            Map<string,
+                boolean
+            >
+        >
+    >;
+
 const ConfirmationDetails = ({
     date,
     classes,
 }: AttendanceType) => {
     const colorScheme = useColorScheme();
+
+    const [confirmation, setConfirmation] = useState<ConfirmationMap>(new Map());
+
+    useEffect(() => {
+        populateConfirmation();
+    }, [classes]);
+
+    const populateConfirmation = () => {
+        const confirmationMap: ConfirmationMap = new Map();
+        for (const [classId, classData] of Object.entries(classes)) {
+            const classIdNumber = Number(classId);
+            const studentsMap: Map<number, Map<string, boolean>> = new Map();
+
+            for (const [studentId, studentData] of Object.entries(classData.students)) {
+                const studentIdNumber = Number(studentId);
+                const statusMap: Map<string, boolean> = new Map();
+                statusMap.set('isCheckedIn', true);
+                statusMap.set('IsShowedUp', studentData.isShowedUp);
+
+                studentsMap.set(studentIdNumber, statusMap);
+            }
+
+            confirmationMap.set(classIdNumber, studentsMap);
+        }
+        setConfirmation(confirmationMap);
+    };
+
     return (
         <SafeAreaView style={styles.appContainer}>
             <View style={[styles.contentContainer, styles.bigFlex]}>
@@ -65,13 +101,22 @@ const ConfirmationDetails = ({
                                     data={Object.entries(classInfo.students)}
                                     keyExtractor={([studentId, _studentInfo]) => studentId.toString()}
                                     renderItem={({ item }) => {
-                                        console.log('item is ' + JSON.stringify(item))
                                         const [studentId, studentInfo] = item;
                                         const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
                                         return (
-                                            <View style={styles.studentRow}>
-                                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.leftText]}>{studentName}</Text>
-                                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.rightText]}>{studentInfo.isShowedUp}</Text>
+                                            <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
+                                                <Checkbox
+                                                    label={studentName}
+                                                    checked={true}
+                                                    onChange={()=>{}}
+                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                />
+                                                <Checkbox
+                                                    label=''
+                                                    checked={studentInfo.isShowedUp??true}
+                                                    onChange={()=>{}}
+                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                />
                                             </View>
                                         );
                                     }}
@@ -119,6 +164,10 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'gray',
         marginVertical: 10,
+    },
+    checkboxListItem: {
+        paddingVertical: 10,
+        color: 'white',
     },
     spaceBetweenRow: {
         flexDirection: 'row',
