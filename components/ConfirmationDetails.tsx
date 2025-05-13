@@ -63,7 +63,7 @@ const ConfirmationDetails = ({
                 const studentIdNumber = Number(studentId);
                 const statusMap: Map<string, boolean> = new Map();
                 statusMap.set('isCheckedIn', true);
-                statusMap.set('IsShowedUp', studentData.isShowedUp);
+                statusMap.set('isShowedUp', studentData.isShowedUp);
 
                 studentsMap.set(studentIdNumber, statusMap);
             }
@@ -71,6 +71,26 @@ const ConfirmationDetails = ({
             confirmationMap.set(classIdNumber, studentsMap);
         }
         setConfirmation(confirmationMap);
+    };
+
+    const toggleCheckIn = (classId: number, studentId: number) => {
+        setConfirmation(prevConfirmation => {
+            const newConfirmation = new Map(prevConfirmation);
+            const prevValue = newConfirmation.get(classId)?.get(studentId)?.get('isCheckedIn');
+            newConfirmation.get(classId)?.get(studentId)?.set('isCheckedIn', !prevValue);
+
+            return newConfirmation;
+        });
+    };
+
+    const toggleShowUp = (classId: number, studentId: number) => {
+        setConfirmation(prevConfirmation => {
+            const newConfirmation = new Map(prevConfirmation);
+            const prevValue = newConfirmation.get(classId)?.get(studentId)?.get('isShowedUp');
+            newConfirmation.get(classId)?.get(studentId)?.set('isShowedUp', !prevValue);
+
+            return newConfirmation;
+        });
     };
 
     return (
@@ -107,14 +127,14 @@ const ConfirmationDetails = ({
                                             <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                                 <Checkbox
                                                     label={studentName}
-                                                    checked={true}
-                                                    onChange={()=>{}}
+                                                    checked={confirmation.get(Number(classId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
+                                                    onChange={()=>{toggleCheckIn(Number(classId), Number(studentId))}}
                                                     labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                                 />
                                                 <Checkbox
                                                     label=''
-                                                    checked={studentInfo.isShowedUp??true}
-                                                    onChange={()=>{}}
+                                                    checked={confirmation.get(Number(classId))?.get(Number(studentId))?.get('isShowedUp') ?? true}
+                                                    onChange={()=>{toggleShowUp(Number(classId), Number(studentId))}}
                                                     labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                                 />
                                             </View>
