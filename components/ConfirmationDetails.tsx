@@ -118,9 +118,12 @@ const ConfirmationDetails = ({
     };
 
     const sendConfirmation = () => {
-        const data = JSON.stringify(getConfirmationList());
+        const data = JSON.stringify({
+            'confirmationList' :getConfirmationList(),
+            'date': date
+        });
         console.log('Data is ' + data);
-        // TODO: write the rest of function body, have a date as a parameter (needs work on BE side)
+        // TODO: write the rest of function body, have a date as a part of the request body (needs work on BE side)
     };
 
     return (
