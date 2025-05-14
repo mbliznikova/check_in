@@ -93,6 +93,36 @@ const ConfirmationDetails = ({
         });
     };
 
+    const getConfirmationList = () => {
+        const confirmationMap: Map<number, Map<number, boolean>> = new Map();
+
+        for (const [classId, classData] of confirmation) {
+            for (const [studentId, studentData] of classData) {
+                if (studentData.get('isCheckedIn') === true) {
+                    if (confirmationMap.has(studentId)) {
+                        confirmationMap.get(studentId)?.set(classId, studentData.get('isShowedUp') ?? true)
+                    } else {
+                        const statusMap: Map<number, boolean> = new Map();
+                        statusMap.set(classId, studentData.get('isShowedUp') ?? true);
+                        confirmationMap.set(studentId, statusMap);
+                    }
+                }
+            }
+        }
+
+        const confirmationList = Array.from(confirmationMap.entries()).map(([studentId, studentData]) => ({
+            [studentId]: Object.fromEntries(studentData)
+        }));
+        console.log(confirmationList)
+        return confirmationList;
+    };
+
+    const sendConfirmation = () => {
+        const data = JSON.stringify(getConfirmationList());
+        console.log('Data is ' + data);
+        // TODO: write the rest of function body, have a date as a parameter (needs work on BE side)
+    };
+
     return (
         <SafeAreaView style={styles.appContainer}>
             <View style={[styles.contentContainer, styles.bigFlex]}>
@@ -151,10 +181,9 @@ const ConfirmationDetails = ({
             <View style={[styles.confirmButtonContainer, styles.smallFlex]}>
                     <Pressable
                         style={styles.confirmButton}
-                        // disabled={!ifStudentsToConfirm}
                         onPress={() => {
-                            // sendConfirmation();
-                            // alert('Students have been confirmed');
+                            sendConfirmation();
+                            alert('Students have been confirmed');
                         }}
                     >
                         <Text>Confirm</Text>
