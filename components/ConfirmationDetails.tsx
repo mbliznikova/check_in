@@ -4,13 +4,7 @@ import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorSchem
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
-import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
-
-type ClassType = {
-    id: number;
-    name: string;
-};
 
 type AttendanceStudentType = {
     firstName: string;
@@ -261,7 +255,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 10,
-        paddingHorizontal: 10,
+        paddingHorizontal: 30,
     },
     confirmButtonContainer: {
         justifyContent: 'center',
