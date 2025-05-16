@@ -117,13 +117,48 @@ const ConfirmationDetails = ({
         return confirmationList;
     };
 
-    const sendConfirmation = () => {
-        const data = JSON.stringify({
-            'confirmationList' :getConfirmationList(),
+    const sendConfirmation = async () => {
+        const data = {
+            'confirmationList': getConfirmationList(),
             'date': date
-        });
-        console.log('Data is ' + data);
-        // TODO: write the rest of function body, have a date as a part of the request body (needs work on BE side)
+        };
+
+        console.log('Data is ' + JSON.stringify(data));
+
+        try {
+           const response = await fetch(
+            'http://127.0.0.1:8000/backend/confirm/', {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }
+           );
+
+           if (!response.ok) {
+               const errorMessage = `sendConfirmation function. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+               throw Error(errorMessage);
+           };
+
+           console.log('sendConfirmation function. Confirmation was sent successfully!');
+
+           const responseData = await response.json();
+           if (
+               typeof responseData === 'object' &&
+               responseData !== null &&
+               'message' in responseData &&
+               responseData.message === 'Attendance confirmed successfully'
+           ) {
+               console.log('Function sendConfirmation. The response from backend is valid. ' + JSON.stringify(responseData));
+           } else {
+               console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+           }
+
+        } catch (err) {
+            console.error("sendConfirmation function: Error while sending the data to the server: ", err);
+        };
     };
 
     return (
