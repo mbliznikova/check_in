@@ -1,32 +1,80 @@
-import * as React from 'react';  
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import {View, StyleSheet, useColorScheme, Text, FlatList} from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 import ClassName from './ClassName';
 import Student from './Student';
 
+type AttendanceStudentType = {
+    firstName: string;
+    lastName: string;
+    isShowedUp: boolean;
+}
+
+type AttendanceClassType = {
+    name: string;
+    students: {
+        [studentId: string]: AttendanceStudentType;
+    }
+}
+
+type AttendanceType = {
+    date: string;
+    classes: {
+        [classId: string]: AttendanceClassType;
+    }
+}
+
 const AttendancePaymentsReport = () => {
     const colorScheme = useColorScheme();
 
-    // Add functionality to fetch classes from backend and place them here
-    const classList = [
-        { id: '101', name: 'Longsword' },
-        { id: '102', name: 'Private Lessons' },
-        { id: '103', name: 'Self-defence' }
-    ];
+    const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
-    // Add functionality (DB query) to retrieve a students [with attendance to classes and/or payments for classes from the specified time range]
-    const students = [
-        { firstName: "James", lastName: "Harrington", id: "1", attendance: new Map<string, number>([['101', 5], ['102', 1], ['103', 2]]), balance: new Map<string, number>([['101', 255], ['102', 10], ['103', 0]])},
-        { firstName: "William", lastName: "Kensington", id: "2", attendance: new Map<string, number>([['101', 1], ['102', 1]]), balance: new Map<string, number>([['101', 255], ['102', 0]])},
-        { firstName: "Edward", lastName: "Montgomery", id: "3", attendance: new Map<string, number>([['101', 4], ['103', 1]]), balance: new Map<string, number>([['101', 255], ['103', 20]])},
-        { firstName: 'Henry', lastName: 'Fairchild', id: '4', attendance: new Map<string, number>([['101', 5], ['103', 2]]), balance: new Map<string, number>([['101', 255], ['103', 0]])},
-        { firstName: 'Arthur', lastName: 'Whitmore', id: '5', attendance: new Map<string, number>([['101', 3], ['102', 1], ['103', 1]]), balance: new Map<string, number>([['101', 255], ['102', 40], ['103', 10]])},
-        { firstName: 'Charles', lastName: 'Waverly', id: '6', attendance: new Map<string, number>([['102', 3], ['103', 3]]), balance: new Map<string, number>([['102', 10], ['103', 30]])},
-        { firstName: 'Nathaniel', lastName: 'Sinclair', id: '14', attendance: new Map<string, number>([]), balance: new Map<string, number>([])},
-        { firstName: 'Theodore', lastName: 'Langley', id: '15', attendance: new Map<string, number>([]), balance: new Map<string, number>([['102', 30], ['103', 10]])},
-        { firstName: 'Sebastian', lastName: 'Hawthorne', id: '16', attendance: new Map<string, number>([]), balance: new Map<string, number>([])},
-    ];
+    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            key in responseData &&
+            Array.isArray(responseData[key])
+        );
+    };
+
+    useEffect(() => {
+        const fetchAttendances = async () => {
+
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/backend/attendances/?month=${currentMonth}&year=${currentYear}`);
+                console.log(response);
+                if (response.ok) {
+                    const responseData = await response.json();
+                    if (isValidArrayResponse(responseData, 'response')) {
+                        console.log('AttendancePaymentsReport. Function fetchAttendances. The response from backend is valid.' + JSON.stringify(responseData))
+
+                        const dataAttendanceList: AttendanceType[] = responseData.response;
+                        const fetchedAttendances = dataAttendanceList.map(att => ({
+                            date: att.date,
+                            classes: att.classes
+                        }));
+
+                        setAttendances(fetchedAttendances);
+                        console.log("AttendancePaymentsReport. Fetched attendances: ", fetchedAttendances);
+                    }
+                } else {
+                    console.log("Function fetchAttendances. Response was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of attendances: ", err)
+            }
+        }
+
+        fetchAttendances();
+    },
+    []);
 
     return (
         <View style={styles.container}>
@@ -37,86 +85,8 @@ const AttendancePaymentsReport = () => {
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
             </View>
-
-            <FlatList
-                data={classList}
-                keyExtractor={cls => cls.id}
-                renderItem={({item: cls}) => (
-                    <View>
-                        <View style={styles.separator} />
-                        <ClassName id={cls.id} name={cls.name}/>
-                        <FlatList
-                            data={students.filter((student) => (student.attendance.has(cls.id)))}
-                            keyExtractor={student => student.id}
-                            renderItem={({item: student}) => {
-                                const balanceStr = '$ ' + student.balance.get(cls.id)
-                                return (
-                                    <View style={styles.regularRow}>
-                                        <View style={styles.studentName}>
-                                            <Student id={student.id} firstName={student.firstName} lastName={student.lastName}/>
-                                        </View>
-                                        <View style={styles.attendance}>
-                                            <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{student.attendance.get(cls.id)}</Text>
-                                        </View>
-                                        <View style={styles.balance}>
-                                            <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{balanceStr}</Text>
-                                        </View>
-                                    </View>
-                                );
-                            }}
-                        />
-                    </View>
-                )}
-            />
             </View>
-
             <View style={styles.smallFlex}>
-            <View style={styles.separator} />
-
-            <ScreenTitle titleText='Students with balance and no attendance'/>
-            <FlatList 
-                data={students.filter((student) => student.attendance.size === 0)}
-                keyExtractor={student => student.id}
-                renderItem={({item: student}) => {
-                    const balanceEntries = Array.from(student.balance.entries())
-
-                    return(
-                        <View style={[styles.regularRow, {paddingVertical: 10}]}>
-                            <Student
-                                id={student.id}
-                                firstName={student.firstName}
-                                lastName={student.lastName}
-                            />
-
-                            <View>
-                                {balanceEntries.map(([classId], index) => {
-                                    const className = classList.find((cls) => cls.id === classId)?.name || 'Unknown class';
-                                    return (
-                                        <Text
-                                            style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
-                                            key={`${student.id} - class - ${index}`}
-                                        >
-                                            {className}
-                                        </Text>
-                                    )
-                                })}
-                            </View>
-
-                            <View>
-                                {balanceEntries.map(([, balance], index) => (
-                                    <Text
-                                        style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
-                                        key={`${student.id} - balance - ${index}`}
-                                    >
-                                        {balance}
-                                    </Text>
-                                ))}
-                            </View>
-
-                        </View>
-                    )
-                }}
-            />
             </View>
         </View>
     );
