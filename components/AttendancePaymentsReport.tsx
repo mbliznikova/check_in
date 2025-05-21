@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList} from 'react-native';
 
+import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 
 type AttendanceStudentType = {
@@ -129,27 +130,47 @@ const AttendancePaymentsReport = () => {
         setReport(reportMap);
     };
 
-    // create a function to go over all dates, go to "classes" values and count how many students have attended
-    // have a [state] object to store report data: [classId]: [{studentId: nOfAttendances}]
+    const renderHeader = () => (
+        <View style={[styles.headerContainer, styles.headerContainerColor]}>
+            <ScreenTitle titleText='Attendance and Payments report' />
+            <View style={styles.headerRow}>
+                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
+                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
+                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
+            </View>
+        </View>
+    );
 
     return (
          <SafeAreaView style={styles.container}>
-            <View style={styles.bigFlex}>
-                <ScreenTitle titleText='Attendance and Payments report'/>
-                <View style={styles.headerRow}>
-                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
-                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
-                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
-                </View>
-            </View>
             <FlatList
+                ListHeaderComponent={renderHeader}
+                stickyHeaderIndices={[0]}
                 data={Array.from(report.entries())}
                 keyExtractor={([classId]) => classId.toString()}
                 renderItem={({ item: [classId, classInfo] }) => {
-                    // TODO: handle classes and students as nested FlatLists
                     return (
                         <View>
-                            <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{classInfo.name}</Text>
+                            <ClassName
+                                id={Number(classId)}
+                                name={classInfo.name}
+                            />
+                            <FlatList
+                                data={Array.from(classInfo.students.entries())}
+                                keyExtractor={([studentId]) => studentId.toString()}
+                                renderItem={({ item: [_studentId, studentInfo] }) => {
+                                    const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
+                                    const studentAttendance = studentInfo.count;
+
+                                    return (
+                                        <View style={styles.spaceBetweenRow}>
+                                            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
+                                        </View>
+                                    );
+                                }}
+                            />
+                            <View style={styles.separator} />
                         </View>
                     );
                 }}
@@ -171,6 +192,12 @@ const styles = StyleSheet.create({
     smallFlex: {
         flex: 2,
     },
+    headerContainer: {
+        paddingBottom: 10,
+    },
+    headerContainerColor: {
+        backgroundColor: 'rgba(5, 5, 5, 0.8)'
+    },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -187,6 +214,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    spaceBetweenRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 30,
     },
     studentName: {
         flex: 1,
