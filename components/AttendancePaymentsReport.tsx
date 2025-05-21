@@ -97,24 +97,28 @@ const AttendancePaymentsReport = () => {
             const classes = att.classes;
 
             Object.entries(classes).forEach(([classId, classInfo]) => {
-                if (!reportMap.has(Number(classId))) {
-                    reportMap.set(Number(classId), {
+                const classIdNum = Number(classId);
+
+                if (!reportMap.has(classIdNum)) {
+                    reportMap.set(classIdNum, {
                         name: classInfo.name,
                         students: new Map<number, StudentAttendanceCountType>(),
                     });
                 }
 
-                const reportClassId = reportMap.get(Number(classId));
+                const reportClassId = reportMap.get(classIdNum);
 
                 Object.entries(classInfo.students).forEach(([studentId, studentInfo]) => {
-                    if (!reportClassId?.students.has(Number(studentId))) {
-                        reportClassId?.students.set(Number(studentId), {
+                    const studentIdNum = Number(studentId);
+
+                    if (!reportClassId?.students.has(studentIdNum)) {
+                        reportClassId?.students.set(studentIdNum, {
                             firstName: studentInfo.firstName,
                             lastName: studentInfo.lastName,
                             count: 0,
                         });
                     }
-                    const student = reportClassId?.students.get(Number(studentId))!;
+                    const student = reportClassId?.students.get(studentIdNum)!;
                     // TODO: take care of ifShowedUp count as well
                     if (studentInfo.isShowedUp) {
                         student.count += 1;
