@@ -131,7 +131,7 @@ const AttendancePaymentsReport = () => {
     };
 
     const renderHeader = () => (
-        <View style={[styles.headerContainer, styles.headerContainerColor]}>
+        <View style={[styles.headerContainer, colorScheme === 'dark'? styles.darkBackground : styles.lightBackground]}>
             <ScreenTitle titleText='Attendance and Payments report' />
             <View style={styles.headerRow}>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
@@ -143,38 +143,40 @@ const AttendancePaymentsReport = () => {
 
     return (
          <SafeAreaView style={styles.container}>
-            <FlatList
-                ListHeaderComponent={renderHeader}
-                stickyHeaderIndices={[0]}
-                data={Array.from(report.entries())}
-                keyExtractor={([classId]) => classId.toString()}
-                renderItem={({ item: [classId, classInfo] }) => {
-                    return (
-                        <View>
-                            <ClassName
-                                id={Number(classId)}
-                                name={classInfo.name}
-                            />
-                            <FlatList
-                                data={Array.from(classInfo.students.entries())}
-                                keyExtractor={([studentId]) => studentId.toString()}
-                                renderItem={({ item: [_studentId, studentInfo] }) => {
-                                    const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
-                                    const studentAttendance = studentInfo.count;
+            <View style={[styles.container]}>
+                <FlatList
+                    ListHeaderComponent={renderHeader}
+                    stickyHeaderIndices={[0]}
+                    data={Array.from(report.entries())}
+                    keyExtractor={([classId]) => classId.toString()}
+                    renderItem={({ item: [classId, classInfo] }) => {
+                        return (
+                            <View>
+                                <ClassName
+                                    id={Number(classId)}
+                                    name={classInfo.name}
+                                />
+                                <FlatList
+                                    data={Array.from(classInfo.students.entries())}
+                                    keyExtractor={([studentId]) => studentId.toString()}
+                                    renderItem={({ item: [_studentId, studentInfo] }) => {
+                                        const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
+                                        const studentAttendance = studentInfo.count;
 
-                                    return (
-                                        <View style={styles.spaceBetweenRow}>
-                                            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
-                                            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
-                                        </View>
-                                    );
-                                }}
-                            />
-                            <View style={styles.separator} />
-                        </View>
-                    );
-                }}
-            />
+                                        return (
+                                            <View style={styles.spaceBetweenRow}>
+                                                <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                                <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
+                                            </View>
+                                        );
+                                    }}
+                                />
+                                <View style={styles.separator} />
+                            </View>
+                        );
+                    }}
+                />
+            </View>
             {/* <View style={styles.smallFlex} /> */}
         </SafeAreaView>
     );
@@ -186,6 +188,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
     },
+    contentContainer: {
+        paddingHorizontal: 16,
+    },
     bigFlex: {
         flex: 3,
     },
@@ -195,8 +200,11 @@ const styles = StyleSheet.create({
     headerContainer: {
         paddingBottom: 10,
     },
-    headerContainerColor: {
-        backgroundColor: 'rgba(5, 5, 5, 0.8)'
+    darkBackground: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    },
+    lightBackground: {
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
     headerRow: {
         flexDirection: 'row',
