@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, useColorScheme, Text, FlatList} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList} from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
-import ClassName from './ClassName';
-import Student from './Student';
 
 type AttendanceStudentType = {
     firstName: string;
@@ -26,10 +24,23 @@ type AttendanceType = {
     }
 }
 
+type StudentAttendanceCountType = {
+    firstName: string;
+    lastName: string;
+    count: number;
+}
+
+type ClassAttendanceCountType = {
+    name: string;
+    students: Map<number, StudentAttendanceCountType>;
+}
+
 const AttendancePaymentsReport = () => {
     const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
+
+    const [report, setReport] = useState<Map<number, ClassAttendanceCountType>>(new Map());
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -49,7 +60,6 @@ const AttendancePaymentsReport = () => {
 
             try {
                 const response = await fetch(`http://127.0.0.1:8000/backend/attendances/?month=${currentMonth}&year=${currentYear}`);
-                console.log(response);
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, 'response')) {
@@ -76,19 +86,72 @@ const AttendancePaymentsReport = () => {
     },
     []);
 
+    useEffect(() => {
+        countAttendences(attendances);
+    },
+    [attendances]);
+
+    const countAttendences = (attendanceList: AttendanceType[]) => {
+        const reportMap: Map<number, ClassAttendanceCountType> = new Map();
+        attendanceList.forEach(att => {
+            const classes = att.classes;
+
+            Object.entries(classes).forEach(([classId, classInfo]) => {
+                if (!reportMap.has(Number(classId))) {
+                    reportMap.set(Number(classId), {
+                        name: classInfo.name,
+                        students: new Map<number, StudentAttendanceCountType>(),
+                    });
+                }
+
+                const reportClassId = reportMap.get(Number(classId));
+
+                Object.entries(classInfo.students).forEach(([studentId, studentInfo]) => {
+                    if (!reportClassId?.students.has(Number(studentId))) {
+                        reportClassId?.students.set(Number(studentId), {
+                            firstName: studentInfo.firstName,
+                            lastName: studentInfo.lastName,
+                            count: 0,
+                        });
+                    }
+                    const student = reportClassId?.students.get(Number(studentId))!;
+                    // TODO: take care of ifShowedUp count as well
+                    if (studentInfo.isShowedUp) {
+                        student.count += 1;
+                    }
+                });
+            });
+        });
+        setReport(reportMap);
+    };
+
+    // create a function to go over all dates, go to "classes" values and count how many students have attended
+    // have a [state] object to store report data: [classId]: [{studentId: nOfAttendances}]
+
     return (
-        <View style={styles.container}>
+         <SafeAreaView style={styles.container}>
             <View style={styles.bigFlex}>
-            <ScreenTitle titleText='Attendance and Payments report'/>
-            <View style={styles.headerRow}>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
+                <ScreenTitle titleText='Attendance and Payments report'/>
+                <View style={styles.headerRow}>
+                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
+                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
+                    <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
+                </View>
             </View>
-            </View>
-            <View style={styles.smallFlex}>
-            </View>
-        </View>
+            <FlatList
+                data={Array.from(report.entries())}
+                keyExtractor={([classId]) => classId.toString()}
+                renderItem={({ item: [classId, classInfo] }) => {
+                    // TODO: handle classes and students as nested FlatLists
+                    return (
+                        <View>
+                            <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>{classInfo.name}</Text>
+                        </View>
+                    );
+                }}
+            />
+            {/* <View style={styles.smallFlex} /> */}
+        </SafeAreaView>
     );
 };
 

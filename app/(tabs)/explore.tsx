@@ -1,11 +1,11 @@
 import { StyleSheet, SafeAreaView} from 'react-native';
 
-import AttendancePaymentsReport from '@/components/AttendancePaymentsReport';
+import ConfirmationList from '@/components/ConfirmationList';
 
 export default function TabTwoScreen() {
   return (
     <SafeAreaView style={styles.appContainer}>
-      <AttendancePaymentsReport/>
+      <ConfirmationList/>
     </SafeAreaView>
   );
 }
