@@ -165,8 +165,15 @@ const AttendancePaymentsReport = () => {
 
                                         return (
                                             <View style={styles.spaceBetweenRow}>
-                                                <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
-                                                <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
+                                                <View style={styles.studentName}>
+                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                                </View>
+                                                <View style={styles.attendance}>
+                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
+                                                </View>
+                                                <View style={styles.balance}>
+                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>$0</Text>
+                                                </View>
                                             </View>
                                         );
                                     }}
