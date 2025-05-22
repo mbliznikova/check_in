@@ -28,7 +28,7 @@ type AttendanceType = {
 type StudentAttendanceCountType = {
     firstName: string;
     lastName: string;
-    count: number;
+    count: [number, number];
 }
 
 type ClassAttendanceCountType = {
@@ -116,13 +116,15 @@ const AttendancePaymentsReport = () => {
                         reportClassId?.students.set(studentIdNum, {
                             firstName: studentInfo.firstName,
                             lastName: studentInfo.lastName,
-                            count: 0,
+                            count: [0, 0],
                         });
                     }
                     const student = reportClassId?.students.get(studentIdNum)!;
                     // TODO: take care of ifShowedUp count as well
                     if (studentInfo.isShowedUp) {
-                        student.count += 1;
+                        student.count[0] += 1;
+                    } else {
+                        student.count[1] += 1;
                     }
                 });
             });
@@ -135,7 +137,7 @@ const AttendancePaymentsReport = () => {
             <ScreenTitle titleText='Attendance and Payments report' />
             <View style={styles.headerRow}>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance</Text>
+                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance (24 hrs policy if applicable)</Text>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Balance</Text>
             </View>
         </View>
@@ -169,7 +171,7 @@ const AttendancePaymentsReport = () => {
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
                                                 </View>
                                                 <View style={styles.attendance}>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance}</Text>
+                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
                                                 </View>
                                                 <View style={styles.balance}>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>$0</Text>
