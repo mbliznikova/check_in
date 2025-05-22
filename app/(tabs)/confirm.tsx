@@ -2,7 +2,7 @@ import { StyleSheet, SafeAreaView} from 'react-native';
 
 import ConfirmationList from '@/components/ConfirmationList';
 
-export default function TabTwoScreen() {
+export default function Confirm() {
   return (
     <SafeAreaView style={styles.appContainer}>
       <ConfirmationList/>

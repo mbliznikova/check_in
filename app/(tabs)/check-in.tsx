@@ -6,7 +6,7 @@ import School from '@/components/School';
 
 import { View, SafeAreaView } from 'react-native';
 
-export default function HomeScreen() {
+export default function CheckIn() {
   return (
     <SafeAreaView style={styles.appContainer}>
       <View style={styles.contentContainer}>
