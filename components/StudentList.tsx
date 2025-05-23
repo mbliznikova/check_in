@@ -13,11 +13,13 @@ type StudentType = {
 type StudentListProps = {
     studentList?: StudentType[];
     onStudentPress?: (studentObj: StudentType) => void;
+    header?: React.ReactElement;
 };
 
 const StudentList = ({
         studentList = defaultStudentList,
-        onStudentPress = () => {}
+        onStudentPress = () => {},
+        header = <Text></Text>,
     }: StudentListProps) => {
 
         const renderItem = ({ item }: {item: StudentType}) => (
@@ -38,10 +40,12 @@ const StudentList = ({
         return (
             <View style={styles.container}>
                 <FlatList
-                data={studentList}
-                keyExtractor={item => item.id.toString()}
-                renderItem={renderItem}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                    ListHeaderComponent={header}
+                    stickyHeaderIndices={[0]}
+                    data={studentList}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={renderItem}
+                    contentContainerStyle={{ paddingBottom: 20 }}
                 />
             </View>
         )

@@ -289,16 +289,18 @@ const School = () => {
                 keyExtractor={cls => cls.id.toString()}
                 renderItem={({ item: cls }) => (
                     <View>
-                        <ClassName
-                            id={cls.id}
-                            name={cls.name}
-                        />
                         <StudentList
                             studentList={checkedInStudents.get(cls.id) || []}
                             onStudentPress={(student => {
                                 setCurrentStudent(student);
                                 setIsModalVisible(true);
-                        })}
+                            })}
+                            header={
+                                <ClassName
+                                    id={cls.id}
+                                    name={cls.name}
+                                />
+                            }
                         />
                     </View>
                 )}
