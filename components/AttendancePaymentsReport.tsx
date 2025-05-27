@@ -36,12 +36,20 @@ type ClassAttendanceCountType = {
     students: Map<number, StudentAttendanceCountType>;
 }
 
+type StudentAttendanceDetailsType = {
+    firstName: string;
+    lastName: string;
+    classesInfo: Map<number, Map<string, [number, number]>>;
+}
+
 const AttendancePaymentsReport = () => {
     const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
     const [report, setReport] = useState<Map<number, ClassAttendanceCountType>>(new Map());
+
+    const [studentReport, setStudentReport] = useState<Map<number, StudentAttendanceDetailsType>>(new Map());
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -120,7 +128,6 @@ const AttendancePaymentsReport = () => {
                         });
                     }
                     const student = reportClassId?.students.get(studentIdNum)!;
-                    // TODO: take care of ifShowedUp count as well
                     if (studentInfo.isShowedUp) {
                         student.count[0] += 1;
                     } else {
@@ -130,6 +137,30 @@ const AttendancePaymentsReport = () => {
             });
         });
         setReport(reportMap);
+    };
+
+    const retrieveStudentData = (studentId: number, firstName: string, lastName: string) => {
+        const studentMap: Map<number, StudentAttendanceDetailsType> = new Map();
+        const classMap: Map<number, Map<string, [number, number]>> = new Map();
+
+        report.forEach((value, key) => {
+            if (value.students.has(studentId)) {
+                const classAttendance: Map<string, [number, number]> = new Map();
+
+                classAttendance.set(value.name, value.students.get(studentId)?.count ?? [0, 0])
+                classMap.set(key, classAttendance);
+
+                const studentDetails: StudentAttendanceDetailsType = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    classesInfo: classMap,
+                }
+
+                studentMap.set(studentId, studentDetails)
+            }
+        });
+
+        setStudentReport(studentMap);
     };
 
     const renderHeader = () => (
