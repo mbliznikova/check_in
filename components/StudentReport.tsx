@@ -1,83 +1,46 @@
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, useColorScheme} from 'react-native';
+import { View, Text, FlatList, StyleSheet, useColorScheme, Modal} from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
-type StudentReportType = {
+type StudentAttendanceDetailsType = {
     firstName: string;
     lastName: string;
-    id: string;
-    attendance?: Map<string, number>;
-    balance?: Map<string, number>;
-};
-
-type StudentProp = {
-    student?: StudentReportType;
-};
+    classesInfo: Map<number, Map<string, [number, number]>>;
+}
 
 const StudentReport = ({
-    student = {
-        firstName: "James",
-        lastName: "Harrington",
-        id: "1",
-        attendance: new Map<string, number>([['101', 5], ['102', 1], ['103', 2]]),
-        balance: new Map<string, number>([['101', 255], ['102', 10], ['103', 0]]),
-    }
-}: StudentProp) => {
+    firstName,
+    lastName,
+    classesInfo
+}: StudentAttendanceDetailsType) => {
     const colorScheme = useColorScheme();
-
-    const classList = [
-        { id: '101', name: 'Longsword' },
-        { id: '102', name: 'Private Lessons' },
-        { id: '103', name: 'Self-defence' },
-    ];
-
+    const attendanceList: Map<string, [number, number]>[] = Array.from(classesInfo.values());
 
     return (
         <View>
-            <ScreenTitle titleText='Attendance and payment report for'/>
-            <ScreenTitle titleText={student.firstName + ` ` + student.lastName} />
+            <ScreenTitle titleText={firstName + ` ` + lastName} />
+            <View style={styles.separator} />
 
-            <View style={styles.separator} />
-                <ScreenTitle titleText='Attendance'></ScreenTitle>
-            <View style={styles.separator} />
+            <ScreenTitle titleText='Attendance'></ScreenTitle>
 
             <FlatList
-                data={student.attendance ? Array.from(student.attendance.entries()) : []}
-                keyExtractor={([classId]) => classId}
-                renderItem={({item: [classId, attendance]}) => {
-                    const className = classList.find((cls) => cls.id === classId)?.name || 'Unknown class';
+                data={attendanceList}
+                keyExtractor={(item) => Array.from(item.keys())[0]}
+                renderItem={({ item }) => {
+                    const [classData] = [...item];
+                    const [className, attendance]  = classData;
+
                     return (
                     <View style={styles.reportRow}>
                         <Text style={[styles.className, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
                             {className}
                         </Text>
                         <Text style={[styles.record, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
-                            {attendance}
+                            {attendance[0]} ({attendance[1]})
                         </Text>
                     </View>
                     )
-                }}
-            />
-
-            <ScreenTitle titleText='Payment'></ScreenTitle>
-            <View style={styles.separator} />
-
-            <FlatList
-                data={student.balance ? Array.from(student.balance.entries()) : []}
-                keyExtractor={([classId]) => classId}
-                renderItem={({item: [classId, balance]}) => {
-                    const className = classList.find((cls) => cls.id === classId)?.name || 'Unknown class';
-                    return (
-                        <View style={styles.reportRow}>
-                            <Text style={[styles.className, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
-                                {className}
-                            </Text>
-                            <Text style={[styles.record, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
-                                {`$ ` + balance}
-                            </Text>
-                        </View>
-                    );
                 }}
             />
 

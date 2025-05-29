@@ -2,10 +2,6 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
-import Checkbox from './Checkbox';
-import ClassName from './ClassName';
-import CurrentDate from '@/components/CurrentDate';
-import ScreenTitle from '@/components/ScreenTitle';
 import ConfirmationDetails from './ConfirmationDetails';
 
 type ClassType = {
