@@ -201,7 +201,7 @@ const AttendancePaymentsReport = () => {
 
                                         return (
                                             <View style={styles.spaceBetweenRow}>
-                                                <View style={styles.studentName}>
+                                                <View style={styles.studentNameColumn}>
                                                     <Pressable
                                                         onPress={() => {
                                                             const currentStudent = setCurrentStudent(studentId, studentInfo.firstName, studentInfo.lastName);
@@ -209,7 +209,7 @@ const AttendancePaymentsReport = () => {
                                                             setIsModalVisible(true);
                                                         }}
                                                     >
-                                                        <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{studentName}</Text>
                                                     </Pressable>
                                                     <Modal
                                                         visible={isModalVisible}
@@ -237,10 +237,10 @@ const AttendancePaymentsReport = () => {
                                                         </View>
                                                     </Modal>
                                                 </View>
-                                                <View style={styles.attendance}>
+                                                <View style={styles.attendanceColumn}>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
                                                 </View>
-                                                <View style={styles.balance}>
+                                                <View style={styles.balanceColumn}>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>$0</Text>
                                                 </View>
                                             </View>
@@ -334,12 +334,18 @@ const styles = StyleSheet.create({
     studentName: {
         flex: 1,
         minWidth: 100,
+        textDecorationLine: 'underline',
     },
-    attendance: {
+    studentNameColumn: {
+        flex: 1,
+        minWidth: 100,
+        textDecorationLine: 'underline',
+    },
+    attendanceColumn: {
         flex: 1,
         alignItems: 'center',
     },
-    balance: {
+    balanceColumn: {
         flex: 1,
         alignItems: 'flex-end',
     },
