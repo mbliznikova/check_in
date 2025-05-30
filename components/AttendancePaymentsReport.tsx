@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal} from 'react-native';
 
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
+import StudentReport from './StudentReport';
 
 type AttendanceStudentType = {
     firstName: string;
@@ -204,11 +205,37 @@ const AttendancePaymentsReport = () => {
                                                     <Pressable
                                                         onPress={() => {
                                                             const currentStudent = setCurrentStudent(studentId, studentInfo.firstName, studentInfo.lastName);
+                                                            setStudent(currentStudent);
                                                             setIsModalVisible(true);
                                                         }}
                                                     >
                                                         <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
                                                     </Pressable>
+                                                    <Modal
+                                                        visible={isModalVisible}
+                                                        transparent={true}
+                                                        // animationType='fade'
+                                                        onRequestClose={() => {
+                                                            setIsModalVisible(false)
+                                                        }}
+                                                    >
+                                                        <View style={styles.modalContainer}>
+                                                            <View style={styles.modalView}>
+                                                                <StudentReport
+                                                                    firstName={student.firstName}
+                                                                    lastName={student.lastName}
+                                                                    classesInfo={
+                                                                        student.classesInfo
+                                                                    }
+                                                                />
+                                                                <Pressable style={styles.modalCancelButton} onPress={() => {
+                                                                    setIsModalVisible(false);
+                                                                }}>
+                                                                    <Text style={styles.modalText}>Cancel</Text>
+                                                                </Pressable>
+                                                            </View>
+                                                        </View>
+                                                    </Modal>
                                                 </View>
                                                 <View style={styles.attendance}>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
@@ -239,6 +266,29 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 16,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'black',
+        padding: 35,
+        borderRadius: 20,
+        alignItems: 'center',
+    },
+    modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
+    },
+    modalText: {
+        color: 'black',
     },
     bigFlex: {
         flex: 3,
