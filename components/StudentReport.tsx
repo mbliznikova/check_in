@@ -18,7 +18,7 @@ const StudentReport = ({
     const attendanceList: Map<string, [number, number]>[] = Array.from(classesInfo.values());
 
     return (
-        <View>
+        <View style={styles.container}>
             <ScreenTitle titleText={firstName + ` ` + lastName} />
             <View style={styles.separator} />
 
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
+        alignSelf: 'stretch',
     },
     reportRow: {
         flexDirection: 'row',

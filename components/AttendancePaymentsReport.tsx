@@ -273,11 +273,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalView: {
-        margin: 20,
+        width: '50%',
+        height: '40%',
         backgroundColor: 'black',
-        padding: 35,
         borderRadius: 20,
+        padding: 20,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     modalCancelButton: {
         alignItems: 'center',
