@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable} from 'react-native';
 
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
@@ -49,7 +49,14 @@ const AttendancePaymentsReport = () => {
 
     const [report, setReport] = useState<Map<number, ClassAttendanceCountType>>(new Map());
 
-    const [studentReport, setStudentReport] = useState<Map<number, StudentAttendanceDetailsType>>(new Map());
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [student, setStudent] = useState<StudentAttendanceDetailsType>({
+        firstName: "",
+        lastName: "",
+        classesInfo:
+            new Map<number, Map<string, [number, number]>>(),
+    });
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -139,8 +146,7 @@ const AttendancePaymentsReport = () => {
         setReport(reportMap);
     };
 
-    const retrieveStudentData = (studentId: number, firstName: string, lastName: string) => {
-        const studentMap: Map<number, StudentAttendanceDetailsType> = new Map();
+    const setCurrentStudent = (studentId: number, firstName: string, lastName: string) => {
         const classMap: Map<number, Map<string, [number, number]>> = new Map();
 
         report.forEach((value, key) => {
@@ -149,18 +155,14 @@ const AttendancePaymentsReport = () => {
 
                 classAttendance.set(value.name, value.students.get(studentId)?.count ?? [0, 0])
                 classMap.set(key, classAttendance);
-
-                const studentDetails: StudentAttendanceDetailsType = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    classesInfo: classMap,
-                }
-
-                studentMap.set(studentId, studentDetails)
             }
         });
 
-        setStudentReport(studentMap);
+        return {
+            firstName: firstName,
+            lastName: lastName,
+            classesInfo: classMap
+        }
     };
 
     const renderHeader = () => (
@@ -192,14 +194,21 @@ const AttendancePaymentsReport = () => {
                                 <FlatList
                                     data={Array.from(classInfo.students.entries())}
                                     keyExtractor={([studentId]) => studentId.toString()}
-                                    renderItem={({ item: [_studentId, studentInfo] }) => {
+                                    renderItem={({ item: [studentId, studentInfo] }) => {
                                         const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
                                         const studentAttendance = studentInfo.count;
 
                                         return (
                                             <View style={styles.spaceBetweenRow}>
                                                 <View style={styles.studentName}>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                                    <Pressable
+                                                        onPress={() => {
+                                                            const currentStudent = setCurrentStudent(studentId, studentInfo.firstName, studentInfo.lastName);
+                                                            setIsModalVisible(true);
+                                                        }}
+                                                    >
+                                                        <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentName}</Text>
+                                                    </Pressable>
                                                 </View>
                                                 <View style={styles.attendance}>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
