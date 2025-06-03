@@ -1,11 +1,11 @@
 import { StyleSheet, SafeAreaView} from 'react-native';
 
-import AttendancePaymentsReport from '@/components/AttendancePaymentsReport';
+import Attendance from '@/components/Attendance';
 
-export default function MainReport() {
+export default function AttendanceReport() {
   return (
     <SafeAreaView style={styles.appContainer}>
-      <AttendancePaymentsReport/>
+      <Attendance/>
     </SafeAreaView>
   );
 }

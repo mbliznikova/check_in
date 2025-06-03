@@ -43,7 +43,7 @@ type StudentAttendanceDetailsType = {
     classesInfo: Map<number, Map<string, [number, number]>>;
 }
 
-const AttendancePaymentsReport = () => {
+const Attendance = () => {
     const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
@@ -362,4 +362,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default AttendancePaymentsReport;
+export default Attendance;

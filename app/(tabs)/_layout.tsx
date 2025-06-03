@@ -41,9 +41,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="report"
+        name="attendance"
         options={{
-          title: 'Report',
+          title: 'Attendance',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="payments"
+        options={{
+          title: 'Payments',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
         }}
       />
