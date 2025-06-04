@@ -168,7 +168,7 @@ const Attendance = () => {
 
     const renderHeader = () => (
         <View style={[styles.headerContainer, colorScheme === 'dark'? styles.darkBackground : styles.lightBackground]}>
-            <ScreenTitle titleText='Attendance and Payments report' />
+            <ScreenTitle titleText='Attendance report'/>
             <View style={styles.headerRow}>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance (24 hrs policy if applicable)</Text>
