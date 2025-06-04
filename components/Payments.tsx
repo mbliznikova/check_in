@@ -10,36 +10,33 @@ type StudentType = {
     lastName: string;
 };
 
-type ClassType = {
-    id: number,
-    name: string,
-};
-
 type PriceType = {
-    id: number;
-    classId: ClassType;
-    amount: number;
+    [classId: string]: {
+        [className: string]: number
+    },
 };
 
 type PaymentType = {
     id: number;
-    studentId: StudentType;
-    classId: ClassType;
+    studentId: number;
+    classId: number;
     studentName: string;
     className: string;
     amount: number;
     paymentDate: string;
 };
 
-type SummaryType = {
-    id: number;
-    summaryDate: string;
-    amount: number;
-};
-
 const Payments = () => {
 
     const [loading, setLoading] = useState(true);
+
+    const [students, setStudents] = useState<StudentType[]>([]);
+
+    const [prices, setPrices] = useState<PriceType>({});
+
+    const [payments, setPayments] = useState<PaymentType[]>([]);
+
+    const [summary, setSummary] = useState<number>(0.0);
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -67,6 +64,10 @@ const Payments = () => {
                     const responseData = await response.json();
                     if (isGeneralValidResponse(responseData, "response")) {
                         console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                        const pricesObj: PriceType = responseData.response;
+
+                        setPrices(pricesObj);
                     }
                 } else {
                     console.log("Function fetchPrices at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
@@ -83,6 +84,10 @@ const Payments = () => {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, "response")) {
                         console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                        const studentList: StudentType[] = responseData.response;
+
+                        setStudents(studentList);
                     }
                 } else {
                     console.log("Function fetchStudents at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
@@ -99,6 +104,10 @@ const Payments = () => {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, "response")) {
                         console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                        const paymentList: PaymentType[] = responseData.response;
+
+                        setPayments(paymentList);
                     }
                 } else {
                     console.log("Function fetchPayments at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
@@ -115,6 +124,10 @@ const Payments = () => {
                     const responseData = await response.json();
                     if (isGeneralValidResponse(responseData, "response")) {
                         console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                        const summary: number = responseData.response.summary ?? 0.0;
+
+                        setSummary(summary);
                     }
                 } else {
                     console.log("Function fetchSummary at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
