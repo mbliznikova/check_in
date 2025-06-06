@@ -16,6 +16,12 @@ type PriceType = {
     },
 };
 
+type ClassPaymentType = Map<number, {
+    className: string;
+    amount: number;
+    paid: boolean;
+  }>;
+
 type PaymentType = {
     id: number;
     studentId: number;
@@ -25,6 +31,11 @@ type PaymentType = {
     amount: number;
     paymentDate: string;
 };
+
+type PaymentMapType = Map<number, {
+    studentName: string;
+    payments: ClassPaymentType;
+  }>;
 
 const Payments = () => {
 
@@ -37,6 +48,8 @@ const Payments = () => {
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
     const [summary, setSummary] = useState<number>(0.0);
+
+    // Need to construct the object to have students and classes ids and names, prices (not paid) and payments (paid)
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -53,6 +66,22 @@ const Payments = () => {
             responseData !== null &&
             key in responseData
         );
+    };
+
+    const createClassPaymentsMap = (): ClassPaymentType => {
+        const resultMap: ClassPaymentType = new Map();
+
+        Object.entries(prices).forEach(([classId, classInfo]) => {
+            const className = Object.keys(classInfo)[0];
+            const amount = classInfo[className];
+            resultMap.set(Number(classId), {
+                className,
+                amount,
+                paid: false,
+            });
+        });
+
+        return resultMap;
     };
 
     useEffect(() => {
@@ -123,7 +152,7 @@ const Payments = () => {
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isGeneralValidResponse(responseData, "response")) {
-                        console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                        // console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                         const summary: number = responseData.response.summary ?? 0.0;
 
@@ -142,7 +171,7 @@ const Payments = () => {
         fetchPayments();
         fetchSummary();
     },
-    [])
+    []);
 
     return (
         <SafeAreaView style={styles.container}>
