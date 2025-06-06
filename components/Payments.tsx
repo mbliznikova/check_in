@@ -47,6 +47,8 @@ const Payments = () => {
 
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
+    const [assignedPayments, setAssignedPayments] = useState<Map<string, number[]>>(new Map());
+
     const [summary, setSummary] = useState<number>(0.0);
 
     // Need to construct the object to have students and classes ids and names, prices (not paid) and payments (paid)
@@ -83,6 +85,24 @@ const Payments = () => {
 
         return resultMap;
     };
+
+    const assignPayments = ():Map<string, number[]> => {
+        const paidMap: Map<string, number[]> = new Map();
+
+        payments.forEach((payment) => {
+            const key = `${payment.studentId}-${payment.classId}`;
+
+            if (!paidMap.has(key)) {
+                paidMap.set(key, []);
+            }
+
+            paidMap.get(key)!.push(payment.amount)
+
+        });
+
+        return paidMap;
+    };
+
 
     const createPaymentMap = (): PaymentMapType => {
         const paymentMap: PaymentMapType = new Map();
@@ -148,6 +168,7 @@ const Payments = () => {
         }
 
         const fetchPayments = async () => {
+             // Assume for now that the query returns the payment data only for the current month
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/payments/');
                 if (response.ok) {
