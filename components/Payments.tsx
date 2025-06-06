@@ -34,7 +34,7 @@ type PaymentType = {
 
 type PaymentMapType = Map<number, {
     studentName: string;
-    payments: ClassPaymentType;
+    paymentData: ClassPaymentType;
   }>;
 
 const Payments = () => {
@@ -83,6 +83,27 @@ const Payments = () => {
 
         return resultMap;
     };
+
+    const createPaymentMap = (): PaymentMapType => {
+        const paymentMap: PaymentMapType = new Map();
+
+        const paymentData = createClassPaymentsMap();
+
+        students.forEach((student) => {
+
+            const studentName = student.firstName + ' ' + student.lastName;
+
+            const stdData = {
+                studentName,
+                paymentData,
+            }
+
+            paymentMap.set(student.id, stdData)
+        });
+
+        return paymentMap;
+    };
+
 
     useEffect(() => {
 
@@ -152,7 +173,7 @@ const Payments = () => {
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isGeneralValidResponse(responseData, "response")) {
-                        // console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                        console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                         const summary: number = responseData.response.summary ?? 0.0;
 
