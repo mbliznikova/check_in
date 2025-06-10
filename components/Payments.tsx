@@ -47,8 +47,6 @@ const Payments = () => {
 
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
-    const [assignedPayments, setAssignedPayments] = useState<Map<string, number[]>>(new Map());
-
     const [summary, setSummary] = useState<number>(0.0);
 
     // Need to construct the object to have students and classes ids and names, prices (not paid) and payments (paid)
@@ -70,23 +68,7 @@ const Payments = () => {
         );
     };
 
-    const createClassPaymentsMap = (): ClassPaymentType => {
-        const resultMap: ClassPaymentType = new Map();
-
-        Object.entries(prices).forEach(([classId, classInfo]) => {
-            const className = Object.keys(classInfo)[0];
-            const amount = classInfo[className];
-            resultMap.set(Number(classId), {
-                className,
-                amount,
-                paid: false,
-            });
-        });
-
-        return resultMap;
-    };
-
-    const assignPayments = ():Map<string, number[]> => {
+    const aggregatePayments = ():Map<string, number[]> => {
         const paidMap: Map<string, number[]> = new Map();
 
         payments.forEach((payment) => {
@@ -103,15 +85,27 @@ const Payments = () => {
         return paidMap;
     };
 
-
     const createPaymentMap = (): PaymentMapType => {
         const paymentMap: PaymentMapType = new Map();
 
-        const paymentData = createClassPaymentsMap();
+        const aggregatedPayments = aggregatePayments();
 
         students.forEach((student) => {
-
             const studentName = student.firstName + ' ' + student.lastName;
+            const paymentData: ClassPaymentType = new Map();
+
+            Object.entries(prices).forEach(([classId, classInfo]) => {
+                const className = Object.keys(classInfo)[0];
+                const key = `${student.id}-${classId}`;
+                const amount = aggregatedPayments.has(key) ? aggregatedPayments.get(key)!.reduce((acc, curr) => acc + curr, 0) : 0.0;
+                const paid = aggregatedPayments.has(key) ? true : false;
+
+                paymentData.set(Number(classId), {
+                    className,
+                    amount,
+                    paid,
+                });
+            });
 
             const stdData = {
                 studentName,
