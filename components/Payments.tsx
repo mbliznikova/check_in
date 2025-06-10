@@ -47,6 +47,8 @@ const Payments = () => {
 
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
+    const [paymentTable, setPaymentTable] = useState<PaymentMapType>(new Map());
+
     const [summary, setSummary] = useState<number>(0.0);
 
     // Need to construct the object to have students and classes ids and names, prices (not paid) and payments (paid)
@@ -85,7 +87,7 @@ const Payments = () => {
         return paidMap;
     };
 
-    const createPaymentMap = (): PaymentMapType => {
+    const createPaymentMap = () => {
         const paymentMap: PaymentMapType = new Map();
 
         const aggregatedPayments = aggregatePayments();
@@ -115,7 +117,7 @@ const Payments = () => {
             paymentMap.set(student.id, stdData)
         });
 
-        return paymentMap;
+        setPaymentTable(paymentMap);
     };
 
 
@@ -208,6 +210,11 @@ const Payments = () => {
         fetchSummary();
     },
     []);
+
+    useEffect(() => {
+        createPaymentMap();
+    },
+    [students, prices, payments]);
 
     return (
         <SafeAreaView style={styles.container}>
