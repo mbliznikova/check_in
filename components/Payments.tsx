@@ -10,11 +10,15 @@ type StudentType = {
     lastName: string;
 };
 
-type PriceType = {
+type RawPriceType = {
     [classId: string]: {
         [className: string]: number
     },
 };
+
+type PriceType = Map<number, {
+    [className: string]: number
+}>;
 
 type ClassPaymentType = Map<number, {
     className: string;
@@ -45,15 +49,13 @@ const Payments = () => {
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
-    const [prices, setPrices] = useState<PriceType>({});
+    const [prices, setPrices] = useState<PriceType>(new Map());
 
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
     const [paymentTable, setPaymentTable] = useState<PaymentMapType>(new Map());
 
     const [summary, setSummary] = useState<number>(0.0);
-
-    // Need to construct the object to have students and classes ids and names, prices (not paid) and payments (paid)
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -89,7 +91,7 @@ const Payments = () => {
         return paidMap;
     };
 
-    const createPaymentMap = () => {
+    const createPaymentTable = () => {
         const paymentMap: PaymentMapType = new Map();
 
         const aggregatedPayments = aggregatePayments();
@@ -98,7 +100,7 @@ const Payments = () => {
             const studentName = student.firstName + ' ' + student.lastName;
             const paymentData: ClassPaymentType = new Map();
 
-            Object.entries(prices).forEach(([classId, classInfo]) => {
+            prices.forEach((classInfo, classId) => {
                 const className = Object.keys(classInfo)[0];
                 const key = `${student.id}-${classId}`;
                 const amount = aggregatedPayments.has(key) ? aggregatedPayments.get(key)!.reduce((acc, curr) => acc + curr, 0) : 0.0;
@@ -133,7 +135,17 @@ const Payments = () => {
                     if (isGeneralValidResponse(responseData, "response")) {
                         console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
-                        const pricesObj: PriceType = responseData.response;
+                        const rawPricesObj: RawPriceType = responseData.response;
+
+                        const pricesObj: PriceType = new Map(
+                            Object.entries(rawPricesObj)
+                                .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
+                                .sort((a, b) => {
+                                        const nameA = Object.keys(a[1])[0].toLowerCase();
+                                        const nameB = Object.keys(b[1])[0].toLowerCase();
+                                        return nameA.localeCompare(nameB);
+                                    })
+                        );
 
                         setPrices(pricesObj);
                     }
@@ -154,6 +166,7 @@ const Payments = () => {
                         console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                         const studentList: StudentType[] = responseData.response;
+                        studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
 
                         setStudents(studentList);
                     }
@@ -214,7 +227,7 @@ const Payments = () => {
     []);
 
     useEffect(() => {
-        createPaymentMap();
+        createPaymentTable();
     },
     [students, prices, payments]);
 
