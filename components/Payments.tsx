@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -38,6 +38,8 @@ type PaymentMapType = Map<number, {
   }>;
 
 const Payments = () => {
+
+    const colorScheme = useColorScheme();
 
     const [loading, setLoading] = useState(true);
 
@@ -216,9 +218,32 @@ const Payments = () => {
     },
     [students, prices, payments]);
 
+    const renderHeaderRow = () => {
+        return (
+            <View>
+                <View>
+                    <View style={{ flexDirection: "row", padding: 20}}>
+                    <Text style={[{paddingRight: 100, paddingTop: 20}, colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Student</Text>
+                        {Object.entries(prices).map(([classId, classInfo]) => (
+                            <View key={classId} style={{ flexDirection: "row", padding: 20  }}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{Object.keys(classInfo)[0]}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+                {students.map((student) => (
+                    <View key={student.id} style={{ padding: 20 }}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{student.firstName + " " + student.lastName}</Text>
+                    </View>
+                ))}
+        </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
+            {renderHeaderRow()}
         </SafeAreaView>
     );
 };
@@ -227,6 +252,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
+    },
+    darkColor: {
+        color: 'black',
+    },
+    lightColor: {
+        color: 'white',
     },
 })
 
