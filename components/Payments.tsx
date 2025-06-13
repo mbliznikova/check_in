@@ -232,31 +232,63 @@ const Payments = () => {
     [students, prices, payments]);
 
     const renderHeaderRow = () => {
+        const priceArray = Array.from(prices);
+        return (
+        <View>
+            <View style={{ flexDirection: "row" }}>
+                <Text style={{paddingRight: 150}}></Text>
+                {priceArray.map(([classId, classInfo]) => {
+                    const className = Object.keys(classInfo)[0];
+                    return (
+                        <View key={classId} style={{ flexDirection: "row", padding: 20  }}>
+                            <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{className}</Text>
+                        </View>
+                    );
+                })}
+            </View>
+        </View>
+        );
+    };
+
+    const renderTableBody = () => {
         return (
             <View>
-                <View>
-                    <View style={{ flexDirection: "row", padding: 20}}>
-                    <Text style={[{paddingRight: 100, paddingTop: 20}, colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Student</Text>
-                        {Object.entries(prices).map(([classId, classInfo]) => (
-                            <View key={classId} style={{ flexDirection: "row", padding: 20  }}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{Object.keys(classInfo)[0]}</Text>
-                            </View>
-                        ))}
+            {students.map((student) => {
+
+                const studentData = paymentTable.get(student.id) ?? {studentName: "", paymentData: new Map()};
+                const paymentData: ClassPaymentType = studentData ? studentData.paymentData : new Map();
+
+                return (
+                    <View key={student.id} style={{ flexDirection: "row", padding: 20  }}>
+                        <Text key={student.id} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{studentData.studentName}</Text>
+
+                        {Array.from(paymentData.entries()).map(([classId, classInfo]) => {
+
+                            const amount: number = classInfo.amount ?? 0.0;
+                            const isPaid: boolean = classInfo.paid ?? false;
+
+                            const classPrice = prices.get(Number(classId));
+                            const className = classPrice ? Object.keys(classPrice)[0] : undefined;
+                            const price = classPrice && className ? classPrice[className] : 0.0;
+
+                            return (
+                                <View key={classId} style={{ flexDirection: "row", paddingHorizontal: 20}}>
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{isPaid ? amount : price}</Text>
+                                </View>
+                            );
+                        })}
                     </View>
-                </View>
-                {students.map((student) => (
-                    <View key={student.id} style={{ padding: 20 }}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{student.firstName + " " + student.lastName}</Text>
-                    </View>
-                ))}
-        </View>
+                );
+            })}
+            </View>
         );
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
-            {renderHeaderRow()}
+                {renderHeaderRow()}
+                {renderTableBody()}
         </SafeAreaView>
     );
 };
