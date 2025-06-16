@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -44,6 +44,8 @@ type PaymentMapType = Map<number, {
 const Payments = () => {
 
     const colorScheme = useColorScheme();
+
+    const screenWidth = Dimensions.get('window').width;
 
     const [loading, setLoading] = useState(true);
 
@@ -293,9 +295,9 @@ const Payments = () => {
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
-            <ScrollView>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ScrollView horizontal={true}>
-                    <View>
+                    <View style={{minWidth: screenWidth }}>
                         {renderHeaderRow()}
                         {renderTableBody()}
                     </View>
