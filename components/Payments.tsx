@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -293,8 +293,14 @@ const Payments = () => {
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
-            {renderHeaderRow()}
-            {renderTableBody()}
+            <ScrollView>
+                <ScrollView horizontal={true}>
+                    <View>
+                        {renderHeaderRow()}
+                        {renderTableBody()}
+                    </View>
+                </ScrollView>
+            </ScrollView>
         </SafeAreaView>
     );
 };
