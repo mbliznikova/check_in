@@ -235,14 +235,14 @@ const Payments = () => {
         const priceArray = Array.from(prices);
         return (
         <View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={styles.headerRow}>
                 <Text style={{paddingRight: 150}}></Text>
                 {priceArray.map(([classId, classInfo]) => {
                     const className = Object.keys(classInfo)[0];
                     return (
-                        <View key={classId} style={{ flexDirection: "row", padding: 20  }}>
-                            <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{className}</Text>
-                        </View>
+                        <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            {className}
+                        </Text>
                     );
                 })}
             </View>
@@ -259,8 +259,12 @@ const Payments = () => {
                 const paymentData: ClassPaymentType = studentData ? studentData.paymentData : new Map();
 
                 return (
-                    <View key={student.id} style={{ flexDirection: "row", padding: 20  }}>
-                        <Text key={student.id} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{studentData.studentName}</Text>
+                    <View key={student.id} style={styles.spaceBetweenRow}>
+                        <View style={{ width: 120 }}>
+                            <Text key={student.id} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                {studentData.studentName}
+                            </Text>
+                        </View>
 
                         {Array.from(paymentData.entries()).map(([classId, classInfo]) => {
 
@@ -272,8 +276,10 @@ const Payments = () => {
                             const price = classPrice && className ? classPrice[className] : 0.0;
 
                             return (
-                                <View key={classId} style={{ flexDirection: "row", paddingHorizontal: 20}}>
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>{isPaid ? amount : price}</Text>
+                                <View key={classId} style={styles.spaceBetweenRow}>
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
+                                        {isPaid ? amount : price}
+                                    </Text>
                                 </View>
                             );
                         })}
@@ -287,16 +293,31 @@ const Payments = () => {
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
-                {renderHeaderRow()}
-                {renderTableBody()}
+            {renderHeaderRow()}
+            {renderTableBody()}
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    // TODO: think of how to adjust for different screen sizes
     container: {
         flex: 1,
         padding: 10,
+    },
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'white',
+    },
+    spaceBetweenRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 30,
     },
     darkColor: {
         color: 'black',
