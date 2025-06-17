@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -126,101 +126,99 @@ const Payments = () => {
         setPaymentTable(paymentMap);
     };
 
+    const fetchPrices = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isGeneralValidResponse(responseData, "response")) {
+                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                    const rawPricesObj: RawPriceType = responseData.response;
+
+                    const pricesObj: PriceType = new Map(
+                        Object.entries(rawPricesObj)
+                            .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
+                            .sort((a, b) => {
+                                    const nameA = Object.keys(a[1])[0].toLowerCase();
+                                    const nameB = Object.keys(b[1])[0].toLowerCase();
+                                    return nameA.localeCompare(nameB);
+                                })
+                    );
+
+                    setPrices(pricesObj);
+                }
+            } else {
+                console.log("Function fetchPrices at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch (err) {
+            console.error("Error while fetching the list of prices: ", err);
+        }
+    }
+
+    const fetchStudents = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/students/');
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isValidArrayResponse(responseData, "response")) {
+                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                    const studentList: StudentType[] = responseData.response;
+                    studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
+
+                    setStudents(studentList);
+                }
+            } else {
+                console.log("Function fetchStudents at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch (err) {
+            console.error("Error while fetching the list of students: ", err);
+        }
+    }
+
+    const fetchPayments = async () => {
+         // Assume for now that the query returns the payment data only for the current month
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/payments/');
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isValidArrayResponse(responseData, "response")) {
+                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                    const paymentList: PaymentType[] = responseData.response;
+
+                    setPayments(paymentList);
+                }
+            } else {
+                console.log("Function fetchPayments at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch (err) {
+            console.error("Error while fetching the list of payments: ", err);
+        }
+    }
+
+    const fetchSummary = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/payment_summary/');
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isGeneralValidResponse(responseData, "response")) {
+                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                    const summary: number = responseData.response.summary ?? 0.0;
+
+                    setSummary(summary);
+                }
+            } else {
+                console.log("Function fetchSummary at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch (err) {
+            console.error("Error while fetching the payment summary: ", err);
+        }
+    };
 
     useEffect(() => {
-
-        const fetchPrices = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/backend/prices/');
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (isGeneralValidResponse(responseData, "response")) {
-                        console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
-
-                        const rawPricesObj: RawPriceType = responseData.response;
-
-                        const pricesObj: PriceType = new Map(
-                            Object.entries(rawPricesObj)
-                                .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
-                                .sort((a, b) => {
-                                        const nameA = Object.keys(a[1])[0].toLowerCase();
-                                        const nameB = Object.keys(b[1])[0].toLowerCase();
-                                        return nameA.localeCompare(nameB);
-                                    })
-                        );
-
-                        setPrices(pricesObj);
-                    }
-                } else {
-                    console.log("Function fetchPrices at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
-                }
-            } catch (err) {
-                console.error("Error while fetching the list of prices: ", err);
-            }
-        }
-
-        const fetchStudents = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/backend/students/');
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (isValidArrayResponse(responseData, "response")) {
-                        console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
-
-                        const studentList: StudentType[] = responseData.response;
-                        studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
-
-                        setStudents(studentList);
-                    }
-                } else {
-                    console.log("Function fetchStudents at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
-                }
-            } catch (err) {
-                console.error("Error while fetching the list of students: ", err);
-            }
-        }
-
-        const fetchPayments = async () => {
-             // Assume for now that the query returns the payment data only for the current month
-            try {
-                const response = await fetch('http://127.0.0.1:8000/backend/payments/');
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (isValidArrayResponse(responseData, "response")) {
-                        console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
-
-                        const paymentList: PaymentType[] = responseData.response;
-
-                        setPayments(paymentList);
-                    }
-                } else {
-                    console.log("Function fetchPayments at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
-                }
-            } catch (err) {
-                console.error("Error while fetching the list of payments: ", err);
-            }
-        }
-
-        const fetchSummary = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/backend/payment_summary/');
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (isGeneralValidResponse(responseData, "response")) {
-                        console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
-
-                        const summary: number = responseData.response.summary ?? 0.0;
-
-                        setSummary(summary);
-                    }
-                } else {
-                    console.log("Function fetchSummary at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
-                }
-            } catch (err) {
-                console.error("Error while fetching the payment summary: ", err);
-            }
-        }
-
         fetchPrices();
         fetchStudents();
         fetchPayments();
@@ -278,8 +276,8 @@ const Payments = () => {
                             const price = classPrice && className ? classPrice[className] : 0.0;
 
                             return (
-                                <View key={classId} style={styles.spaceBetweenRow}>
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
+                                <View key={classId} style={[styles.spaceBetweenRow]}>
+                                    <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>
                                         {isPaid ? amount : price}
                                     </Text>
                                 </View>
