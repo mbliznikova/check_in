@@ -218,6 +218,70 @@ const Payments = () => {
         }
     };
 
+    const submitPayment = async (
+        studentId: number,
+        classId: number,
+        studentName: string,
+        className: string,
+        amount: number,
+    ) => {
+        const today = new Date();
+        const todayDate = today.toISOString().slice(0, 10);
+
+        const data = {
+            paymentData: {
+                studentId: studentId,
+                classId: classId,
+                studentName: studentName,
+                className: className,
+                amount: amount,
+                paymentDate: todayDate,
+            }
+        }
+
+        console.log('data is: ' + JSON.stringify(data));
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/payments/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function submitPayment. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            }
+
+            console.log('Payment was sent successfully!');
+
+            const responseData = await response.json();
+            // TODO: validation function
+            if (
+                typeof responseData === 'object' &&
+                responseData !== null &&
+                'message' in responseData &&
+                'studentId' in responseData && responseData.studentId === studentId &&
+                'classId' in responseData && responseData.classId === classId &&
+                'studentName' in responseData && responseData.studentName === studentName &&
+                'className' in responseData && responseData.className === className &&
+                'amount' in responseData && responseData.amount === amount
+            ) {
+                console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
+            } else {
+                console.warn('Function submitPayment. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+            }
+
+        } catch (err) {
+            console.warn("Error while sending the data to the server at student check-in: ", err);
+        }
+    };
+
     useEffect(() => {
         fetchPrices();
         fetchStudents();
@@ -272,14 +336,26 @@ const Payments = () => {
                             const isPaid: boolean = classInfo.paid ?? false;
 
                             const classPrice = prices.get(Number(classId));
-                            const className = classPrice ? Object.keys(classPrice)[0] : undefined;
+                            const className = classPrice ? Object.keys(classPrice)[0] : "Undefined";
                             const price = classPrice && className ? classPrice[className] : 0.0;
 
                             return (
-                                <View key={classId} style={[styles.spaceBetweenRow]}>
+                                <View key={classId} style={[styles.spaceBetweenRow, styles.cell]}>
                                     <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>
                                         {isPaid ? amount : price}
                                     </Text>
+                                    <Pressable
+                                        onPress={() => {
+                                            submitPayment(
+                                                student.id,
+                                                classId,
+                                                studentData.studentName,
+                                                className,
+                                                price,
+                                            )
+                                        }}>
+                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}> Pay</Text>
+                                    </Pressable>
                                 </View>
                             );
                         })}
@@ -324,6 +400,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 30,
+    },
+    cell: {
+        width: 100,
+        padding: 10,
     },
     darkColor: {
         color: 'black',
