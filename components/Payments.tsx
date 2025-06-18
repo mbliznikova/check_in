@@ -226,7 +226,7 @@ const Payments = () => {
         amount: number,
     ) => {
         const today = new Date();
-        const todayDate = today.toISOString().slice(0, 10);
+        const todayDate = today.toISOString();
 
         const data = {
             paymentData: {
@@ -261,16 +261,22 @@ const Payments = () => {
             console.log('Payment was sent successfully!');
 
             const responseData = await response.json();
-            // TODO: validation function
+            // TODO: validation function and think of studentId, classId and paymentDate more precise validation
             if (
                 typeof responseData === 'object' &&
                 responseData !== null &&
-                'message' in responseData &&
-                'studentId' in responseData && responseData.studentId === studentId &&
-                'classId' in responseData && responseData.classId === classId &&
+                'message' in responseData && responseData.message === 'Payment was successfully created' &&
+                'paymentId' in responseData && typeof responseData.paymentId === 'number' &&
+                // Not checking responseData.classId === classId for the case the student/class was deleted and no such FK in Payment in BE,
+                // but the payment was added (retrospective), in case Payments FE was not refreshed after student/class was deleted?
+                'studentId' in responseData &&
+                'classId' in responseData &&
                 'studentName' in responseData && responseData.studentName === studentName &&
                 'className' in responseData && responseData.className === className &&
-                'amount' in responseData && responseData.amount === amount
+                'amount' in responseData && responseData.amount === amount &&
+                // Not checking the exact value for paymentDate now because if, fsr, the BE fails to parse and
+                // inserts it's default value, there will be mismatch. Could happen in seconds around midnight/another month/etc
+                'paymentDate' in responseData
             ) {
                 console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
