@@ -346,22 +346,24 @@ const Payments = () => {
                             const price = classPrice && className ? classPrice[className] : 0.0;
 
                             return (
-                                <View key={classId} style={[styles.spaceBetweenRow, styles.cell]}>
-                                    <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>
-                                        {isPaid ? amount : price}
-                                    </Text>
-                                    <Pressable
-                                        onPress={() => {
-                                            submitPayment(
-                                                student.id,
-                                                classId,
-                                                studentData.studentName,
-                                                className,
-                                                price,
-                                            )
-                                        }}>
-                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}> Pay</Text>
-                                    </Pressable>
+                                <View key={classId} style={[styles.spaceBetweenRow]}>
+                                    <View key={classId} style={[styles.column, styles.cell]}>
+                                        <Text style={[isPaid? {color: 'green'} : {color: "grey"}, { fontWeight: "bold" }]}>
+                                            {isPaid ? amount : price}
+                                        </Text>
+                                        <Pressable
+                                            onPress={() => {
+                                                submitPayment(
+                                                    student.id,
+                                                    classId,
+                                                    studentData.studentName,
+                                                    className,
+                                                    price,
+                                                )
+                                            }}>
+                                            <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>{isPaid ? "Pay more?" : "Pay"}</Text>
+                                        </Pressable>
+                                    </View>
                                 </View>
                             );
                         })}
@@ -410,6 +412,10 @@ const styles = StyleSheet.create({
     cell: {
         width: 100,
         padding: 10,
+    },
+    column: {
+        flexDirection: 'column',
+        alignItems: 'center',
     },
     darkColor: {
         color: 'black',
