@@ -351,18 +351,21 @@ const Payments = () => {
                                         <Text style={[isPaid? {color: 'green'} : {color: "grey"}, { fontWeight: "bold" }]}>
                                             {isPaid ? amount : price}
                                         </Text>
-                                        <Pressable
-                                            onPress={() => {
-                                                submitPayment(
-                                                    student.id,
-                                                    classId,
-                                                    studentData.studentName,
-                                                    className,
-                                                    price,
-                                                )
-                                            }}>
-                                            <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>{isPaid ? "Pay more?" : "Pay"}</Text>
-                                        </Pressable>
+                                        <View style={styles.paymentButtonContainer}>
+                                            <Pressable
+                                                style={[styles.paymentButton, isPaid? {borderColor: "green"} : {borderColor: "grey"}]}
+                                                onPress={() => {
+                                                    submitPayment(
+                                                        student.id,
+                                                        classId,
+                                                        studentData.studentName,
+                                                        className,
+                                                        price,
+                                                    )
+                                                }}>
+                                                <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>{isPaid ? "Pay more?" : "Pay"}</Text>
+                                            </Pressable>
+                                        </View>
                                     </View>
                                 </View>
                             );
@@ -411,12 +414,23 @@ const styles = StyleSheet.create({
     },
     cell: {
         width: 100,
-        padding: 10,
+        // padding: 10,
     },
     column: {
         flexDirection: 'column',
         alignItems: 'center',
     },
+    paymentButtonContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    paymentButton: {
+        paddingVertical: 7,
+        paddingHorizontal: 5,
+        marginVertical: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+      },
     darkColor: {
         color: 'black',
     },
