@@ -309,7 +309,11 @@ const Payments = () => {
     []);
 
     useEffect(() => {
-        createPaymentTable();
+        const ready = students.length > 0 && prices.size > 0 && payments.length > 0;
+
+        if (ready) {
+            createPaymentTable();
+        }
     },
     [students, prices, payments]);
 
