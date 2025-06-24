@@ -414,15 +414,21 @@ const Payments = () => {
                         <View style={styles.modalButtonsContainer}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={() => {
-                                    submitPayment(
-                                        selectedStudentId,
-                                        selectedClassId,
-                                        selectedStudentName,
-                                        selectedClassName,
-                                        selectedPrice,
-                                    );
-                                    setIsModalVisible(false);
+                                onPress={async () => {
+                                    try {
+                                        await submitPayment(
+                                            selectedStudentId,
+                                            selectedClassId,
+                                            selectedStudentName,
+                                            selectedClassName,
+                                            selectedPrice,
+                                        );
+                                        await fetchPayments();
+                                        setIsModalVisible(false);
+                                } catch (error) {
+                                    console.error("Could not submit payment: ", error);
+                                    alert("Could not complete payment.");
+                                }
                                 }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
