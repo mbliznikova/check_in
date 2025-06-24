@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -49,6 +49,8 @@ const Payments = () => {
 
     const [loading, setLoading] = useState(true);
 
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const [prices, setPrices] = useState<PriceType>(new Map());
@@ -58,6 +60,16 @@ const Payments = () => {
     const [paymentTable, setPaymentTable] = useState<PaymentMapType>(new Map());
 
     const [summary, setSummary] = useState<number>(0.0);
+
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+
+    const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+
+    const [selectedPrice, setSelectedPrice] = useState<number>(0.0);
+
+    const [selectedStudentName, setSelectedStudentName] = useState<string>("");
+
+    const [selectedClassName, setSelectedClassName] = useState<string>("");
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -355,13 +367,12 @@ const Payments = () => {
                                             <Pressable
                                                 style={[styles.paymentButton, isPaid? {borderColor: "green"} : {borderColor: "grey"}]}
                                                 onPress={() => {
-                                                    submitPayment(
-                                                        student.id,
-                                                        classId,
-                                                        studentData.studentName,
-                                                        className,
-                                                        price,
-                                                    )
+                                                    setSelectedStudentId(student.id);
+                                                    setSelectedClassId(classId);
+                                                    setSelectedStudentName(studentData.studentName);
+                                                    setSelectedClassName(className);
+                                                    setSelectedPrice(price);
+                                                    setIsModalVisible(true);
                                                 }}>
                                                 <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>{isPaid ? "Pay more?" : "Pay"}</Text>
                                             </Pressable>
@@ -377,6 +388,56 @@ const Payments = () => {
         );
     };
 
+    const renderModal = () => {
+        if (!isModalVisible || selectedStudentId === null || selectedClassId === null) {
+            return null;
+        }
+        return (
+            <Modal
+                visible={isModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setIsModalVisible(false)
+                }}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <View style={styles.modalInfo}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                Do you want to add ${selectedPrice} for {selectedStudentName}, {selectedClassName} class?
+                            </Text>
+                        </View>
+                        <View style={styles.modalButtonsContainer}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={() => {
+                                    submitPayment(
+                                        selectedStudentId,
+                                        selectedClassId,
+                                        selectedStudentName,
+                                        selectedClassName,
+                                        selectedPrice,
+                                    );
+                                    setIsModalVisible(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.modalCancelButton}
+                                onPress={() => {
+                                    setIsModalVisible(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
@@ -385,6 +446,7 @@ const Payments = () => {
                     <View style={{minWidth: screenWidth }}>
                         {renderHeaderRow()}
                         {renderTableBody()}
+                        {renderModal()}
                     </View>
                 </ScrollView>
             </ScrollView>
@@ -430,7 +492,47 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 10,
         borderWidth: 1,
-      },
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '50%',
+        height: '40%',
+        backgroundColor: 'black', //TODO: make it adjustable
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalInfo: {
+        padding: 20,
+    },
+    modalButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 20,
+        alignItems: 'center',
+        width: '30%',
+    },
+    modalConfirmButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'green',
+    },
+    modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
+    },
     darkColor: {
         color: 'black',
     },
