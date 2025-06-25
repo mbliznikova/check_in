@@ -424,6 +424,7 @@ const Payments = () => {
                                             selectedPrice,
                                         );
                                         await fetchPayments();
+                                        await fetchSummary();
                                         setIsModalVisible(false);
                                 } catch (error) {
                                     console.error("Could not submit payment: ", error);
