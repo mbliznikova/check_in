@@ -321,7 +321,7 @@ const Payments = () => {
         const priceArray = Array.from(prices);
         return (
         <View>
-            <View style={styles.headerRow}>
+            <View style={[styles.headerRow, styles.whiteBorderLine]}>
                 <Text style={{paddingRight: 150}}></Text>
                 {priceArray.map(([classId, classInfo]) => {
                     const className = Object.keys(classInfo)[0];
@@ -338,7 +338,7 @@ const Payments = () => {
 
     const renderTableBody = () => {
         return (
-            <View>
+            <View style={styles.whiteBorderLine}>
             {students.map((student) => {
 
                 const studentData = paymentTable.get(student.id) ?? {studentName: "", paymentData: new Map()};
@@ -448,6 +448,15 @@ const Payments = () => {
         );
     };
 
+    const renderSummary = () => {
+        return (
+            <View style={[styles.spaceBetweenRow]}>
+                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>Summary:</Text>
+                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>{summary}</Text>
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
@@ -457,6 +466,7 @@ const Payments = () => {
                         {renderHeaderRow()}
                         {renderTableBody()}
                         {renderModal()}
+                        {renderSummary()}
                     </View>
                 </ScrollView>
             </ScrollView>
@@ -470,12 +480,14 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
     },
+    whiteBorderLine: {
+        borderBottomWidth: 1,
+        borderBottomColor: 'white',
+    },
     headerRow: {
         flexDirection: "row",
         justifyContent: 'space-between',
         padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: 'white',
     },
     spaceBetweenRow: {
         flexDirection: 'row',
@@ -542,6 +554,10 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
+    },
+    summary: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
     darkColor: {
         color: 'black',
