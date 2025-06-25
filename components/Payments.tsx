@@ -365,7 +365,7 @@ const Payments = () => {
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
                                         <Text style={[isPaid? {color: 'green'} : {color: "grey"}, { fontWeight: "bold" }]}>
-                                            {isPaid ? amount : price}
+                                            {isPaid ? amount + " - Paid" : price}
                                         </Text>
                                         <View style={styles.paymentButtonContainer}>
                                             <Pressable
