@@ -30,6 +30,7 @@ type StudentAttendanceCountType = {
     firstName: string;
     lastName: string;
     count: [number, number];
+    balance: number;
 }
 
 type ClassAttendanceCountType = {
@@ -42,6 +43,16 @@ type StudentAttendanceDetailsType = {
     lastName: string;
     classesInfo: Map<number, Map<string, [number, number]>>;
 }
+
+type PaymentType = {
+    id: number;
+    studentId: number;
+    classId: number;
+    studentName: string;
+    className: string;
+    amount: number;
+    paymentDate: string;
+};
 
 const Attendance = () => {
     const colorScheme = useColorScheme();
@@ -58,6 +69,10 @@ const Attendance = () => {
         classesInfo:
             new Map<number, Map<string, [number, number]>>(),
     });
+
+    const [payments, setPayments] = useState<PaymentType[]>([]);
+
+    const [balance, setBalance] = useState<Map<number, Map<number, number>>>(new Map());
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -99,14 +114,70 @@ const Attendance = () => {
             }
         }
 
+        const fetchPayments = async () => {
+            // Assume for now that the query returns the payment data only for the current month
+           try {
+               const response = await fetch('http://127.0.0.1:8000/backend/payments/');
+               if (response.ok) {
+                   const responseData = await response.json();
+                   if (isValidArrayResponse(responseData, "response")) {
+                       console.log("Function fetchPayments at Attendance.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                       const paymentList: PaymentType[] = responseData.response;
+
+                       setPayments(paymentList);
+                   }
+               } else {
+                   console.log("Function fetchPayments at Attendance.tsx. Request was unsuccessful: ", response.status, response.statusText)
+               }
+           } catch (err) {
+               console.error("Error while fetching the list of payments: ", err);
+           }
+       }
+
         fetchAttendances();
+        fetchPayments();
     },
     []);
 
     useEffect(() => {
-        countAttendences(attendances);
+        getBalance();
+    }, [payments]);
+
+    useEffect(() => {
+        const ready = attendances.length > 0 && balance.size > 0;
+        if (ready) {
+            countAttendences(attendances);
+        }
     },
-    [attendances]);
+    [attendances, balance]);
+
+    const getBalance = () => {
+        const balanceResult: Map<number, Map<number, number>> = new Map();
+
+        payments.forEach(payment => {
+            const studentId = payment.studentId;
+            const classId = payment.classId;
+            const amount = payment.amount;
+
+            if (balanceResult.has(studentId)) {
+                const balanceDetails = balanceResult.get(studentId);
+                if (balanceDetails?.has(classId)) {
+                    const classBalance = balanceDetails.get(classId) ?? 0.0;
+                    balanceDetails.set(classId, classBalance + amount);
+                } else {
+                    balanceDetails?.set(classId, amount)
+                }
+                balanceResult.set(studentId, balanceDetails ?? new Map());
+            } else {
+                const balanceDetails = new Map();
+                balanceDetails.set(classId, amount);
+                balanceResult.set(studentId, balanceDetails);
+            }
+        })
+
+        setBalance(balanceResult);
+    };
 
     const countAttendences = (attendanceList: AttendanceType[]) => {
         const reportMap: Map<number, ClassAttendanceCountType> = new Map();
@@ -129,10 +200,14 @@ const Attendance = () => {
                     const studentIdNum = Number(studentId);
 
                     if (!reportClassId?.students.has(studentIdNum)) {
+                        const studentClassesBalance = balance.get(studentIdNum);
+                        const classBalance = studentClassesBalance?.get(classIdNum);
+
                         reportClassId?.students.set(studentIdNum, {
                             firstName: studentInfo.firstName,
                             lastName: studentInfo.lastName,
                             count: [0, 0],
+                            balance: classBalance ?? 0.0,
                         });
                     }
                     const student = reportClassId?.students.get(studentIdNum)!;
@@ -198,6 +273,7 @@ const Attendance = () => {
                                     renderItem={({ item: [studentId, studentInfo] }) => {
                                         const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
                                         const studentAttendance = studentInfo.count;
+                                        const studentBalance = studentInfo.balance;
 
                                         return (
                                             <View style={styles.spaceBetweenRow}>
@@ -241,7 +317,7 @@ const Attendance = () => {
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
                                                 </View>
                                                 <View style={styles.balanceColumn}>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>$0</Text>
+                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>${studentBalance}</Text>
                                                 </View>
                                             </View>
                                         );
