@@ -364,12 +364,12 @@ const Payments = () => {
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
-                                        <Text style={[isPaid? {color: 'green'} : {color: "grey"}, { fontWeight: "bold" }]}>
+                                        <Text style={[isPaid? styles.paidText : styles.unpaidText, { fontWeight: "bold" }]}>
                                             {isPaid ? amount + " - Paid" : price}
                                         </Text>
                                         <View style={styles.paymentButtonContainer}>
                                             <Pressable
-                                                style={[styles.paymentButton, isPaid? {borderColor: "green"} : {borderColor: "grey"}]}
+                                                style={[styles.paymentButton, isPaid? styles.paidBorder : styles.unpaidBorder]}
                                                 onPress={() => {
                                                     setSelectedStudentId(student.id);
                                                     setSelectedClassId(classId);
@@ -378,7 +378,7 @@ const Payments = () => {
                                                     setSelectedPrice(price);
                                                     setIsModalVisible(true);
                                                 }}>
-                                                <Text style={[isPaid? {color: 'green'} : {color: "grey"}]}>{isPaid ? "Pay more?" : "Pay"}</Text>
+                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? "Pay more?" : "Pay"}</Text>
                                             </Pressable>
                                         </View>
                                     </View>
@@ -555,6 +555,18 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
+    },
+    paidText: {
+        color: 'green',
+    },
+    unpaidText: {
+        color: 'red',
+    },
+    paidBorder: {
+        borderColor: 'green',
+    },
+    unpaidBorder: {
+        borderColor: 'red',
     },
     summary: {
         fontSize: 20,
