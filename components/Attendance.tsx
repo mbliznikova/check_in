@@ -313,11 +313,8 @@ const Attendance = () => {
                                                         </View>
                                                     </Modal>
                                                 </View>
-                                                <View style={styles.attendanceColumn}>
+                                                <View>
                                                     <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
-                                                </View>
-                                                <View style={styles.balanceColumn}>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>${studentBalance}</Text>
                                                 </View>
                                             </View>
                                         );
@@ -413,13 +410,9 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
     },
     studentNameColumn: {
-        flex: 1,
+        // flex: 1,
         minWidth: 100,
         textDecorationLine: 'underline',
-    },
-    attendanceColumn: {
-        flex: 1,
-        alignItems: 'center',
     },
     balanceColumn: {
         flex: 1,
