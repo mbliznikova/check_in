@@ -1,5 +1,5 @@
 import * as React from 'react';  
-import {Pressable, View, Text, StyleSheet, FlatList, Alert, Button} from 'react-native';
+import {Pressable, View, Text, StyleSheet, FlatList, Alert, Button, useColorScheme} from 'react-native';
 import Student from './Student';
 
 
@@ -22,9 +22,14 @@ const StudentList = ({
         header = <Text></Text>,
     }: StudentListProps) => {
 
+        const colorScheme = useColorScheme();
+
         const renderItem = ({ item }: {item: StudentType}) => (
             <View style={styles.inLine}>
-                <Student firstName={item.firstName} lastName={item.lastName} id={item.id}/>
+                <Pressable
+                    onPress={() => onStudentPress(item)}>
+                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName} {item.lastName}</Text>
+                </Pressable>
                 <Pressable
                     style={({ pressed }) => [
                         styles.button,
@@ -109,7 +114,18 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         elevation: 3,
-      },
+    },
+    studentName: {
+        flex: 1,
+        minWidth: 100,
+        textDecorationLine: 'underline',
+    },
+    darkColor: {
+        color: 'black',
+    },
+    lightColor: {
+        color: 'white',
+    },
 });
 
 export default StudentList;
