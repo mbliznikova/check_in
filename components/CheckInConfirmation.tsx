@@ -259,7 +259,6 @@ const CheckInConfirmation = () => {
                                                 onChange={() => {toggleShowUpConfirmation(student.id, cls.id)}}
                                                 labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                             />
-                                            {/* <Student firstName={student.firstName} lastName={student.lastName} id={student.id}/> */}
                                         </View>
                                         )
                                     }}
