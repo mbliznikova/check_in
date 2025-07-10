@@ -1,6 +1,6 @@
 import * as React from 'react';  
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import {View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
@@ -17,6 +17,8 @@ type ClassType = {
     id: number;
     name: string;
 };
+
+const screenWidth = Dimensions.get('window').width;
 
 
 const School = () => {
@@ -301,6 +303,7 @@ const School = () => {
                                     name={cls.name}
                                 />
                             }
+                            style={styles.students}
                         />
                     </View>
                 )}
@@ -319,13 +322,16 @@ const School = () => {
                 }}
             />
 
-            <StudentList 
-                studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
-                onStudentPress={(student) => {
-                    setCurrentStudent(student);
-                    setIsModalVisible(true);
-                }}
-            />
+            <View style={styles.rowWrapper}>
+                <StudentList
+                    studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
+                    onStudentPress={(student) => {
+                        setCurrentStudent(student);
+                        setIsModalVisible(true);
+                    }}
+                    style={styles.students}
+                />
+            </View>
         </View>
     );
 
@@ -340,7 +346,17 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'gray',
         marginVertical: 10,
-      },
+    },
+    students: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    rowWrapper: {
+        width: screenWidth * 0.5,
+        alignSelf: 'center',
+    },
   });
 
 export default School;

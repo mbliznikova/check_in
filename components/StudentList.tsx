@@ -1,6 +1,5 @@
 import * as React from 'react';  
-import {Pressable, View, Text, StyleSheet, FlatList, Alert, Button, useColorScheme} from 'react-native';
-import Student from './Student';
+import {Pressable, View, Text, StyleSheet, FlatList, useColorScheme, StyleProp, ViewStyle} from 'react-native';
 
 
 type StudentType = {
@@ -14,18 +13,20 @@ type StudentListProps = {
     studentList?: StudentType[];
     onStudentPress?: (studentObj: StudentType) => void;
     header?: React.ReactElement;
+    style: StyleProp<ViewStyle>;
 };
 
 const StudentList = ({
         studentList = [],
         onStudentPress = () => {},
         header = <Text></Text>,
+        style,
     }: StudentListProps) => {
 
         const colorScheme = useColorScheme();
 
         const renderItem = ({ item }: {item: StudentType}) => (
-            <View style={styles.inLine}>
+            <View style={style}>
                 <Pressable
                     onPress={() => onStudentPress(item)}>
                     <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName} {item.lastName}</Text>
