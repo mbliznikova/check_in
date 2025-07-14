@@ -239,6 +239,8 @@ const Payments = () => {
     ) => {
         const today = new Date();
         const todayDate = today.toISOString();
+        const todayMonth = today.getMonth() + 1;
+        const todayYear = today.getFullYear();
 
         const data = {
             paymentData: {
@@ -248,6 +250,8 @@ const Payments = () => {
                 className: className,
                 amount: amount,
                 paymentDate: todayDate,
+                month: todayMonth, // TODO: handle it better [from UI]
+                year: todayYear, // TODO: handle it better [from UI]
             }
         }
 
@@ -274,6 +278,7 @@ const Payments = () => {
 
             const responseData = await response.json();
             // TODO: validation function and think of studentId, classId and paymentDate more precise validation
+            // TODO: add more detailed validation for month and year
             if (
                 typeof responseData === 'object' &&
                 responseData !== null &&
@@ -288,7 +293,8 @@ const Payments = () => {
                 'amount' in responseData && responseData.amount === amount &&
                 // Not checking the exact value for paymentDate now because if, fsr, the BE fails to parse and
                 // inserts it's default value, there will be mismatch. Could happen in seconds around midnight/another month/etc
-                'paymentDate' in responseData
+                'paymentDate' in responseData &&
+                'payment_month' in responseData && "payment_year" in responseData
             ) {
                 console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
@@ -309,7 +315,8 @@ const Payments = () => {
     []);
 
     useEffect(() => {
-        const ready = students.length > 0 && prices.size > 0 && payments.length > 0;
+        // TODO: make sure the payment is loaded if there are payments at all?.. Avoid case when no payments made yet this month and it blocks
+        const ready = students.length > 0 && prices.size > 0;
 
         if (ready) {
             createPaymentTable();
