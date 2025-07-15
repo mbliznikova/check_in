@@ -278,7 +278,6 @@ const Payments = () => {
 
             const responseData = await response.json();
             // TODO: validation function and think of studentId, classId and paymentDate more precise validation
-            // TODO: add more detailed validation for month and year
             if (
                 typeof responseData === 'object' &&
                 responseData !== null &&
@@ -294,7 +293,8 @@ const Payments = () => {
                 // Not checking the exact value for paymentDate now because if, fsr, the BE fails to parse and
                 // inserts it's default value, there will be mismatch. Could happen in seconds around midnight/another month/etc
                 'paymentDate' in responseData &&
-                'payment_month' in responseData && "payment_year" in responseData
+                'paymentMonth' in responseData && 'paymentYear' in responseData &&
+                responseData.paymentMonth === todayMonth && responseData.paymentYear === todayYear
             ) {
                 console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
