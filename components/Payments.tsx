@@ -71,6 +71,10 @@ const Payments = () => {
 
     const [selectedClassName, setSelectedClassName] = useState<string>("");
 
+    const today = new Date();
+    const monthName = today.toLocaleString('default', { month: 'long' });
+    const todayYear = today.getFullYear();
+
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === "object" &&
@@ -237,7 +241,6 @@ const Payments = () => {
         className: string,
         amount: number,
     ) => {
-        const today = new Date();
         const todayDate = today.toISOString();
         const todayMonth = today.getMonth() + 1;
         const todayYear = today.getFullYear();
@@ -468,6 +471,10 @@ const Payments = () => {
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <ScreenTitle titleText={monthName}/>
+                <ScreenTitle titleText={todayYear.toString()}/>
+            </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ScrollView horizontal={true}>
                     <View style={{minWidth: screenWidth }}>
