@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -468,12 +468,31 @@ const Payments = () => {
         );
     };
 
+    const renderSelector = () => {
+        return (
+            <View style={styles.selector}>
+                <View style={{paddingRight: 20}}>
+                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
+                </View>
+                <TextInput style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]} defaultValue={monthName}></TextInput>
+                <View style={{width: 10}}></View>
+                <TextInput style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]} defaultValue={todayYear.toString()}></TextInput>
+                <View style={{width: 10}}></View>
+                <Pressable
+                    onPress = {() => {}}
+                    style={[styles.paymentButton, styles.selectorButtonColor]}
+                >
+                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                </Pressable>
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText="Payments"/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <ScreenTitle titleText={monthName}/>
-                <ScreenTitle titleText={todayYear.toString()}/>
+            {renderSelector()}
             </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ScrollView horizontal={true}>
@@ -586,12 +605,34 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
+    selector: {
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectorText: {
+        paddingHorizontal: 10,
+        fontWeight: 'bold',
+    },
+    selectorButtonColor: {
+        borderColor: 'grey',
+    },
     darkColor: {
         color: 'black',
     },
     lightColor: {
         color: 'white',
     },
+    inputFeld: {
+        height: 30,
+        width: 100,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
+      },
 })
 
 export default Payments;
