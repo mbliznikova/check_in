@@ -73,7 +73,11 @@ const Payments = () => {
 
     const today = new Date();
     const monthName = today.toLocaleString('default', { month: 'long' });
+    const monthNumber = today.getMonth() + 1;
     const todayYear = today.getFullYear();
+
+    const [selectedMonth, setSectedMonth] = useState(monthNumber);
+    const [selectedYear, setSectedYear] = useState(todayYear);
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -309,6 +313,10 @@ const Payments = () => {
         }
     };
 
+    const submitMonthYearSelection = async() => {
+        console.log('Function submitMonthYearSelection: requesting Payment data for ' + selectedMonth + ' of ' + selectedYear);
+    };
+
     useEffect(() => {
         fetchPrices();
         fetchStudents();
@@ -479,7 +487,9 @@ const Payments = () => {
                 <TextInput style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]} defaultValue={todayYear.toString()}></TextInput>
                 <View style={{width: 10}}></View>
                 <Pressable
-                    onPress = {() => {}}
+                    onPress = {() => {
+                        submitMonthYearSelection();
+                    }}
                     style={[styles.paymentButton, styles.selectorButtonColor]}
                 >
                     <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
