@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
+// import { URLSearchParams } from 'node:url'
+
 import ScreenTitle from './ScreenTitle';
 
 type StudentType = {
@@ -77,6 +79,7 @@ const Payments = () => {
     const todayYear = today.getFullYear();
 
     const [selectedMonth, setSectedMonth] = useState(monthNumber);
+
     const [selectedYear, setSectedYear] = useState(todayYear);
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
@@ -200,7 +203,11 @@ const Payments = () => {
     const fetchPayments = async () => {
          // Assume for now that the query returns the payment data only for the current month
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/payments/');
+            const params = new URLSearchParams();
+            params.append('month', selectedMonth.toString());
+            params.append('year', selectedYear.toString());
+            const response = await fetch(`http://127.0.0.1:8000/backend/payments/?${params}`);
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
