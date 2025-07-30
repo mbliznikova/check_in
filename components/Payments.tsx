@@ -78,9 +78,36 @@ const Payments = () => {
     const monthNumber = today.getMonth() + 1;
     const todayYear = today.getFullYear();
 
-    const [selectedMonth, setSectedMonth] = useState(monthNumber);
+    const [selectedMonth, setSelectedMonth] = useState(monthNumber);
 
-    const [selectedYear, setSectedYear] = useState(todayYear);
+    const [selectedYear, setSelectedYear] = useState(todayYear);
+
+    const [monthInput, setMonthInput] = useState(selectedMonth.toString());
+
+    const [yearInput, setYearInput] = useState(selectedYear.toString());
+
+    const readMonth = (monthString: string) => {
+        console.log('The month from user input is: ' + monthString);
+        const monthConverted = Number(monthString);
+        if (!Number.isNaN(monthConverted) && 1 <= monthConverted && monthConverted <= 12) {
+            setSelectedMonth(monthConverted);
+        } else {
+            console.warn('The month number from ' + monthString + ' is incorrect: ' + monthConverted);
+        }
+        setMonthInput(monthString);
+    };
+
+    const readYear = (yearString: string) => {
+        console.log('The year from user input is: ' + yearString);
+        const yearConverted = Number(yearString);
+        // TODO: think about year range?
+        if (!Number.isNaN(yearConverted)) {
+            setSelectedYear(yearConverted);
+        } else {
+            console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
+        }
+        setYearInput(yearString);
+    };
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -322,6 +349,7 @@ const Payments = () => {
 
     const submitMonthYearSelection = async() => {
         console.log('Function submitMonthYearSelection: requesting Payment data for ' + selectedMonth + ' of ' + selectedYear);
+        fetchPayments();
     };
 
     useEffect(() => {
@@ -489,9 +517,17 @@ const Payments = () => {
                 <View style={{paddingRight: 20}}>
                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
-                <TextInput style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]} defaultValue={monthName}></TextInput>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={monthInput}
+                    onChangeText={(newMonth) => {readMonth(newMonth)}}
+                />
                 <View style={{width: 10}}></View>
-                <TextInput style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]} defaultValue={todayYear.toString()}></TextInput>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={yearInput}
+                    onChangeText={(newYear) => {readYear(newYear)}}
+                />
                 <View style={{width: 10}}></View>
                 <Pressable
                     onPress = {() => {
@@ -507,7 +543,7 @@ const Payments = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScreenTitle titleText="Payments"/>
+            <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}
             </View>
