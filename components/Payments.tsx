@@ -228,7 +228,6 @@ const Payments = () => {
     }
 
     const fetchPayments = async () => {
-         // Assume for now that the query returns the payment data only for the current month
         try {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
@@ -254,7 +253,11 @@ const Payments = () => {
 
     const fetchSummary = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/payment_summary/');
+            const params = new URLSearchParams();
+            params.append('month', selectedMonth.toString());
+            params.append('year', selectedYear.toString());
+            const response = await fetch(`http://127.0.0.1:8000/backend/payment_summary/?${params}`);
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
@@ -350,6 +353,7 @@ const Payments = () => {
     const submitMonthYearSelection = async() => {
         console.log('Function submitMonthYearSelection: requesting Payment data for ' + selectedMonth + ' of ' + selectedYear);
         fetchPayments();
+        fetchSummary();
     };
 
     useEffect(() => {
