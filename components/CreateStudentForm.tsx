@@ -10,16 +10,7 @@ const CreateStudentForm = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
 
-    const readFirstName = (name: string) => {
-        console.log(`The first name is ${name}`);
-        setFirstName(name);
-    };
-    const readLastName = (name: string) => {
-        console.log(`The last name is ${name}`);
-        setLastName(name);
-    };
-
-    const submitNewStudent = async () => {
+    const createNewStudent = async () => {
         const data = {
             "firstName": firstName,
             "lastName": lastName,
@@ -40,12 +31,13 @@ const CreateStudentForm = () => {
             );
 
             if (!response.ok) {
-                const errorMessage = `Function submitNewStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                const errorMessage = `Function createNewStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`;
                 throw Error(errorMessage);
             } else {
                 console.log('Student was created successfully!');
 
                 const responseData = await response.json();
+
                 if (
                     typeof responseData === 'object' &&
                     responseData !== null &&
@@ -54,15 +46,15 @@ const CreateStudentForm = () => {
                     'firstName' in responseData && responseData.firstName === firstName &&
                     'lastName' in responseData && responseData.lastName === lastName
                 ) {
-                    console.log('Function submitNewStudent. The response from backend is valid. ' + JSON.stringify(responseData))
+                    console.log(`Function createNewStudent. The response from backend is valid. ${JSON.stringify(responseData)}`)
                 } else {
-                    console.warn('Function submitNewStudent. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                    console.warn(`Function createNewStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
                 setFirstName("");
                 setLastName("");
             }
         } catch(error) {
-            console.error("Error while sending the data to the server at student check-in: ", error);
+            console.error(`Error while sending the data to the server at creating student: ${error}`);
         }
     };
 
@@ -78,7 +70,7 @@ const CreateStudentForm = () => {
                 <TextInput
                 style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
                 value={firstName}
-                onChangeText={(newFirstName) => {readFirstName(newFirstName)}}
+                onChangeText={(newFirstName) => {setFirstName(newFirstName)}}
             />
             </View>
             <View style={[styles.itemContainer, styles.itemRow]}>
@@ -90,13 +82,13 @@ const CreateStudentForm = () => {
                 <TextInput
                     style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
                     value={lastName}
-                    onChangeText={(newLastName) => {readLastName(newLastName)}}
+                    onChangeText={(newLastName) => {setLastName(newLastName)}}
                 />
             </View>
             <View style={styles.itemContainer}>
                 <Pressable
                 onPress={() => {
-                    submitNewStudent();
+                    createNewStudent();
                 }}
                 style={styles.createButton}
                 >

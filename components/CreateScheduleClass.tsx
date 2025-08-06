@@ -15,6 +15,52 @@ const CreateScheduleClass = () => {
 
     const [classStatus, setClassStatus] = useState("");
 
+    const createClass = async () => {
+        // TODO: sanitize input
+        const data = {
+            "name": className
+        };
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/classes/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Class was created successfully!');
+
+                const responseData = await response.json();
+
+                if (
+                    typeof responseData === 'object' &&
+                    responseData !== null &&
+                    'message' in responseData && responseData.message === 'Class was created successfully' &&
+                    'id' in responseData &&
+                    'name' in responseData && responseData.name === className
+                ) {
+                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                    setClassStatus(`Class ${className} has been created with id ${responseData.id}`);
+                } else {
+                    console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+                setClassName("");
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server at student check-in: ${error}`);
+        }
+    }
+
     const renderClassCreationForm = () => {
         return (
             <View>
@@ -32,12 +78,17 @@ const CreateScheduleClass = () => {
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {}}
+                        onPress={() => {createClass()}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
                     </Pressable>
                 </View>
+                <Text
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                >
+                    {classStatus}
+                </Text>
             </View>
         );
     };
