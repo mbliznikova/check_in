@@ -54,10 +54,63 @@ const CreateScheduleClass = () => {
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
-                setClassName("");
             }
         } catch(error) {
-            console.error(`Error while sending the data to the server at student check-in: ${error}`);
+            console.error(`Error while sending the data to the server when creating class: ${error}`);
+        }
+    }
+
+    const scheduleClass = async (classToScheduleId: string) => {
+        // TODO: sanitize input and add checks
+        const data = {
+            "classId": classToScheduleId,
+            "day": day,
+            "classTime": time,
+        }
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/schedules/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function scheduleClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Class was scheduled successfully!');
+
+                const responseData = await response.json();
+
+                if (
+                    typeof responseData === 'object' &&
+                    responseData !== null &&
+                    'message' in responseData && responseData.message === 'Schedule was created successfully' &&
+                    'classId' in responseData && responseData.classId.toString() === classToScheduleId &&
+                    'className' in responseData && responseData.className === className &&
+                    'day'  in responseData && responseData.day === day &&
+                    'time' in responseData // TODO: handle the time from response better
+                ) {
+                    console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                } else {
+                    console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+
+                setClassId("");
+                setClassName("");
+                setClassStatus("");
+                setDay("");
+                setTime("");
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server when scheduling class: ${error}`);
         }
     }
 
@@ -134,7 +187,7 @@ const CreateScheduleClass = () => {
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {}}
+                        onPress={() => {scheduleClass(classId)}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
@@ -144,6 +197,7 @@ const CreateScheduleClass = () => {
         );
     };
 
+    // TODO: add a schedule confirmation
     return (
         <SafeAreaView style={styles.container}>
             <ScreenTitle titleText='Create new class'/>
