@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
 
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
@@ -74,6 +74,40 @@ const Attendance = () => {
 
     const [balance, setBalance] = useState<Map<number, Map<number, number>>>(new Map());
 
+    const today = new Date();
+    const monthName = today.toLocaleString('default', { month: 'long' });
+    const monthNumber = today.getMonth() + 1;
+    const todayYear = today.getFullYear();
+
+    const [selectedMonth, setSelectedMonth] = useState(monthNumber);
+
+    const [selectedYear, setSelectedYear] = useState(todayYear);
+
+    const [monthInput, setMonthInput] = useState(selectedMonth.toString());
+
+    const [yearInput, setYearInput] = useState(selectedYear.toString());
+
+    const readMonth = (monthString: string) => {
+        const monthConverted = Number(monthString);
+        if (!Number.isNaN(monthConverted) && 1 <= monthConverted && monthConverted <= 12) {
+            setSelectedMonth(monthConverted);
+        } else {
+            console.warn('The month number from ' + monthString + ' is incorrect: ' + monthConverted);
+        }
+        setMonthInput(monthString);
+    };
+
+    const readYear = (yearString: string) => {
+        const yearConverted = Number(yearString);
+        // TODO: think about year range?
+        if (!Number.isNaN(yearConverted)) {
+            setSelectedYear(yearConverted);
+        } else {
+            console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
+        }
+        setYearInput(yearString);
+    };
+
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === 'object' &&
@@ -83,37 +117,35 @@ const Attendance = () => {
         );
     };
 
-    useEffect(() => {
-        const fetchAttendances = async () => {
+    const fetchAttendances = async () => {
+        try {
+            const params = new URLSearchParams();
+            params.append('month', selectedMonth.toString());
+            params.append('year', selectedYear.toString());
+            const response = await fetch(`http://127.0.0.1:8000/backend/attendances/?${params}`);
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isValidArrayResponse(responseData, 'response')) {
+                    console.log('AttendancePaymentsReport. Function fetchAttendances. The response from backend is valid.' + JSON.stringify(responseData))
 
-            const now = new Date();
-            const currentMonth = now.getMonth() + 1;
-            const currentYear = now.getFullYear();
+                    const dataAttendanceList: AttendanceType[] = responseData.response;
+                    const fetchedAttendances = dataAttendanceList.map(att => ({
+                        date: att.date,
+                        classes: att.classes
+                    }));
 
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/backend/attendances/?month=${currentMonth}&year=${currentYear}`);
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (isValidArrayResponse(responseData, 'response')) {
-                        console.log('AttendancePaymentsReport. Function fetchAttendances. The response from backend is valid.' + JSON.stringify(responseData))
-
-                        const dataAttendanceList: AttendanceType[] = responseData.response;
-                        const fetchedAttendances = dataAttendanceList.map(att => ({
-                            date: att.date,
-                            classes: att.classes
-                        }));
-
-                        setAttendances(fetchedAttendances);
-                        console.log("AttendancePaymentsReport. Fetched attendances: ", fetchedAttendances);
-                    }
-                } else {
-                    console.log("Function fetchAttendances. Response was unsuccessful: ", response.status, response.statusText)
+                    setAttendances(fetchedAttendances);
+                    console.log("AttendancePaymentsReport. Fetched attendances: ", fetchedAttendances);
                 }
-            } catch (err) {
-                console.error("Error while fetching the list of attendances: ", err)
+            } else {
+                console.log("Function fetchAttendances. Response was unsuccessful: ", response.status, response.statusText)
             }
+        } catch (err) {
+            console.error("Error while fetching the list of attendances: ", err)
         }
+    }
 
+    useEffect(() => {
         const fetchPayments = async () => {
             // Assume for now that the query returns the payment data only for the current month
            try {
@@ -241,9 +273,17 @@ const Attendance = () => {
         }
     };
 
+    const submitMonthYearSelection = async() => {
+        console.log('Function submitMonthYearSelection: requesting Attendance data for ' + selectedMonth + ' of ' + selectedYear);
+        fetchAttendances();
+    };
+
     const renderHeader = () => (
         <View style={[styles.headerContainer, colorScheme === 'dark'? styles.darkBackground : styles.lightBackground]}>
-            <ScreenTitle titleText='Attendance report'/>
+            <ScreenTitle titleText={`Attendance report (${monthName} ${todayYear})`}/>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                {renderSelector()}
+            </View>
             <View style={styles.headerRow}>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
                 <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance (24 hrs policy if applicable)</Text>
@@ -251,6 +291,37 @@ const Attendance = () => {
         </View>
     );
 
+    const renderSelector = () => {
+        return (
+            <View style={styles.selector}>
+                <View style={{paddingRight: 20}}>
+                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
+                </View>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={monthInput}
+                    onChangeText={(newMonth) => {readMonth(newMonth)}}
+                />
+                <View style={{width: 10}}></View>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={yearInput}
+                    onChangeText={(newYear) => {readYear(newYear)}}
+                />
+                <View style={{width: 10}}></View>
+                <Pressable
+                    onPress = {() => {
+                        submitMonthYearSelection();
+                    }}
+                    style={[styles.paymentButton, styles.selectorButtonColor]}
+                >
+                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                </Pressable>
+            </View>
+        );
+    };
+
+    // TODO: refactor teh components: extract functions to separate places. DRY.
     return (
          <SafeAreaView style={styles.container}>
             <View style={[styles.container]}>
@@ -427,6 +498,35 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'gray',
         marginVertical: 10,
+    },
+    selector: {
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectorText: {
+        paddingHorizontal: 10,
+        fontWeight: 'bold',
+    },
+    selectorButtonColor: {
+        borderColor: 'grey',
+    },
+    inputFeld: {
+        height: 30,
+        width: 100,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
+    },
+    paymentButton: {
+        paddingVertical: 7,
+        paddingHorizontal: 5,
+        marginVertical: 10,
+        borderRadius: 10,
+        borderWidth: 1,
     },
 })
 
