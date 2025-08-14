@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme } from "react-native";
 
 
 type ClassType = {
@@ -8,6 +8,8 @@ type ClassType = {
 };
 
 const ClassManagement = () => {
+    const colorScheme = useColorScheme();
+
     const [classes, setClasses] = useState<ClassType[]>([]);
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
@@ -21,7 +23,7 @@ const ClassManagement = () => {
 
     const fetchClasses = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/classes_list/');
+            const response = await fetch('http://127.0.0.1:8000/backend/classes/');
             if (response.ok) {
                 const responseData = await response.json();
 
@@ -49,8 +51,17 @@ const ClassManagement = () => {
     // add useEffect to handle adding the created class to the list
 
     return (
-        // Add rendering the list of classes with Edit/Delete and Add Class button
-        <SafeAreaView></SafeAreaView>
+        <SafeAreaView>
+            <FlatList
+                data={classes}
+                keyExtractor={(cls) => cls.id.toString()}
+                renderItem={({ item: cls }) => (
+                    <View>
+                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>{cls.name}</Text>
+                    </View>
+                )}
+            ></FlatList>
+        </SafeAreaView>
     );
 };
 
@@ -60,6 +71,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+    },
+    darkColor: {
+        color: 'black',
+    },
+    lightColor: {
+        color: 'white',
     },
 });
 
