@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import ScreenTitle from "./ScreenTitle";
 
 
 type ClassType = {
@@ -50,17 +51,56 @@ const ClassManagement = () => {
 
     // add useEffect to handle adding the created class to the list
 
-    return (
-        <SafeAreaView>
+    const renderHeaderRow = () => {
+        return (
+        <View style={styles.headerRow}>
+            <View style={{marginLeft: 'auto'}}>
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.button,
+                        pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed,
+                    ]}
+                    onPress={() => {}}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Create new class</Text>
+                </Pressable>
+            </View>
+        </View>
+        );
+    };
+
+    const renderClassList = () => {
+        return (
             <FlatList
                 data={classes}
                 keyExtractor={(cls) => cls.id.toString()}
                 renderItem={({ item: cls }) => (
-                    <View>
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>{cls.name}</Text>
+                    <View style={styles.classesList}>
+                        <Pressable
+                            style={{padding: 10}}
+                            onPress={() => {}}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
+                        </Pressable>
+                        <View style={{flexDirection: 'row'}}>
+                            <Pressable
+                                onPress={() => {}}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Update</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {}}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Delete</Text>
+                            </Pressable>
+                        </View>
                     </View>
-                )}
-            ></FlatList>
+                )}>
+            </FlatList>
+        );
+    };
+
+    return (
+        <SafeAreaView>
+            <ScreenTitle titleText={'Class management'}/>
+            {renderHeaderRow()}
+            {renderClassList()}
         </SafeAreaView>
     );
 };
@@ -71,6 +111,38 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+    },
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        padding: 20,
+        paddingBottom: 20,
+    },
+    classesList: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+    },
+    className: {
+        paddingLeft: 10,
+        textDecorationLine: 'underline',
+    },
+    actionButton: {
+        paddingRight: 10,
+        textDecorationLine: 'underline',
+    },
+    button: {
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        elevation: 3,
+    },
+    primaryButtonPressed: {
+        backgroundColor: '#c2c0c0',
+        borderRadius: 8,
+    },
+    primaryButtonUnpressed: {
+        backgroundColor: 'blue',
+        borderRadius: 8,
     },
     darkColor: {
         color: 'black',
