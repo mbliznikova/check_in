@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable, Modal } from "react-native";
 import ScreenTitle from "./ScreenTitle";
 
 
@@ -13,6 +13,13 @@ const ClassManagement = () => {
 
     const [classes, setClasses] = useState<ClassType[]>([]);
 
+    const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+    const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
+
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === 'object' &&
@@ -20,7 +27,17 @@ const ClassManagement = () => {
             key in responseData &&
             Array.isArray(responseData[key])
         );
-    }
+    };
+
+    const isValidDeleteResponse = (responseData: any, classId: number, className: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Class ${classId} - ${className} was delete successfully` &&
+            'classId' in responseData && responseData.classId === classId &&
+            'className' in responseData && responseData.className === className
+        );
+    };
 
     const fetchClasses = async () => {
         try {
@@ -41,6 +58,34 @@ const ClassManagement = () => {
             }
         } catch(error) {
             console.error(`Error while fetching the classes from the server: ${error}`);
+        }
+    };
+
+    const deleteClass = async (classId: number | null, className: string | null) => {
+        if (classId === null || className === null) {
+            console.warn("No class selected to delete");
+            return null;
+        }
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${classId}/delete/`,
+                {
+                    method: 'DELETE',
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidDeleteResponse(responseData, classId, className)) {
+                    console.log(`Function deleteClass. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                } else {
+                    console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function deleteClass. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch(error) {
+            console.error(`Error while deleting the class: ${error}`);
         }
     };
 
@@ -86,7 +131,11 @@ const ClassManagement = () => {
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Update</Text>
                             </Pressable>
                             <Pressable
-                                onPress={() => {}}>
+                                onPress={() => {
+                                    setSelectedClassId(cls.id);
+                                    setSelectedClassName(cls.name);
+                                    setIsDeleteModalVisible(true);
+                                }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Delete</Text>
                             </Pressable>
                         </View>
@@ -96,11 +145,62 @@ const ClassManagement = () => {
         );
     };
 
+    const renderDeleteClassModal = () => {
+        if (!isDeleteModalVisible) {
+            return null;
+        }
+        return (
+            <Modal
+                visible={isDeleteModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setIsDeleteModalVisible(false)
+                }}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <View style={styles.modalInfo}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                Do you want to delete {selectedClassName} class (id {selectedClassId})?
+                            </Text>
+                        </View>
+                        <View style={styles.modalButtonsContainer}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={async () => {
+                                    try {
+                                        await deleteClass(selectedClassId, selectedClassName);
+                                    }
+                                    catch (error) {
+                                        console.error("Could not delete class: ", error);
+                                        alert("Could not delete class.");
+                                    }
+                                    setIsDeleteModalVisible(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.modalCancelButton}
+                                onPress={() => {
+                                    setIsDeleteModalVisible(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
     return (
         <SafeAreaView>
             <ScreenTitle titleText={'Class management'}/>
             {renderHeaderRow()}
             {renderClassList()}
+            {renderDeleteClassModal()}
         </SafeAreaView>
     );
 };
@@ -143,6 +243,46 @@ const styles = StyleSheet.create({
     primaryButtonUnpressed: {
         backgroundColor: 'blue',
         borderRadius: 8,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '50%',
+        height: '40%',
+        backgroundColor: 'black', //TODO: make it adjustable
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalInfo: {
+        padding: 20,
+    },
+    modalButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 20,
+        alignItems: 'center',
+        width: '30%',
+    },
+    modalConfirmButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'green',
+    },
+    modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
     },
     darkColor: {
         color: 'black',
