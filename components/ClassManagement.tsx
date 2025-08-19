@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable, Modal } from "react-native";
+
 import ScreenTitle from "./ScreenTitle";
+import CreateScheduleClass from "./CreateScheduleClass";
 
 
 type ClassType = {
@@ -105,7 +107,9 @@ const ClassManagement = () => {
                         styles.button,
                         pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed,
                     ]}
-                    onPress={() => {}}>
+                    onPress={() => {
+                        setIsCreateModalVisible(true)
+                    }}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Create new class</Text>
                 </Pressable>
             </View>
@@ -142,6 +146,23 @@ const ClassManagement = () => {
                     </View>
                 )}>
             </FlatList>
+        );
+    };
+
+    const renderCreateClassModal = () => {
+        if (!isCreateModalVisible) {
+            return null;
+        }
+        return (
+            <Modal
+                visible={isCreateModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setIsCreateModalVisible(false);
+                }}
+            >
+                <CreateScheduleClass/>
+            </Modal>
         );
     };
 
@@ -201,6 +222,7 @@ const ClassManagement = () => {
             {renderHeaderRow()}
             {renderClassList()}
             {renderDeleteClassModal()}
+            {renderCreateClassModal()}
         </SafeAreaView>
     );
 };
