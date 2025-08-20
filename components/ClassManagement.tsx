@@ -46,13 +46,13 @@ const ClassManagement = () => {
     };
 
     // TODO: handle the created class name - comes from the modal
-    const isValidScheduleResponse = (responseData: any, classId: number, dayName: string): Boolean => {
+    const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): Boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === 'Schedule was created successfully' &&
             'classId' in responseData && responseData.classId === classId &&
-            // 'className' in responseData && responseData.className === className &&
+            'className' in responseData && responseData.className === className &&
             'day'  in responseData && responseData.day === dayName &&
             'time' in responseData // TODO: handle the time from response better
         );
@@ -160,7 +160,9 @@ const ClassManagement = () => {
 
                 if (isValidCreateResponse(responseData, className)) {
                     console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+
                     setCreateClassStatus(`Class ${className} has been created with id ${responseData.id}`);
+
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
@@ -170,7 +172,7 @@ const ClassManagement = () => {
         }
     }
 
-    const scheduleClass = async (classToScheduleId: string, day: string, time: string) => {
+    const scheduleClass = async (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => {
         // TODO: sanitize input and add checks
         const data = {
             "classId": classToScheduleId,
@@ -199,7 +201,7 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                if (isValidScheduleResponse(responseData, Number(classToScheduleId), day)
+                if (isValidScheduleResponse(responseData, Number(classToScheduleId), classToScheduleName, day)
                 ) {
                     console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
                 } else {

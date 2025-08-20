@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -9,7 +9,7 @@ type ClassCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onCreateClass: (className: string) => void;
-    onScheduleClass: (classToScheduleId: string, day: string, time: string) => void;
+    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => void;
     statusMessage: string;
 };
 
@@ -102,7 +102,7 @@ const CreateScheduleClass = ({
                 <View style={styles.itemContainer}>
                     <Pressable
                     // TODO: show confirmation and close on success of class schedule
-                        onPress={() => {onScheduleClass(classId, day, time)}}
+                        onPress={() => {onScheduleClass(classId, className, day, time)}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
@@ -136,7 +136,7 @@ const CreateScheduleClass = ({
                         onPress={onModalClose}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                        </Pressable>
+                    </Pressable>
                 </View>
             </View>
         </Modal>
