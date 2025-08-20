@@ -11,6 +11,7 @@ type ClassCreationModalProps = {
     onCreateClass: (className: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => void;
     statusMessage: string;
+    isSheduleSuccess: boolean;
 };
 
 const CreateScheduleClass = ({
@@ -19,6 +20,7 @@ const CreateScheduleClass = ({
     onCreateClass,
     onScheduleClass,
     statusMessage,
+    isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
     const colorScheme = useColorScheme();
 
@@ -101,7 +103,6 @@ const CreateScheduleClass = ({
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                    // TODO: show confirmation and close on success of class schedule
                         onPress={() => {onScheduleClass(classId, className, day, time)}}
                         style={styles.createButton}
                     >
@@ -112,13 +113,8 @@ const CreateScheduleClass = ({
         );
     };
 
-    // TODO: add a schedule confirmation
-    return (
-        <Modal
-            visible={isVisible}
-            transparent={true}
-            onRequestClose={onModalClose}
-        >
+    const renderCreateScheduleForm = () => {
+        return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <ScreenTitle titleText='Create new class'/>
@@ -139,6 +135,38 @@ const CreateScheduleClass = ({
                     </Pressable>
                 </View>
             </View>
+        );
+    };
+
+    const renderSuccessConfirmation = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Class was created and scheduled successfully!
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
+    return (
+        <Modal
+            visible={isVisible}
+            transparent={true}
+            onRequestClose={onModalClose}
+        >
+            {isSheduleSuccess ? renderSuccessConfirmation() : renderCreateScheduleForm()}
         </Modal>
 
     );
@@ -196,6 +224,26 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
+    },
+    modalButtonsContainer: {
+        flexDirection: 'row',
+        padding: 20,
+        alignItems: 'center',
+        width: '30%',
+    },
+    modalManyButtonsContainer: {
+        justifyContent: 'space-between',
+    },
+    modalSingleButtonContainer: {
+         justifyContent: 'center'
+    },
+    modalConfirmButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'green',
     },
 });
 

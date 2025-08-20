@@ -9,6 +9,7 @@ type EditClassModalProps = {
     oldClassName: string;
     onModalClose: () => void;
     onEditClass: (newClassName: string) => void;
+    isSuccess: boolean;
 };
 
 const EditClassModal = ({
@@ -16,43 +17,69 @@ const EditClassModal = ({
     oldClassName,
     onModalClose,
     onEditClass,
+    isSuccess = false,
 }: EditClassModalProps) => {
 
     const colorScheme = useColorScheme();
 
     const [newClassName, setNewClassName] = useState(oldClassName);
 
+    const renderSuccessConfirmation = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Class name was updated successfully to {newClassName}
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     const renderEditForm = () => {
         return (
-            <View style={styles.modalView}>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Edit class name:
-                    </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={newClassName}
-                        onChangeText={(updatedClassName) => {
-                            setNewClassName(updatedClassName)
-                        }}
-                    ></TextInput>
-                </View>
-
-                <View style={styles.modalButtonsContainer}>
-                    <Pressable
-                        onPress={() => onEditClass(newClassName)}
-                        style={styles.modalConfirmButton}
-                    >
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
-                    </Pressable>
-                    <Pressable
-                        style={styles.modalCancelButton}
-                        onPress={onModalClose}
+            <View style={styles.modalContainer}>
+                <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
+                <View style={styles.modalView}>
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                    </Pressable>
+                            Edit class name:
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={newClassName}
+                            onChangeText={(updatedClassName) => {
+                                setNewClassName(updatedClassName)
+                            }}
+                        ></TextInput>
+                    </View>
+
+                    <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                        <Pressable
+                            onPress={() => onEditClass(newClassName)}
+                            style={styles.modalConfirmButton}
+                        >
+                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
+                        </Pressable>
+                        <Pressable
+                            style={styles.modalCancelButton}
+                            onPress={onModalClose}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+                    </View>
                 </View>
             </View>
         );
@@ -64,11 +91,7 @@ const EditClassModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <View style={styles.modalContainer}>
-                    <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
-
-                    {renderEditForm()}
-            </View>
+            {isSuccess ? renderSuccessConfirmation() : renderEditForm()}
         </Modal>
     );
 };
@@ -93,10 +116,15 @@ const styles = StyleSheet.create({
     },
     modalButtonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         padding: 20,
         alignItems: 'center',
         width: '30%',
+    },
+    modalManyButtonsContainer: {
+        justifyContent: 'space-between',
+    },
+    modalSingleButtonContainer: {
+         justifyContent: 'center'
     },
     modalConfirmButton: {
         alignItems: 'center',

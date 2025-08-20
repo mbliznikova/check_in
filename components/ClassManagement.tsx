@@ -24,6 +24,10 @@ const ClassManagement = () => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
+    const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
+    const [isEditSuccessful, setIsEditSuccessful] = useState(false);
+    const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
+
     const [createClassStatus, setCreateClassStatus] = useState("");
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
@@ -130,6 +134,8 @@ const ClassManagement = () => {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
 
+                setIsDeleteSuccessful(true);
+
                 removeClass(selectedClassId);
 
                 setSelectedClassId(null);
@@ -223,6 +229,8 @@ const ClassManagement = () => {
                     console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
 
+                setIsScheduleSuccessful(true);
+
                 setSelectedClassId(null);
                 setSelectedClassName("");
             }
@@ -261,6 +269,8 @@ const ClassManagement = () => {
             } else {
                 console.warn(`Function editClassName. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
+
+            setIsEditSuccessful(true);
 
             updateClassName(selectedClassId, newClassName);
 
@@ -348,8 +358,10 @@ const ClassManagement = () => {
                     onScheduleClass={scheduleClass}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
+                        setCreateClassStatus("");
                     }}
                     statusMessage={createClassStatus}
+                    isSheduleSuccess={isScheduleSuccessful}
                 />
         );
     };
@@ -366,6 +378,7 @@ const ClassManagement = () => {
                 }}
                 onDeleteClass={deleteClass}
                 className={selectedClassName ?? ""}
+                isSuccess={isDeleteSuccessful}
             />
         );
     };
@@ -382,6 +395,7 @@ const ClassManagement = () => {
                 }}
                 onEditClass={editClassName}
                 oldClassName={selectedClassName ?? ""}
+                isSuccess={isEditSuccessful}
             />
         );
     };

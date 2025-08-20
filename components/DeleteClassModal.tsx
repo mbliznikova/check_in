@@ -5,6 +5,7 @@ type DeleteClassModalProps = {
     onModalClose: () => void;
     onDeleteClass: () => void;
     className: string,
+    isSuccess: boolean,
 };
 
 const DeleteClassModal = ({
@@ -12,16 +13,13 @@ const DeleteClassModal = ({
     onModalClose,
     onDeleteClass,
     className,
+    isSuccess = false,
 }: DeleteClassModalProps) => {
 
     const colorScheme = useColorScheme();
 
-    return (
-        <Modal
-            visible={isVisible}
-            transparent={true}
-            onRequestClose={() => {onModalClose}}
-        >
+    const renderModalDelete = () => {
+        return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
@@ -29,15 +27,14 @@ const DeleteClassModal = ({
                             Do you want to delete {className} class?
                         </Text>
                     </View>
-                    <View style={styles.modalButtonsContainer}>
+                    <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             style={styles.modalConfirmButton}
                             onPress={() => {
                                 onDeleteClass();
-                                onModalClose();
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
                         </Pressable>
                         <Pressable
                             style={styles.modalCancelButton}
@@ -48,6 +45,38 @@ const DeleteClassModal = ({
                     </View>
                 </View>
             </View>
+        );
+    };
+
+    const renderSuccessConfirmation = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Class {className} was deleted successfully
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
+    return (
+        <Modal
+            visible={isVisible}
+            transparent={true}
+            onRequestClose={() => {onModalClose}}
+        >
+            {isSuccess ? renderSuccessConfirmation() : renderModalDelete()}
         </Modal>
     );
 };
@@ -72,10 +101,15 @@ const styles = StyleSheet.create({
     },
     modalButtonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         padding: 20,
         alignItems: 'center',
         width: '30%',
+    },
+    modalManyButtonsContainer: {
+        justifyContent: 'space-between',
+    },
+    modalSingleButtonContainer: {
+         justifyContent: 'center'
     },
     modalConfirmButton: {
         alignItems: 'center',
