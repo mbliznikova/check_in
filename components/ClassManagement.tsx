@@ -4,6 +4,7 @@ import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressab
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
+import EditClassModal from "./EditClassModal";
 
 
 type ClassType = {
@@ -39,6 +40,16 @@ const ClassManagement = () => {
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === `Class ${classId} - ${className} was delete successfully` &&
+            'classId' in responseData && responseData.classId === classId &&
+            'className' in responseData && responseData.className === className
+        );
+    };
+
+    const isValidEditResponse = (responseData: any, classId: number, className: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Class was updated successfully` && // TODO: update the message here and in BE
             'classId' in responseData && responseData.classId === classId &&
             'className' in responseData && responseData.className === className
         );
@@ -86,6 +97,9 @@ const ClassManagement = () => {
                 } else {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
+
+                setSelectedClassId(null);
+                setSelectedClassName("");
             } else {
                 console.warn(`Function deleteClass. Request was unsuccessful: ${response.status, response.statusText}`);
             }
@@ -121,6 +135,7 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
+                // TODO: move to validation function
                 if (
                     typeof responseData === 'object' &&
                     responseData !== null &&
@@ -168,6 +183,7 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
+                // TODO: move to validation function
                 if (
                     typeof responseData === 'object' &&
                     responseData !== null &&
@@ -192,6 +208,49 @@ const ClassManagement = () => {
             console.error(`Error while sending the data to the server when scheduling class: ${error}`);
         }
     }
+
+    const editClassName = async (newClassName: string) => {
+        if (selectedClassId === null || selectedClassName === null) {
+            console.warn("No class selected to delete");
+            return null;
+        }
+
+        const data = {
+            "name": newClassName,
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/edit/`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+        if (response.ok) {
+            const responseData = await response.json();
+
+            if (isValidEditResponse(responseData, selectedClassId, newClassName)) {
+                console.log(`Successfully edited class ${newClassName} (was ${selectedClassName}) - ${selectedClassId}!`);
+            } else {
+                console.warn(`Function editClassName. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+            }
+
+            // TODO: update the name of the class here
+            setSelectedClassId(null);
+            setSelectedClassName("");
+        } else {
+            console.warn(`Function editClassName. Request was unsuccessful: ${response.status, response.statusText}`);
+        }
+
+        } catch(error) {
+            console.error(`Error while sending the data to the server when editing class: ${error}`)
+        }
+    };
 
     useEffect(() => {
         fetchClasses();
@@ -233,8 +292,12 @@ const ClassManagement = () => {
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
                             <Pressable
-                                onPress={() => {}}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Update</Text>
+                                onPress={() => {
+                                    setSelectedClassId(cls.id);
+                                    setSelectedClassName(cls.name);
+                                    setIsEditModalVisible(true);
+                                }}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Edit</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
@@ -284,6 +347,22 @@ const ClassManagement = () => {
         );
     };
 
+    const renderEditClassModal = () => {
+        if (!isEditModalVisible) {
+            return null;
+        }
+        return (
+            <EditClassModal
+                isVisible={isEditModalVisible}
+                onModalClose={() => {
+                    setIsEditModalVisible(false)
+                }}
+                onEditClass={editClassName}
+                oldClassName={selectedClassName ?? ""}
+            />
+        );
+    };
+
     return (
         <SafeAreaView>
             <ScreenTitle titleText={'Class management'}/>
@@ -291,6 +370,7 @@ const ClassManagement = () => {
             {renderClassList()}
             {renderDeleteClassModal()}
             {renderCreateClassModal()}
+            {renderEditClassModal()}
         </SafeAreaView>
     );
 };

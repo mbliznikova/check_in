@@ -14,7 +14,7 @@ const EditClassModal = ({
     isVisible = false,
     oldClassName,
     onModalClose,
-    onEditClass: onUpdateClass,
+    onEditClass,
 }: EditClassModalProps) => {
 
     const colorScheme = useColorScheme();
@@ -41,7 +41,7 @@ const EditClassModal = ({
 
                 <View style={styles.modalButtonsContainer}>
                     <Pressable
-                        onPress={() => onUpdateClass(newClassName)}
+                        onPress={() => onEditClass(newClassName)}
                         style={styles.modalConfirmButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
@@ -61,7 +61,7 @@ const EditClassModal = ({
         <Modal
             visible={isVisible}
             transparent={true}
-            onRequestClose={() => {onModalClose}} // ??????
+            onRequestClose={onModalClose}
         >
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
