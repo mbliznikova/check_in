@@ -78,6 +78,15 @@ const ClassManagement = () => {
         );
     };
 
+    const removeClass = (targetClassId: number) => {
+        const updatedClasses = classes.filter(cls => cls.id != targetClassId);
+        setClasses(updatedClasses);
+    };
+
+    const updateClassName = (targetClassId: number, newName: string) => {
+        setClasses(prevClasses => prevClasses.map(cls => cls.id === targetClassId ? {...cls, name: newName} : cls));
+    };
+
     const fetchClasses = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/backend/classes/');
@@ -121,6 +130,8 @@ const ClassManagement = () => {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
 
+                removeClass(selectedClassId);
+
                 setSelectedClassId(null);
                 setSelectedClassName("");
             } else {
@@ -150,6 +161,7 @@ const ClassManagement = () => {
                 }
             );
 
+            // TODO: refactor component and make function to follow the commom structure
             if (!response.ok) {
                 const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
                 throw Error(errorMessage);
@@ -159,9 +171,12 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidCreateResponse(responseData, className)) {
-                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`);
+
+                    const newClass = {id: responseData.id, name: responseData.name};
 
                     setCreateClassStatus(`Class ${className} has been created with id ${responseData.id}`);
+                    setClasses(prevClasses => [...prevClasses, newClass]);
 
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
@@ -247,7 +262,8 @@ const ClassManagement = () => {
                 console.warn(`Function editClassName. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
 
-            // TODO: update the name of the class here?
+            updateClassName(selectedClassId, newClassName);
+
             setSelectedClassId(null);
             setSelectedClassName("");
         } else {
@@ -264,7 +280,7 @@ const ClassManagement = () => {
     },
     []);
 
-    // add useEffect to handle adding the created class to the list
+    // add useEffect to handle adding the created class to the list?
 
     const renderHeaderRow = () => {
         return (
