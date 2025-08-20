@@ -35,6 +35,29 @@ const ClassManagement = () => {
         );
     };
 
+    const isValidCreateResponse = (responseData: any, className: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Class was created successfully' &&
+            'id' in responseData &&
+            'name' in responseData && responseData.name === className
+        );
+    };
+
+    // TODO: handle the created class name - comes from the modal
+    const isValidScheduleResponse = (responseData: any, classId: number, dayName: string): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Schedule was created successfully' &&
+            'classId' in responseData && responseData.classId === classId &&
+            // 'className' in responseData && responseData.className === className &&
+            'day'  in responseData && responseData.day === dayName &&
+            'time' in responseData // TODO: handle the time from response better
+        );
+    };
+
     const isValidDeleteResponse = (responseData: any, classId: number, className: string): Boolean => {
         return (
             typeof responseData === 'object' &&
@@ -135,14 +158,7 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                // TODO: move to validation function
-                if (
-                    typeof responseData === 'object' &&
-                    responseData !== null &&
-                    'message' in responseData && responseData.message === 'Class was created successfully' &&
-                    'id' in responseData &&
-                    'name' in responseData && responseData.name === className
-                ) {
+                if (isValidCreateResponse(responseData, className)) {
                     console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
                     setCreateClassStatus(`Class ${className} has been created with id ${responseData.id}`);
                 } else {
@@ -183,31 +199,20 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                // TODO: move to validation function
-                if (
-                    typeof responseData === 'object' &&
-                    responseData !== null &&
-                    'message' in responseData && responseData.message === 'Schedule was created successfully' &&
-                    'classId' in responseData && responseData.classId.toString() === classToScheduleId &&
-                    // 'className' in responseData && responseData.className === className &&
-                    'day'  in responseData && responseData.day === day &&
-                    'time' in responseData // TODO: handle the time from response better
+                if (isValidScheduleResponse(responseData, Number(classToScheduleId), day)
                 ) {
                     console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
                 } else {
                     console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
 
-                // setClassId("");
-                // setClassName("");
-                // setClassStatus("");
-                // setDay("");
-                // setTime("");
+                setSelectedClassId(null);
+                setSelectedClassName("");
             }
         } catch(error) {
             console.error(`Error while sending the data to the server when scheduling class: ${error}`);
         }
-    }
+    };
 
     const editClassName = async (newClassName: string) => {
         if (selectedClassId === null || selectedClassName === null) {
@@ -240,7 +245,7 @@ const ClassManagement = () => {
                 console.warn(`Function editClassName. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
 
-            // TODO: update the name of the class here
+            // TODO: update the name of the class here?
             setSelectedClassId(null);
             setSelectedClassName("");
         } else {
