@@ -22,6 +22,8 @@ const ClassManagement = () => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
+    const [createClassStatus, setCreateClassStatus] = useState("");
+
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === 'object' &&
@@ -91,6 +93,105 @@ const ClassManagement = () => {
         }
     };
 
+    const createClass = async (className: string) => {
+        // TODO: sanitize input
+        const data = {
+            "name": className
+        };
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/classes/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Class was created successfully!');
+
+                const responseData = await response.json();
+
+                if (
+                    typeof responseData === 'object' &&
+                    responseData !== null &&
+                    'message' in responseData && responseData.message === 'Class was created successfully' &&
+                    'id' in responseData &&
+                    'name' in responseData && responseData.name === className
+                ) {
+                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                    setCreateClassStatus(`Class ${className} has been created with id ${responseData.id}`);
+                } else {
+                    console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server when creating class: ${error}`);
+        }
+    }
+
+    const scheduleClass = async (classToScheduleId: string, day: string, time: string) => {
+        // TODO: sanitize input and add checks
+        const data = {
+            "classId": classToScheduleId,
+            "day": day,
+            "classTime": time,
+        }
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/schedules/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function scheduleClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Class was scheduled successfully!');
+
+                const responseData = await response.json();
+
+                if (
+                    typeof responseData === 'object' &&
+                    responseData !== null &&
+                    'message' in responseData && responseData.message === 'Schedule was created successfully' &&
+                    'classId' in responseData && responseData.classId.toString() === classToScheduleId &&
+                    // 'className' in responseData && responseData.className === className &&
+                    'day'  in responseData && responseData.day === day &&
+                    'time' in responseData // TODO: handle the time from response better
+                ) {
+                    console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                } else {
+                    console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+
+                // setClassId("");
+                // setClassName("");
+                // setClassStatus("");
+                // setDay("");
+                // setTime("");
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server when scheduling class: ${error}`);
+        }
+    }
+
     useEffect(() => {
         fetchClasses();
     },
@@ -154,15 +255,15 @@ const ClassManagement = () => {
             return null;
         }
         return (
-            <Modal
-                visible={isCreateModalVisible}
-                transparent={true}
-                onRequestClose={() => {
-                    setIsCreateModalVisible(false);
-                }}
-            >
-                <CreateScheduleClass/>
-            </Modal>
+                <CreateScheduleClass
+                    isVisible={isCreateModalVisible}
+                    onCreateClass={createClass}
+                    onScheduleClass={scheduleClass}
+                    onModalClose={() => {
+                        setIsCreateModalVisible(false);
+                    }}
+                    statusMessage={createClassStatus}
+                />
         );
     };
 

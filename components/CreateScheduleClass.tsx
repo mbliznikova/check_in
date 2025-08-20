@@ -1,10 +1,25 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, Button } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
-const CreateScheduleClass = () => {
+
+type ClassCreationModalProps = {
+    isVisible: boolean;
+    onModalClose: () => void;
+    onCreateClass: (className: string) => void;
+    onScheduleClass: (classToScheduleId: string, day: string, time: string) => void;
+    statusMessage: string;
+};
+
+const CreateScheduleClass = ({
+    isVisible = false,
+    onModalClose,
+    onCreateClass,
+    onScheduleClass,
+    statusMessage,
+}: ClassCreationModalProps) => {
     const colorScheme = useColorScheme();
 
     const [className, setClassName] = useState("");
@@ -12,107 +27,6 @@ const CreateScheduleClass = () => {
 
     const [day, setDay] = useState("");
     const [time, setTime] = useState("");
-
-    const [classStatus, setClassStatus] = useState("");
-
-    const createClass = async () => {
-        // TODO: sanitize input
-        const data = {
-            "name": className
-        };
-
-        try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/classes/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
-
-            if (!response.ok) {
-                const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Class was created successfully!');
-
-                const responseData = await response.json();
-
-                if (
-                    typeof responseData === 'object' &&
-                    responseData !== null &&
-                    'message' in responseData && responseData.message === 'Class was created successfully' &&
-                    'id' in responseData &&
-                    'name' in responseData && responseData.name === className
-                ) {
-                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
-                    setClassStatus(`Class ${className} has been created with id ${responseData.id}`);
-                } else {
-                    console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-            }
-        } catch(error) {
-            console.error(`Error while sending the data to the server when creating class: ${error}`);
-        }
-    }
-
-    const scheduleClass = async (classToScheduleId: string) => {
-        // TODO: sanitize input and add checks
-        const data = {
-            "classId": classToScheduleId,
-            "day": day,
-            "classTime": time,
-        }
-
-        try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/schedules/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
-
-            if (!response.ok) {
-                const errorMessage = `Function scheduleClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Class was scheduled successfully!');
-
-                const responseData = await response.json();
-
-                if (
-                    typeof responseData === 'object' &&
-                    responseData !== null &&
-                    'message' in responseData && responseData.message === 'Schedule was created successfully' &&
-                    'classId' in responseData && responseData.classId.toString() === classToScheduleId &&
-                    'className' in responseData && responseData.className === className &&
-                    'day'  in responseData && responseData.day === day &&
-                    'time' in responseData // TODO: handle the time from response better
-                ) {
-                    console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
-                } else {
-                    console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-
-                setClassId("");
-                setClassName("");
-                setClassStatus("");
-                setDay("");
-                setTime("");
-            }
-        } catch(error) {
-            console.error(`Error while sending the data to the server when scheduling class: ${error}`);
-        }
-    }
 
     const renderClassCreationForm = () => {
         return (
@@ -131,7 +45,7 @@ const CreateScheduleClass = () => {
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {createClass()}}
+                        onPress={() => {onCreateClass(className)}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
@@ -140,7 +54,7 @@ const CreateScheduleClass = () => {
                 <Text
                     style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                 >
-                    {classStatus}
+                    {statusMessage}
                 </Text>
             </View>
         );
@@ -187,7 +101,8 @@ const CreateScheduleClass = () => {
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {scheduleClass(classId)}}
+                    // TODO: show confirmation and close on success of class schedule
+                        onPress={() => {onScheduleClass(classId, day, time)}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
@@ -199,24 +114,53 @@ const CreateScheduleClass = () => {
 
     // TODO: add a schedule confirmation
     return (
-        <SafeAreaView style={styles.container}>
-            <ScreenTitle titleText='Create new class'/>
-            {renderClassCreationForm()}
+        <Modal
+            visible={isVisible}
+            transparent={true}
+            onRequestClose={onModalClose}
+        >
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <ScreenTitle titleText='Create new class'/>
 
-            <View style={{paddingVertical: 30}}></View>
+                    {renderClassCreationForm()}
 
-            <ScreenTitle titleText='Schedule new class'/>
-            {renderClassScheduleForm()}
-        </SafeAreaView>
+                    <View style={{paddingVertical: 30}}></View>
+
+                    <ScreenTitle titleText='Schedule new class'/>
+
+                    {renderClassScheduleForm()}
+
+                    <Pressable
+                        style={styles.modalCancelButton}
+                        onPress={onModalClose}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+                </View>
+            </View>
+        </Modal>
+
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 10,
+    },
+    modalView: {
+        width: '50%',
+        height: '40%',
+        backgroundColor: 'black', //TODO: make it adjustable
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalInfo: {
+        padding: 20,
     },
     itemContainer: {
         padding: 10,
@@ -244,6 +188,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
+    },
+    modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
     },
 });
 
