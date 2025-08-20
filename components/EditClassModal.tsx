@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
+import React from 'react';
 
 type EditClassModalProps = {
     isVisible: boolean;
@@ -23,12 +24,12 @@ const EditClassModal = ({
 
     const renderEditForm = () => {
         return (
-            <View>
+            <View style={styles.modalView}>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                     >
-                        Upodate class name:
+                        Edit class name:
                     </Text>
                     <TextInput
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
@@ -64,12 +65,9 @@ const EditClassModal = ({
             onRequestClose={onModalClose}
         >
             <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
-                    <ScreenTitle titleText={`Update class ${oldClassName}`}/>
+                    <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
 
                     {renderEditForm()}
-
-                </View>
             </View>
         </Modal>
     );
