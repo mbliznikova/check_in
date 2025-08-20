@@ -3,6 +3,7 @@ import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressab
 
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
+import DeleteClassModal from "./DeleteClassModal";
 
 
 type ClassType = {
@@ -65,13 +66,13 @@ const ClassManagement = () => {
         }
     };
 
-    const deleteClass = async (classId: number | null, className: string | null) => {
-        if (classId === null || className === null) {
+    const deleteClass = async () => {
+        if (selectedClassId === null || selectedClassName === null) {
             console.warn("No class selected to delete");
             return null;
         }
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${classId}/delete/`,
+            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/delete/`,
                 {
                     method: 'DELETE',
                 }
@@ -80,7 +81,7 @@ const ClassManagement = () => {
             if (response.ok) {
                 const responseData = await response.json();
 
-                if (isValidDeleteResponse(responseData, classId, className)) {
+                if (isValidDeleteResponse(responseData, selectedClassId, selectedClassName)) {
                     console.log(`Function deleteClass. The response from backend is valid: ${JSON.stringify(responseData)}`);
                 } else {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -272,48 +273,14 @@ const ClassManagement = () => {
             return null;
         }
         return (
-            <Modal
-                visible={isDeleteModalVisible}
-                transparent={true}
-                onRequestClose={() => {
+            <DeleteClassModal
+                isVisible={isDeleteModalVisible}
+                onModalClose={() => {
                     setIsDeleteModalVisible(false)
                 }}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
-                        <View style={styles.modalInfo}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                                Do you want to delete {selectedClassName} class (id {selectedClassId})?
-                            </Text>
-                        </View>
-                        <View style={styles.modalButtonsContainer}>
-                            <Pressable
-                                style={styles.modalConfirmButton}
-                                onPress={async () => {
-                                    try {
-                                        await deleteClass(selectedClassId, selectedClassName);
-                                    }
-                                    catch (error) {
-                                        console.error("Could not delete class: ", error);
-                                        alert("Could not delete class.");
-                                    }
-                                    setIsDeleteModalVisible(false);
-                                }}
-                            >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
-                            </Pressable>
-                            <Pressable
-                                style={styles.modalCancelButton}
-                                onPress={() => {
-                                    setIsDeleteModalVisible(false);
-                                }}
-                            >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                onDeleteClass={deleteClass}
+                className={selectedClassName ?? ""}
+            />
         );
     };
 
@@ -366,46 +333,6 @@ const styles = StyleSheet.create({
     primaryButtonUnpressed: {
         backgroundColor: 'blue',
         borderRadius: 8,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalInfo: {
-        padding: 20,
-    },
-    modalButtonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 20,
-        alignItems: 'center',
-        width: '30%',
-    },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     darkColor: {
         color: 'black',
