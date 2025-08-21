@@ -5,6 +5,7 @@ import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
+import ClassScheduleModal from "./ClassScheduleModal";
 
 
 type ClassType = {
@@ -30,12 +31,13 @@ const ClassManagement = () => {
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
 
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
-    const [currentClassSchedule, setCurrentClassSchedule] = useState<ScheduleType[]>([]);
+    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, string[]>>(new Map());
 
     const [createClassStatus, setCreateClassStatus] = useState("");
 
@@ -295,14 +297,9 @@ const ClassManagement = () => {
         }
     };
 
-    // BUG? When I click on the class name the first time, I see in the console “No class selected to see schedule”. Need to click twice
-    const fetchClassSchedules = async () => {
-        if (selectedClassId === null) {
-            console.warn("No class selected to see schedule");
-            return null;
-        }
+    const fetchClassSchedules = async (classId: number) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/?class_id=${selectedClassId}`)
+            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/?class_id=${classId}`)
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -311,7 +308,18 @@ const ClassManagement = () => {
                 if (isValidArrayResponse(responseData, 'response')) {
                     console.log(`Function fetchClassSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
                     const schedules = responseData.response;
-                    setCurrentClassSchedule(schedules);
+                    const scheduleMap: Map<number, string[]> = new Map();
+                    schedules.forEach((element: ScheduleType) => {
+                        if (scheduleMap.has(element.day)) {
+                            scheduleMap.get(element.day)?.push(element.classTime)
+                        } else {
+                            scheduleMap.set(element.day, [element.classTime])
+                        }
+                    });
+
+                    setCurrentClassScheduleMap(scheduleMap);
+                    // TODO: reset currentClassScheduleMap in appropriate place?
+
                 } else {
                     console.warn(`Function fetchClassSchedules. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -360,7 +368,8 @@ const ClassManagement = () => {
                             style={{padding: 10}}
                             onPress={() => {
                                 setSelectedClassId(cls.id);
-                                fetchClassSchedules();
+                                fetchClassSchedules(cls.id);
+                                setIsScheduleModalVisible(true);
                                 }}>
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
                         </Pressable>
@@ -441,6 +450,21 @@ const ClassManagement = () => {
         );
     };
 
+    const renderScheduleListClassModal = () => {
+        if (!isScheduleModalVisible) {
+            return null;
+        }
+        return (
+            <ClassScheduleModal
+                isVisible={isScheduleModalVisible}
+                onModalClose={() => {
+                    setIsScheduleModalVisible(false)
+                }}
+                scheduleData={currentClassScheduleMap}
+            />
+        );
+    };
+
     return (
         <SafeAreaView>
             <ScreenTitle titleText={'Class management'}/>
@@ -449,6 +473,7 @@ const ClassManagement = () => {
             {renderDeleteClassModal()}
             {renderCreateClassModal()}
             {renderEditClassModal()}
+            {renderScheduleListClassModal()}
         </SafeAreaView>
     );
 };
