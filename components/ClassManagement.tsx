@@ -12,6 +12,13 @@ type ClassType = {
     name: string;
 };
 
+type ScheduleType = {
+    id: number,
+    classTime: string,
+    classModel: number,
+    day: number,
+};
+
 const ClassManagement = () => {
     const colorScheme = useColorScheme();
 
@@ -27,6 +34,8 @@ const ClassManagement = () => {
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
+
+    const [currentClassSchedule, setCurrentClassSchedule] = useState<ScheduleType[]>([]);
 
     const [createClassStatus, setCreateClassStatus] = useState("");
 
@@ -239,9 +248,10 @@ const ClassManagement = () => {
         }
     };
 
+    // TODO: should I rather have classId and className as parameters, not call state vars inside the function?
     const editClassName = async (newClassName: string) => {
         if (selectedClassId === null || selectedClassName === null) {
-            console.warn("No class selected to delete");
+            console.warn("No class selected to edit");
             return null;
         }
 
@@ -285,6 +295,34 @@ const ClassManagement = () => {
         }
     };
 
+    // BUG? When I click on the class name the first time, I see in the console “No class selected to see schedule”. Need to click twice
+    const fetchClassSchedules = async () => {
+        if (selectedClassId === null) {
+            console.warn("No class selected to see schedule");
+            return null;
+        }
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/?class_id=${selectedClassId}`)
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                // TODO: validation for elements of the array?
+                if (isValidArrayResponse(responseData, 'response')) {
+                    console.log(`Function fetchClassSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    const schedules = responseData.response;
+                    setCurrentClassSchedule(schedules);
+                } else {
+                    console.warn(`Function fetchClassSchedules. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function fetchClassSchedules. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching schedule data from the server for a class: ${error}`);
+        }
+    };
+
     useEffect(() => {
         fetchClasses();
     },
@@ -320,7 +358,10 @@ const ClassManagement = () => {
                     <View style={styles.classesList}>
                         <Pressable
                             style={{padding: 10}}
-                            onPress={() => {}}>
+                            onPress={() => {
+                                setSelectedClassId(cls.id);
+                                fetchClassSchedules();
+                                }}>
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
