@@ -29,19 +29,30 @@ const ClassScheduleModal = ({
 
     // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
     const renderSchedules = (schedule: Map<number, string[]>) => {
-        console.log(`DATA IS ${schedule}`);
         return (
             <View style={styles.scheduleRowContainder}>
                 {[...schedule].map(([day, times]) => (
                     <View
                         key={day}
                         style={styles.scheduleRow}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold", padding: 10, paddingHorizontal: 20}]}>
-                                {dayNames[day]}
-                            </Text>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {padding: 10}]}>
-                                {times.map(time => time.slice(0,5)).join(', ')}
-                            </Text>
+                            <View style={styles.dayContainer}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold", padding: 10, paddingHorizontal: 20}]}>
+                                    {dayNames[day]}
+                                </Text>
+                            </View>
+                            <Pressable
+                                style={styles.timeButton}
+                                onPress={() => {}}
+                                >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {padding: 10}]}>
+                                    {times.map(time => time.slice(0,5)).join(', ')}
+                                </Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {}}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.addTimeButton]}>+</Text>
+                            </Pressable>
                     </View>
                 ))}
             </View>
@@ -102,6 +113,11 @@ const styles = StyleSheet.create({
     modalInfo: {
         padding: 20,
     },
+    dayContainer: {
+        width: 150,
+        justifyContent: 'center',
+        paddingRight: 10,
+    },
     darkColor: {
         color: 'black',
     },
@@ -115,7 +131,16 @@ const styles = StyleSheet.create({
         width: '30%',
     },
     modalSingleButtonContainer: {
-         justifyContent: 'center'
+         justifyContent: 'center',
+    },
+    timeButton: {
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        justifyContent: 'center',
+    },
+    addTimeButton: {
+        padding: 10, paddingLeft: 20, fontSize: 20
     },
     modalConfirmButton: {
         alignItems: 'center',
