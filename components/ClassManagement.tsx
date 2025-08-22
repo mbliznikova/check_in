@@ -37,7 +37,7 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
-    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, string[]>>(new Map());
+    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [[number, string]]>>(new Map());
 
     const [createClassStatus, setCreateClassStatus] = useState("");
 
@@ -308,12 +308,13 @@ const ClassManagement = () => {
                 if (isValidArrayResponse(responseData, 'response')) {
                     console.log(`Function fetchClassSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
                     const schedules = responseData.response;
-                    const scheduleMap: Map<number, string[]> = new Map();
+                    const scheduleMap: Map<number, [[number, string]]> = new Map();
+
                     schedules.forEach((element: ScheduleType) => {
                         if (scheduleMap.has(element.day)) {
-                            scheduleMap.get(element.day)?.push(element.classTime)
+                            scheduleMap.get(element.day)?.push([element.id, element.classTime])
                         } else {
-                            scheduleMap.set(element.day, [element.classTime])
+                            scheduleMap.set(element.day, [[element.id, element.classTime]])
                         }
                     });
 

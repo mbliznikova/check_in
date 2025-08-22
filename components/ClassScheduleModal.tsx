@@ -5,7 +5,7 @@ import ScreenTitle from "./ScreenTitle";
 type ClassScheduleModalModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    scheduleData: Map<number, string[]>;
+    scheduleData: Map<number, [[number, string]]>;
 };
 
 const ClassScheduleModal = ({
@@ -28,7 +28,7 @@ const ClassScheduleModal = ({
     ]
 
     // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
-    const renderSchedules = (schedule: Map<number, string[]>) => {
+    const renderSchedules = (schedule: Map<number, [[number, string]]>) => {
         return (
             <View style={styles.scheduleRowContainder}>
                 {[...schedule].map(([day, times]) => (
@@ -48,7 +48,7 @@ const ClassScheduleModal = ({
                                     x
                                 </Text>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
-                                    {times.map(time => time.slice(0,5)).join(', ')}
+                                    {times.map(time => time[1].slice(0,5)).join(', ')}
                                 </Text>
                             </Pressable>
                             <Pressable
