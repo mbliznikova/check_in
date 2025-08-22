@@ -44,17 +44,27 @@ const ClassScheduleModal = ({
                                 style={styles.timeButton}
                                 onPress={() => {}}
                                 >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {padding: 10}]}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {textAlign: 'right', paddingRight: 5, color: 'red'}]}>
+                                    x
+                                </Text>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {paddingHorizontal: 10, paddingBottom: 10}]}>
                                     {times.map(time => time.slice(0,5)).join(', ')}
                                 </Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {}}
+                                style={styles.addTimeButton}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.addTimeButton]}>+</Text>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+</Text>
                             </Pressable>
                     </View>
                 ))}
+                    <Pressable
+                        style={styles.addDayButton}
+                        onPress={() => {}}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Add day</Text>
+                    </Pressable>
             </View>
         );
     };
@@ -140,7 +150,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     addTimeButton: {
-        padding: 10, paddingLeft: 20, fontSize: 20
+        padding: 10,
+        paddingLeft: 20,
+        fontSize: 20,
+    },
+    addDayButton: {
+        width: 100,
+        padding: 10,
+        marginLeft: 25,
+        marginTop: 20,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     modalConfirmButton: {
         alignItems: 'center',
