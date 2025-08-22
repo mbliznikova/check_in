@@ -36,7 +36,7 @@ const ClassScheduleModal = ({
                         key={day}
                         style={styles.scheduleRow}>
                             <View style={styles.dayContainer}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold", padding: 10, paddingHorizontal: 20}]}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
                                     {dayNames[day]}
                                 </Text>
                             </View>
@@ -44,10 +44,10 @@ const ClassScheduleModal = ({
                                 style={styles.timeButton}
                                 onPress={() => {}}
                                 >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {textAlign: 'right', paddingRight: 5, color: 'red'}]}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
                                     x
                                 </Text>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {paddingHorizontal: 10, paddingBottom: 10}]}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
                                     {times.map(time => time.slice(0,5)).join(', ')}
                                 </Text>
                             </Pressable>
@@ -149,6 +149,10 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         justifyContent: 'center',
     },
+    timeText: {
+        paddingHorizontal: 10,
+        paddingBottom: 10,
+    },
     addTimeButton: {
         padding: 10,
         paddingLeft: 20,
@@ -165,6 +169,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    dayText: {
+        fontWeight: "bold",
+        padding: 10,
+        paddingHorizontal: 20,
+    },
     modalConfirmButton: {
         alignItems: 'center',
         paddingVertical: 5,
@@ -180,6 +189,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 5,
+    },
+    deleteTimeButton: {
+        textAlign: 'right',
+        paddingRight: 5, color: 'red',
     },
 });
 
