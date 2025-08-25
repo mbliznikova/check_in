@@ -5,12 +5,14 @@ import ScreenTitle from "./ScreenTitle";
 type ClassScheduleModalModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    scheduleData: Map<number, [[number, string]]>;
+    onScheduleDelete: (scheduleId: number, day: number) => void;
+    scheduleData: Map<number, [number, string][]>;
 };
 
 const ClassScheduleModal = ({
     isVisible = false,
     onModalClose,
+    onScheduleDelete,
     scheduleData = new Map(),
 }: ClassScheduleModalModalProps) => {
 
@@ -28,7 +30,7 @@ const ClassScheduleModal = ({
     ]
 
     // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
-    const renderSchedules = (schedule: Map<number, [[number, string]]>) => {
+    const renderSchedules = (schedule: Map<number, [number, string][]>) => {
         return (
             <View style={styles.scheduleRowContainder}>
                 {[...schedule].map(([day, times]) => (
@@ -40,17 +42,26 @@ const ClassScheduleModal = ({
                                     {dayNames[day]}
                                 </Text>
                             </View>
-                            <Pressable
-                                style={styles.timeButton}
-                                onPress={() => {}}
-                                >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
-                                    x
-                                </Text>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
-                                    {times.map(time => time[1].slice(0,5)).join(', ')}
-                                </Text>
-                            </Pressable>
+                            {times.map(([scheduleId, time]) => (
+                                <View
+                                    style={{paddingHorizontal: 10}}
+                                    key={scheduleId}>
+                                    <Pressable
+                                        style={styles.timeButton}
+                                        onPress={() => {
+                                            console.log(`DEBUG AT MODAL! scheduleId to delete is ${scheduleId}`);
+                                            onScheduleDelete(scheduleId, day);
+                                        }}
+                                    >
+                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        x
+                                        </Text>
+                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                            {time.slice(0,5)}
+                                        </Text>
+                                    </Pressable>
+                            </View>
+                            ))}
                             <Pressable
                                 onPress={() => {}}
                                 style={styles.addTimeButton}

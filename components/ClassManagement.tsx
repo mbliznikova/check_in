@@ -37,7 +37,7 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
-    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [[number, string]]>>(new Map());
+    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map());
 
     const [createClassStatus, setCreateClassStatus] = useState("");
 
@@ -73,13 +73,22 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidDeleteResponse = (responseData: any, classId: number, className: string): Boolean => {
+    const isValidDeleteClassResponse = (responseData: any, classId: number, className: string): Boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === `Class ${classId} - ${className} was delete successfully` &&
             'classId' in responseData && responseData.classId === classId &&
             'className' in responseData && responseData.className === className
+        );
+    };
+
+    const isValidDeleteScheduleResponse = (responseData: any, scheduleId: number): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Schedule ${scheduleId} was delete successfully` &&
+            'scheduleId' in responseData && responseData.scheduleId === scheduleId
         );
     };
 
@@ -101,6 +110,24 @@ const ClassManagement = () => {
     const updateClassName = (targetClassId: number, newName: string) => {
         setClasses(prevClasses => prevClasses.map(cls => cls.id === targetClassId ? {...cls, name: newName} : cls));
     };
+
+    const removeScheduleFromState = (targetScheduleId: number, day: number) => {
+        // TODO: handle case when no schedules left
+        const currentSchedule = currentClassScheduleMap.get(day);
+        console.log(`Current Schedule data is: ${currentSchedule}`);
+        if (!currentSchedule) {
+            console.log(`No such day with number ${day} in ${currentClassScheduleMap}`);
+            return;
+        }
+        const udpatedSchedule = currentSchedule.filter(([id]) => id !== targetScheduleId);
+        console.log(`udpatedSchedule is ${udpatedSchedule}`);
+
+        const updatedMap = new Map(currentClassScheduleMap);
+        updatedMap.set(day, udpatedSchedule);
+
+        console.log(`Schedule data without deleted schedule: ${udpatedSchedule}`);
+        setCurrentClassScheduleMap(updatedMap);
+    }
 
     const fetchClasses = async () => {
         try {
@@ -139,7 +166,7 @@ const ClassManagement = () => {
             if (response.ok) {
                 const responseData = await response.json();
 
-                if (isValidDeleteResponse(responseData, selectedClassId, selectedClassName)) {
+                if (isValidDeleteClassResponse(responseData, selectedClassId, selectedClassName)) {
                     console.log(`Function deleteClass. The response from backend is valid: ${JSON.stringify(responseData)}`);
                 } else {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -308,7 +335,7 @@ const ClassManagement = () => {
                 if (isValidArrayResponse(responseData, 'response')) {
                     console.log(`Function fetchClassSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
                     const schedules = responseData.response;
-                    const scheduleMap: Map<number, [[number, string]]> = new Map();
+                    const scheduleMap: Map<number, [number, string][]> = new Map();
 
                     schedules.forEach((element: ScheduleType) => {
                         if (scheduleMap.has(element.day)) {
@@ -329,6 +356,38 @@ const ClassManagement = () => {
             }
         } catch (error) {
             console.error(`Error while fetching schedule data from the server for a class: ${error}`);
+        }
+    };
+
+    const deleteClassSchedule = async(scheduleId: number, day: number) => {
+        if (scheduleId === null || day === null) {
+            console.warn("No schedule or day selected");
+            return null;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/${scheduleId}/delete/`,
+                {
+                    method: 'DELETE',
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidDeleteScheduleResponse(responseData, scheduleId)) {
+                    console.log(`Function deleteClassSchedule. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    removeScheduleFromState(scheduleId, day);
+                } else {
+                    console.warn(`Function deleteClassSchedule. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function deleteClassSchedule. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+
+        } catch (error) {
+            console.error(`Error while deleting the schedule: ${error}`);
         }
     };
 
@@ -461,6 +520,7 @@ const ClassManagement = () => {
                 onModalClose={() => {
                     setIsScheduleModalVisible(false)
                 }}
+                onScheduleDelete={deleteClassSchedule}
                 scheduleData={currentClassScheduleMap}
             />
         );
