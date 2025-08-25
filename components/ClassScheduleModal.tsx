@@ -1,6 +1,7 @@
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
+import { useState } from "react";
 
 type ClassScheduleModalModalProps = {
     isVisible: boolean;
@@ -18,6 +19,13 @@ const ClassScheduleModal = ({
 
     const colorScheme = useColorScheme();
 
+    const [isAddDayOpen, setIsAddDayOpen] = useState(false);
+    const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
+
+    const [dayToSchedule, setDayToSchedule] = useState<number | null>(null);
+    const [timeToSchedule, setTimeToSchedule] = useState<string | null>(null);
+    const [timeInput, setTimeInput] = useState<string>("");
+
     const dayNames = [
         "",
         "Monday",
@@ -27,7 +35,69 @@ const ClassScheduleModal = ({
         "Friday",
         "Saturday",
         "Sunday"
-    ]
+    ];
+
+    const getRemainedDays = (): number[] => {
+        const remainedDays: number[] = [];
+        for (let i = 1; i < dayNames.length; i++) {
+            if (!scheduleData.has(i)){
+                remainedDays.push(i);
+            }
+        }
+
+        return remainedDays;
+    };
+
+    const renderAddDayView = () => {
+        return (
+            <View style={styles.addDay}>
+                {getRemainedDays().map((dayIndex) => (
+                    <Pressable
+                        key={dayIndex}
+                        style={styles.dayContainer}
+                        onPress={() => {
+                            console.log(`Selected ${dayNames[dayIndex]}`);
+                            setIsAddDayOpen(false);
+                            setIsAddTimeOpen(true);
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                            {dayNames[dayIndex]}
+                        </Text>
+                    </Pressable>
+                ))}
+            </View>
+        );
+    };
+
+    const renderAddTimeView = () => {
+        return (
+            <View style={styles.addDay}>
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                    >
+                        Time ("10:00"):
+                    </Text>
+
+                    <TextInput
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        value={timeInput}
+                        onChangeText={(timeStr) => {setTimeInput(timeStr)}}
+                    />
+                </View>
+
+                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                    <Pressable
+                        style={styles.modalConfirmButton}
+                        onPress={() => {}}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    };
 
     // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
     const renderSchedules = (schedule: Map<number, [number, string][]>) => {
@@ -49,7 +119,6 @@ const ClassScheduleModal = ({
                                     <Pressable
                                         style={styles.timeButton}
                                         onPress={() => {
-                                            console.log(`DEBUG AT MODAL! scheduleId to delete is ${scheduleId}`);
                                             onScheduleDelete(scheduleId, day);
                                         }}
                                     >
@@ -72,10 +141,16 @@ const ClassScheduleModal = ({
                 ))}
                     <Pressable
                         style={styles.addDayButton}
-                        onPress={() => {}}
+                        onPress={() => {
+                            setIsAddDayOpen(true);
+                        }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Add day</Text>
                     </Pressable>
+                    <View style={{padding: 10}}>
+                        {isAddDayOpen ? renderAddDayView() : null}
+                        {isAddTimeOpen ? renderAddTimeView() : null}
+                    </View>
             </View>
         );
     };
@@ -138,6 +213,9 @@ const styles = StyleSheet.create({
         width: 150,
         justifyContent: 'center',
         paddingRight: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
     },
     darkColor: {
         color: 'black',
@@ -204,6 +282,26 @@ const styles = StyleSheet.create({
     deleteTimeButton: {
         textAlign: 'right',
         paddingRight: 5, color: 'red',
+    },
+    addDay: {
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+    },
+    inputFeld: {
+        height: 30,
+        width: 200,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
+    },
+    itemContainer: {
+        padding: 10,
+        alignItems: 'center',
+    },
+    itemRow: {
+        flexDirection: 'row'
     },
 });
 
