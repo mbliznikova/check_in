@@ -78,12 +78,17 @@ const ClassScheduleModal = ({
 
     const renderAddTimeView = () => {
         return (
-            <View>
+            <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
+                <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                >
+                    {`Time for ${dayToSchedule ? dayNames[dayToSchedule] : ""}:`}
+                </Text>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                     >
-                        Time ("10:00"):
+                        Select time ("10:00"):
                     </Text>
 
                     <TextInput
@@ -93,7 +98,7 @@ const ClassScheduleModal = ({
                     />
                 </View>
 
-                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
                         style={styles.modalConfirmButton}
                         onPress={() => {
@@ -105,7 +110,7 @@ const ClassScheduleModal = ({
                                 timeToSchedule === null ||
                                 !timeToSchedule
                             ){
-                                console.warn("Missing data: cannot schedule");
+                                console.warn('Missing data: cannot schedule');
                                 return;
                             } else {
                                 onScheduleClass(classId.toString(), className, dayNames[dayToSchedule], timeToSchedule);
@@ -114,6 +119,12 @@ const ClassScheduleModal = ({
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                    </Pressable>
+                    <Pressable
+                        style={styles.cancelButton}
+                        onPress={() => {setIsAddTimeOpen(false)}}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                     </Pressable>
                 </View>
             </View>
@@ -171,7 +182,7 @@ const ClassScheduleModal = ({
                     </Pressable>
                     <View>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                        {isAddTimeOpen ? renderAddTimeView() : null}
+                        {isAddTimeOpen ? <View style={styles.dropdown}>{renderAddTimeView()}</View> : null}
                     </View>
                 </View>
             </View>
@@ -184,13 +195,13 @@ const ClassScheduleModal = ({
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                            Schedule for the class
+                            {`Schedule for the class ${className}`}
                         </Text>
                     </View>
 
                     {renderSchedules(scheduleData)}
 
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, isAddDayOpen && styles.hiddenButton]}>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                         <Pressable
                             style={styles.modalConfirmButton}
                             onPress={isAddDayOpen ? undefined : onModalClose}
@@ -255,6 +266,11 @@ const styles = StyleSheet.create({
     },
     modalSingleButtonContainer: {
          justifyContent: 'center',
+    },
+    modalManyButtonsContainer: {
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: '100%',
     },
     timeButton: {
         borderRadius: 10,
@@ -333,6 +349,14 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    cancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
     },
 });
 
