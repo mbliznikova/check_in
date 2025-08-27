@@ -8,6 +8,7 @@ type ClassScheduleModalModalProps = {
     onModalClose: () => void;
     onScheduleDelete: (scheduleId: number, day: number) => void;
     scheduleData: Map<number, [number, string][]>;
+    classId: number | null;
 };
 
 const ClassScheduleModal = ({
@@ -15,6 +16,7 @@ const ClassScheduleModal = ({
     onModalClose,
     onScheduleDelete,
     scheduleData = new Map(),
+    classId,
 }: ClassScheduleModalModalProps) => {
 
     const colorScheme = useColorScheme();
@@ -59,6 +61,7 @@ const ClassScheduleModal = ({
                             console.log(`Selected ${dayNames[dayIndex]}`);
                             setIsAddDayOpen(false);
                             setIsAddTimeOpen(true);
+                            setDayToSchedule(dayIndex);
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
@@ -90,7 +93,9 @@ const ClassScheduleModal = ({
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                     <Pressable
                         style={styles.modalConfirmButton}
-                        onPress={() => {}}
+                        onPress={() => {
+                            console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeInput}`);
+                        }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
                     </Pressable>
