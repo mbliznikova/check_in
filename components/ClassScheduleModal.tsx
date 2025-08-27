@@ -7,16 +7,20 @@ type ClassScheduleModalModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onScheduleDelete: (scheduleId: number, day: number) => void;
+    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => void;
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
+    className: string | null;
 };
 
 const ClassScheduleModal = ({
     isVisible = false,
     onModalClose,
     onScheduleDelete,
+    onScheduleClass,
     scheduleData = new Map(),
     classId,
+    className,
 }: ClassScheduleModalModalProps) => {
 
     const colorScheme = useColorScheme();
@@ -25,8 +29,7 @@ const ClassScheduleModal = ({
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 
     const [dayToSchedule, setDayToSchedule] = useState<number | null>(null);
-    const [timeToSchedule, setTimeToSchedule] = useState<string | null>(null);
-    const [timeInput, setTimeInput] = useState<string>("");
+    const [timeToSchedule, setTimeToSchedule] = useState("");
 
     const dayNames = [
         "",
@@ -85,8 +88,8 @@ const ClassScheduleModal = ({
 
                     <TextInput
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={timeInput}
-                        onChangeText={(timeStr) => {setTimeInput(timeStr)}}
+                        value={timeToSchedule}
+                        onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
                     />
                 </View>
 
@@ -94,7 +97,20 @@ const ClassScheduleModal = ({
                     <Pressable
                         style={styles.modalConfirmButton}
                         onPress={() => {
-                            console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeInput}`);
+                            console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeToSchedule}`);
+                            if (
+                                classId === null ||
+                                className === null ||
+                                dayToSchedule === null ||
+                                timeToSchedule === null ||
+                                !timeToSchedule
+                            ){
+                                console.warn("Missing data: cannot schedule");
+                                return;
+                            } else {
+                                onScheduleClass(classId.toString(), className, dayNames[dayToSchedule], timeToSchedule);
+                            }
+
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>

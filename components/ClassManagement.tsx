@@ -231,6 +231,8 @@ const ClassManagement = () => {
         }
     }
 
+    // TODO: have classToScheduleId as a number?
+    // TODO: day - make it clear, id or string? It should be the name of the day
     const scheduleClass = async (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => {
         // TODO: sanitize input and add checks
         const data = {
@@ -428,6 +430,7 @@ const ClassManagement = () => {
                             style={{padding: 10}}
                             onPress={() => {
                                 setSelectedClassId(cls.id);
+                                setSelectedClassName(cls.name);
                                 fetchClassSchedules(cls.id);
                                 setIsScheduleModalVisible(true);
                                 }}>
@@ -521,7 +524,10 @@ const ClassManagement = () => {
                     setIsScheduleModalVisible(false)
                 }}
                 onScheduleDelete={deleteClassSchedule}
+                onScheduleClass={scheduleClass}
                 scheduleData={currentClassScheduleMap}
+                classId={selectedClassId}
+                className={selectedClassName}
             />
         );
     };
