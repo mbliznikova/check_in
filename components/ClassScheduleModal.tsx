@@ -50,7 +50,7 @@ const ClassScheduleModal = ({
 
     const renderAddDayView = () => {
         return (
-            <View style={styles.addDay}>
+            <View>
                 {getRemainedDays().map((dayIndex) => (
                     <Pressable
                         key={dayIndex}
@@ -72,7 +72,7 @@ const ClassScheduleModal = ({
 
     const renderAddTimeView = () => {
         return (
-            <View style={styles.addDay}>
+            <View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
@@ -139,18 +139,20 @@ const ClassScheduleModal = ({
                             </Pressable>
                     </View>
                 ))}
+                <View style={{position: 'relative'}}>
                     <Pressable
-                        style={styles.addDayButton}
+                        style={styles.dayContainer}
                         onPress={() => {
-                            setIsAddDayOpen(true);
+                            setIsAddDayOpen(!isAddDayOpen);
                         }}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Add day</Text>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
                     </Pressable>
-                    <View style={{padding: 10}}>
-                        {isAddDayOpen ? renderAddDayView() : null}
+                    <View>
+                        {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? renderAddTimeView() : null}
                     </View>
+                </View>
             </View>
         );
     };
@@ -167,10 +169,11 @@ const ClassScheduleModal = ({
 
                     {renderSchedules(scheduleData)}
 
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, isAddDayOpen && styles.hiddenButton]}>
                         <Pressable
                             style={styles.modalConfirmButton}
-                            onPress={onModalClose}
+                            onPress={isAddDayOpen ? undefined : onModalClose}
+                            disabled={isAddDayOpen}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                         </Pressable>
@@ -283,11 +286,6 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         paddingRight: 5, color: 'red',
     },
-    addDay: {
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'grey',
-    },
     inputFeld: {
         height: 30,
         width: 200,
@@ -302,6 +300,18 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row'
+    },
+    dropdown: {
+        position: 'absolute',
+        top: '100%',
+        borderWidth: 1,
+        borderColor: 'grey',
+        borderRadius: 10,
+    },
+    hiddenButton: {
+        opacity: 0,
+        width: 0,
+        overflow: 'hidden',
     },
 });
 
