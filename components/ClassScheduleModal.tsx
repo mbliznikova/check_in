@@ -11,6 +11,7 @@ type ClassScheduleModalModalProps = {
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
     className: string | null;
+    isSheduleSuccess: Boolean;
 };
 
 const ClassScheduleModal = ({
@@ -21,6 +22,7 @@ const ClassScheduleModal = ({
     scheduleData = new Map(),
     classId,
     className,
+    isSheduleSuccess = false,
 }: ClassScheduleModalModalProps) => {
 
     const colorScheme = useColorScheme();
@@ -79,54 +81,58 @@ const ClassScheduleModal = ({
     const renderAddTimeView = () => {
         return (
             <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
-                <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                >
-                    {`Time for ${dayToSchedule ? dayNames[dayToSchedule] : ""}:`}
-                </Text>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Select time ("10:00"):
-                    </Text>
-
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={timeToSchedule}
-                        onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
-                    />
-                </View>
-
-                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
-                    <Pressable
-                        style={styles.modalConfirmButton}
-                        onPress={() => {
-                            console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeToSchedule}`);
-                            if (
-                                classId === null ||
-                                className === null ||
-                                dayToSchedule === null ||
-                                timeToSchedule === null ||
-                                !timeToSchedule
-                            ){
-                                console.warn('Missing data: cannot schedule');
-                                return;
-                            } else {
-                                onScheduleClass(classId.toString(), className, dayNames[dayToSchedule], timeToSchedule);
-                            }
-
-                        }}
-                    >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
-                    </Pressable>
-                    <Pressable
-                        style={styles.cancelButton}
-                        onPress={() => {setIsAddTimeOpen(false)}}
+                {isSheduleSuccess ? renderSuccessConfirmation() :
+                    <View>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                    </Pressable>
-                </View>
+                            {`Time for ${dayToSchedule ? dayNames[dayToSchedule] : ""}:`}
+                        </Text>
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Select time ("10:00"):
+                            </Text>
+
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                value={timeToSchedule}
+                                onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
+                            />
+                        </View>
+
+                        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={() => {
+                                    console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeToSchedule}`);
+                                    if (
+                                        classId === null ||
+                                        className === null ||
+                                        dayToSchedule === null ||
+                                        timeToSchedule === null ||
+                                        !timeToSchedule
+                                    ){
+                                        console.warn('Missing data: cannot schedule');
+                                        return;
+                                    } else {
+                                        onScheduleClass(classId.toString(), className, dayNames[dayToSchedule], timeToSchedule);
+                                    }
+
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.cancelButton}
+                                onPress={() => {setIsAddTimeOpen(false)}}
+                                >
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                }
             </View>
         );
     };
@@ -211,6 +217,30 @@ const ClassScheduleModal = ({
                             disabled={isAddDayOpen}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
+    const renderSuccessConfirmation = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Class was scheduled successfully!
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {
+                                setIsAddTimeOpen(false);
+                            }}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>

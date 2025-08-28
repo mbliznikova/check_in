@@ -528,6 +528,7 @@ const ClassManagement = () => {
                 scheduleData={currentClassScheduleMap}
                 classId={selectedClassId}
                 className={selectedClassName}
+                isSheduleSuccess={isScheduleSuccessful}
             />
         );
     };
