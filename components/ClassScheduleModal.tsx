@@ -164,7 +164,10 @@ const ClassScheduleModal = ({
                             </View>
                             ))}
                             <Pressable
-                                onPress={() => {}}
+                                onPress={() => {
+                                    setDayToSchedule(day); // TODO: something more reliable in case when the state var has not set yet?
+                                    setIsAddTimeOpen(true);
+                                }}
                                 style={styles.addTimeButton}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+</Text>
