@@ -7,7 +7,7 @@ type ClassScheduleModalModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onScheduleDelete: (scheduleId: number, day: number) => void;
-    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => void;
+    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
     className: string | null;
@@ -117,7 +117,7 @@ const ClassScheduleModal = ({
                                         console.warn('Missing data: cannot schedule');
                                         return;
                                     } else {
-                                        onScheduleClass(classId.toString(), className, dayNames[dayToSchedule], timeToSchedule);
+                                        onScheduleClass(classId.toString(), className, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
                                     }
 
                                 }}

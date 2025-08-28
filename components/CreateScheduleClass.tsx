@@ -9,7 +9,7 @@ type ClassCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onCreateClass: (className: string) => void;
-    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => void;
+    onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     statusMessage: string;
     isSheduleSuccess: boolean;
 };
@@ -29,6 +29,16 @@ const CreateScheduleClass = ({
 
     const [day, setDay] = useState("");
     const [time, setTime] = useState("");
+
+    const dayNumbers = new Map<string, number>([
+        ["Monday", 1],
+        ["Tuesday", 2],
+        ["Wednesday", 3],
+        ["Thursday", 4],
+        ["Friday", 5],
+        ["Saturday", 6],
+        ["Sunday", 7],
+      ]);
 
     const renderClassCreationForm = () => {
         return (
@@ -86,7 +96,7 @@ const CreateScheduleClass = ({
                     <TextInput
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
                         value={day}
-                        onChangeText={(dayName) => {setDay(dayName)}}
+                        onChangeText={(dayName) => {setDay(dayName)}} // TODO: HANDLE THE INPUT. Make it predefined, like dropdown?
                     />
                 </View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
@@ -103,7 +113,7 @@ const CreateScheduleClass = ({
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {onScheduleClass(classId, className, day, time)}}
+                        onPress={() => {onScheduleClass(classId, className, dayNumbers.get(day)?? -1, day, time)}} // TODO: make day selection predefined
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>

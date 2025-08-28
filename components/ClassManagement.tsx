@@ -66,6 +66,7 @@ const ClassManagement = () => {
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === 'Schedule was created successfully' &&
+            'scheduleId' in responseData &&
             'classId' in responseData && responseData.classId === classId &&
             'className' in responseData && responseData.className === className &&
             'day'  in responseData && responseData.day === dayName &&
@@ -128,6 +129,25 @@ const ClassManagement = () => {
         console.log(`Schedule data without deleted schedule: ${udpatedSchedule}`);
         setCurrentClassScheduleMap(updatedMap);
     }
+
+    const addScheduleToState = (scheduleId: number, day: number, time: string) => {
+        console.log(`Adding schedule with id ${scheduleId} for: day ${day}, time ${time}`);
+
+        const daySchedule = currentClassScheduleMap.get(day);
+        console.log(`Current Schedule data is: ${daySchedule}`);
+
+        const udpatedSchedule = new Map(currentClassScheduleMap);
+
+        if (!daySchedule) {
+            udpatedSchedule.set(day, [[scheduleId, time]]);
+        } else {
+            udpatedSchedule.get(day)?.push([scheduleId, time]);
+        };
+
+        console.log(`Schedule data with added schedule: ${udpatedSchedule}`);
+
+        setCurrentClassScheduleMap(udpatedSchedule);
+    };
 
     const fetchClasses = async () => {
         try {
@@ -232,12 +252,11 @@ const ClassManagement = () => {
     }
 
     // TODO: have classToScheduleId as a number?
-    // TODO: day - make it clear, id or string? It should be the name of the day
-    const scheduleClass = async (classToScheduleId: string, classToScheduleName: string, day: string, time: string) => {
+    const scheduleClass = async (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => {
         // TODO: sanitize input and add checks
         const data = {
             "classId": classToScheduleId,
-            "day": day,
+            "day": dayName,
             "classTime": time,
         }
 
@@ -262,14 +281,18 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                if (isValidScheduleResponse(responseData, Number(classToScheduleId), classToScheduleName, day)
+                if (isValidScheduleResponse(responseData, Number(classToScheduleId), classToScheduleName, dayName)
                 ) {
                     console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
                 } else {
                     console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
 
+                const scheduleId = responseData.scheduleId;
+
                 setIsScheduleSuccessful(true);
+
+                addScheduleToState(scheduleId, dayId, time);
 
                 setSelectedClassId(null);
                 setSelectedClassName("");
