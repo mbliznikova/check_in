@@ -27,8 +27,12 @@ const CreateScheduleClass = ({
     const [className, setClassName] = useState("");
     const [classId, setClassId] = useState("");
 
-    const [day, setDay] = useState("");
+    const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
+    const [selectedDayName, setSelectedDayName] = useState("");
+
     const [time, setTime] = useState("");
+
+    const [isAddDayOpen, setIsAddDayOpen] = useState(false);
 
     const dayNumbers = new Map<string, number>([
         ["Monday", 1],
@@ -39,6 +43,32 @@ const CreateScheduleClass = ({
         ["Saturday", 6],
         ["Sunday", 7],
       ]);
+
+
+    // TODO: open time scheduling view only when day is selected. Otherwise keep hidden
+
+    const renderAddDayView = () => {
+        return (
+            <View>
+                {[...dayNumbers].map(([dayName, dayIndex]) => (
+                    <Pressable
+                        key={dayIndex}
+                        style={styles.dayContainer}
+                        onPress={() => {
+                            console.log(`Selected ${dayName} (${dayIndex})`);
+                            setSelectedDayId(dayIndex);
+                            setSelectedDayName(dayName);
+                            setIsAddDayOpen(false);
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                            {dayName}
+                        </Text>
+                    </Pressable>
+                ))}
+            </View>
+        );
+    };
 
     const renderClassCreationForm = () => {
         return (
@@ -91,13 +121,21 @@ const CreateScheduleClass = ({
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                     >
-                        Day ("Monday"):
+                        Day:
                     </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={day}
-                        onChangeText={(dayName) => {setDay(dayName)}} // TODO: HANDLE THE INPUT. Make it predefined, like dropdown?
-                    />
+                    <View style={{position: 'relative'}}>
+                        <Pressable
+                            style={styles.dayContainer}
+                            onPress={() => {
+                                setIsAddDayOpen(!isAddDayOpen);
+                            }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
+                        </Pressable>
+                        <View>
+                            {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
+                        </View>
+                    </View>
                 </View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
@@ -113,8 +151,23 @@ const CreateScheduleClass = ({
                 </View>
                 <View style={styles.itemContainer}>
                     <Pressable
-                        onPress={() => {onScheduleClass(classId, className, dayNumbers.get(day)?? -1, day, time)}} // TODO: make day selection predefined
                         style={styles.createButton}
+                        onPress={() => {
+                            console.log(`Class id is ${classId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
+                            if (
+                                classId === null ||
+                                className === null ||
+                                selectedDayId === null ||
+                                selectedDayName === null ||
+                                time === null
+                            ){
+                                console.warn('Missing data: cannot schedule');
+                                return;
+                            } else {
+                                onScheduleClass(classId, className, selectedDayId, selectedDayName, time)
+                            }
+                        }
+                    }
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
                     </Pressable>
@@ -206,6 +259,26 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row'
+    },
+    dayContainer: {
+        width: 150,
+        justifyContent: 'center',
+        paddingRight: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+    },
+    dayText: {
+        fontWeight: "bold",
+        padding: 10,
+        paddingHorizontal: 20,
+    },
+    dropdown: {
+        position: 'absolute',
+        top: '100%',
+        borderWidth: 1,
+        borderColor: 'grey',
+        borderRadius: 10,
     },
     darkColor: {
         color: 'black',
