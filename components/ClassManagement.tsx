@@ -121,10 +121,17 @@ const ClassManagement = () => {
             return;
         }
         const udpatedSchedule = currentSchedule.filter(([id]) => id !== targetScheduleId);
+
         console.log(`udpatedSchedule is ${udpatedSchedule}`);
 
         const updatedMap = new Map(currentClassScheduleMap);
-        updatedMap.set(day, udpatedSchedule);
+
+        if(udpatedSchedule.length === 0) {
+            console.log(`No schedules for day ${day}`);
+            updatedMap.delete(day);
+        } else {
+            updatedMap.set(day, udpatedSchedule);
+        }
 
         console.log(`Schedule data without deleted schedule: ${udpatedSchedule}`);
         setCurrentClassScheduleMap(updatedMap);
