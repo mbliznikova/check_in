@@ -502,6 +502,7 @@ const ClassManagement = () => {
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
                         setCreateClassStatus("");
+                        setIsScheduleSuccessful(false);
                     }}
                     statusMessage={createClassStatus}
                     isSheduleSuccess={isScheduleSuccessful}
@@ -551,7 +552,8 @@ const ClassManagement = () => {
             <ClassScheduleModal
                 isVisible={isScheduleModalVisible}
                 onModalClose={() => {
-                    setIsScheduleModalVisible(false)
+                    setIsScheduleModalVisible(false);
+                    setIsScheduleSuccessful(false);
                 }}
                 onScheduleDelete={deleteClassSchedule}
                 onScheduleClass={scheduleClass}
