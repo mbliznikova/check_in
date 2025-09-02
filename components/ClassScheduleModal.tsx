@@ -195,8 +195,8 @@ const ClassScheduleModal = ({
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                    </View>
                         {isAddTimeOpen ? <View style={styles.dropdown}>{renderAddTimeView()}</View> : null}
+                    </View>
                 </View>
             </View>
         );
@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
+        paddingVertical: 3,
     },
     darkColor: {
         color: 'black',
