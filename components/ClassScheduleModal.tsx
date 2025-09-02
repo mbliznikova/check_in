@@ -1,7 +1,7 @@
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ClassScheduleModalModalProps = {
     isVisible: boolean;
@@ -33,6 +33,8 @@ const ClassScheduleModal = ({
     const [dayToSchedule, setDayToSchedule] = useState<number | null>(null);
     const [timeToSchedule, setTimeToSchedule] = useState("");
 
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
+
     const dayNames = [
         "",
         "Monday",
@@ -43,6 +45,10 @@ const ClassScheduleModal = ({
         "Saturday",
         "Sunday"
     ];
+
+    useEffect(() => {
+        setIsConfirmationOpen(isSheduleSuccess)
+    }, [isSheduleSuccess]);
 
     const getRemainedDays = (): number[] => {
         const remainedDays: number[] = [];
@@ -81,7 +87,6 @@ const ClassScheduleModal = ({
     const renderAddTimeView = () => {
         return (
             <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
-                {isSheduleSuccess ? renderSuccessConfirmation() :
                     <View>
                         <Text
                             style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
@@ -119,7 +124,6 @@ const ClassScheduleModal = ({
                                     } else {
                                         onScheduleClass(classId.toString(), className, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
                                     }
-
                                 }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
@@ -132,7 +136,6 @@ const ClassScheduleModal = ({
                             </Pressable>
                         </View>
                     </View>
-                }
             </View>
         );
     };
@@ -226,7 +229,6 @@ const ClassScheduleModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
@@ -238,13 +240,13 @@ const ClassScheduleModal = ({
                             style={styles.modalConfirmButton}
                             onPress={() => {
                                 setIsAddTimeOpen(false);
+                                setIsConfirmationOpen(false);
                             }}
                         >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
-            </View>
         );
     };
 
@@ -254,7 +256,14 @@ const ClassScheduleModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            {renderSchedule()}
+            <View style={{flex: 1}}>
+                {isConfirmationOpen && (
+                    <View style={styles.successOverlay}>
+                        {renderSuccessConfirmation()}
+                    </View>
+                )}
+                {renderSchedule()}
+            </View>
         </Modal>
     );
 };
@@ -390,6 +399,17 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
+    },
+    successOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 10,
     },
 });
 
