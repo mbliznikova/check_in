@@ -1,7 +1,7 @@
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ClassScheduleModalModalProps = {
     isVisible: boolean;
@@ -34,6 +34,9 @@ const ClassScheduleModal = ({
     const [timeToSchedule, setTimeToSchedule] = useState("");
 
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
+
+    const initialClassId = useRef(classId);
+    const initialClassName = useRef(className);
 
     const dayNames = [
         "",
@@ -111,18 +114,19 @@ const ClassScheduleModal = ({
                             <Pressable
                                 style={styles.modalConfirmButton}
                                 onPress={() => {
-                                    console.log(`Class id is ${classId}, day is ${dayToSchedule} (${dayNames[dayToSchedule!]}), time is ${timeToSchedule}`);
+                                    console.log(
+                                        `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${dayNames[dayToSchedule!]}, time ${timeToSchedule}`);
                                     if (
-                                        classId === null ||
-                                        className === null ||
+                                        initialClassId.current === null ||
+                                        initialClassName.current === null ||
                                         dayToSchedule === null ||
                                         timeToSchedule === null ||
                                         !timeToSchedule
                                     ){
-                                        console.warn('Missing data: cannot schedule');
+                                        console.warn('Missing data: cannot schedule.');
                                         return;
                                     } else {
-                                        onScheduleClass(classId.toString(), className, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
+                                        onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
                                         setIsAddTimeOpen(false);
                                         setTimeToSchedule("");
                                     }
@@ -195,7 +199,7 @@ const ClassScheduleModal = ({
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                        {isAddTimeOpen ? <View style={styles.dropdown}>{renderAddTimeView()}</View> : null}
+                        {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
                     </View>
                 </View>
             </View>
@@ -388,7 +392,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '100%',
         borderWidth: 1,
-        borderColor: 'grey',
         borderRadius: 10,
     },
     hiddenButton: {
