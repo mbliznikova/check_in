@@ -123,6 +123,8 @@ const ClassScheduleModal = ({
                                         return;
                                     } else {
                                         onScheduleClass(classId.toString(), className, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
+                                        setIsAddTimeOpen(false);
+                                        setTimeToSchedule("");
                                     }
                                 }}
                             >
@@ -155,7 +157,6 @@ const ClassScheduleModal = ({
                             </View>
                             {times.map(([scheduleId, time]) => (
                                 <View
-                                    style={{paddingHorizontal: 10}}
                                     key={scheduleId}>
                                     <Pressable
                                         style={styles.timeButton}
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
     dayContainer: {
         width: 150,
         justifyContent: 'center',
-        paddingRight: 10,
+        marginRight: 10,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
@@ -319,6 +320,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'grey',
         justifyContent: 'center',
+        minWidth: 70,
+        marginHorizontal: 10,
     },
     timeText: {
         paddingHorizontal: 10,
@@ -358,7 +361,7 @@ const styles = StyleSheet.create({
     },
     scheduleRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         padding: 5,
     },
     deleteTimeButton: {
