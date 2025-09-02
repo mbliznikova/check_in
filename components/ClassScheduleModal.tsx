@@ -184,19 +184,19 @@ const ClassScheduleModal = ({
                             </Pressable>
                     </View>
                 ))}
-                <View style={{position: 'relative'}}>
-                    <Pressable
-                        style={styles.dayContainer}
-                        onPress={() => {
-                            setIsAddDayOpen(!isAddDayOpen);
-                        }}
-                    >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
-                    </Pressable>
-                    <View>
+                <View style={styles.scheduleRow}>
+                    <View style={{position: 'relative'}}>
+                        <Pressable
+                            style={styles.dayContainer}
+                            onPress={() => {
+                                setIsAddDayOpen(!isAddDayOpen);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
+                        </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                        {isAddTimeOpen ? <View style={styles.dropdown}>{renderAddTimeView()}</View> : null}
                     </View>
+                        {isAddTimeOpen ? <View style={styles.dropdown}>{renderAddTimeView()}</View> : null}
                 </View>
             </View>
         );
