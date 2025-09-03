@@ -41,7 +41,8 @@ const ClassManagement = () => {
 
     const [createClassStatus, setCreateClassStatus] = useState("");
 
-    const [currentScheduleSet, setCurrentScheduleSet] = useState<Set<string>>(new Set());
+    const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
+    const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -158,10 +159,26 @@ const ClassManagement = () => {
         setCurrentClassScheduleMap(udpatedSchedule);
     };
 
+    const addScheduleToUniqueness = (day: number, time: string) => {
+        const newSchedulesSet = new Set(schedulesSet);
+        newSchedulesSet.add(`${day}-${time.slice(0, 5)}`);
+        console.log(`Added ${day}-${time.slice(0, 5)}`);
+
+        setSchedulesSet(newSchedulesSet);
+    };
+
+    const removeScheduleFromUniqueness = (day: number, time: string) => {
+        const newSchedulesSet = new Set(schedulesSet);
+        newSchedulesSet.delete(`${day}-${time.slice(0, 5)}`);
+        console.log(`Removed ${day}-${time.slice(0, 5)}`);
+
+        setSchedulesSet(newSchedulesSet);
+    };
+
     const checkIfScheduleUnique = (dayId: number, time: string): Boolean => {
         const scheduleToCheck = `${dayId}-${time}`;
-        console.log(`Function checkIfScheduleUnique! Checking for ${scheduleToCheck}: ${!currentScheduleSet.has(scheduleToCheck)}`);
-        return !currentScheduleSet.has(scheduleToCheck);
+
+        return !schedulesSet.has(scheduleToCheck);
     };
 
     const fetchClasses = async () => {
@@ -308,6 +325,7 @@ const ClassManagement = () => {
                 setIsScheduleSuccessful(true);
 
                 addScheduleToState(scheduleId, dayId, time);
+                addScheduleToUniqueness(dayId, time);
 
                 setSelectedClassId(null);
                 setSelectedClassName("");
@@ -364,6 +382,30 @@ const ClassManagement = () => {
         }
     };
 
+    const fetchSchedules = async() => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/`)
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidArrayResponse(responseData, 'response')) {
+                    console.log(`Function fetchSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    const schedules = responseData.response;
+
+                    setAllSchedulesList(schedules);
+
+                } else {
+                    console.warn(`Function fetchSchedules. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function fetchSchedules. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching schedule data from the server for a class: ${error}`);
+        }
+    };
+
     const fetchClassSchedules = async (classId: number) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/schedules/?class_id=${classId}`)
@@ -399,7 +441,7 @@ const ClassManagement = () => {
         }
     };
 
-    const deleteClassSchedule = async(scheduleId: number, day: number) => {
+    const deleteClassSchedule = async(scheduleId: number, day: number, time: string) => {
         if (scheduleId === null || day === null) {
             console.warn("No schedule or day selected");
             return null;
@@ -419,6 +461,7 @@ const ClassManagement = () => {
                     console.log(`Function deleteClassSchedule. The response from backend is valid: ${JSON.stringify(responseData)}`);
 
                     removeScheduleFromState(scheduleId, day);
+                    removeScheduleFromUniqueness(day, time);
                 } else {
                     console.warn(`Function deleteClassSchedule. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -433,40 +476,21 @@ const ClassManagement = () => {
 
     useEffect(() => {
         fetchClasses();
+        fetchSchedules();
     },
     []);
 
     useEffect(() => {
-        console.log(`currentScheduleSet before updating:`);
-        if (currentScheduleSet.size !== 0) {
-            currentScheduleSet.forEach(item => {
-                console.log(item);
-            })
-        } else {
-            console.log("Set is currently empty");
-        }
-
         const scheduleSet: Set<string> = new Set();
 
-        currentClassScheduleMap.forEach((tuples, dayId) => {
-            tuples.forEach(([_, time]) => {
-                // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
-                scheduleSet.add(`${dayId}-${time.slice(0,5)}`);
-                console.log(`Adding to the set: ${dayId}-${time.slice(0,5)}`);
-            })
+        allSchedulesList.forEach((schedule) => {
+            // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
+            scheduleSet.add(`${schedule.day}-${schedule.classTime.slice(0,5)}`);
         });
-        console.log(`currentScheduleSet after updating:`);
-        if (scheduleSet.size !== 0) {
-            scheduleSet.forEach(item => {
-                console.log(item);
-            })
-        } else {
-            console.log("Set is currently empty");
-        }
 
-        setCurrentScheduleSet(scheduleSet);
+        setSchedulesSet(scheduleSet);
     },
-    [currentClassScheduleMap]);
+    [allSchedulesList]);
 
     // add useEffect to handle adding the created class to the list?
 

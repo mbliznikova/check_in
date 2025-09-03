@@ -3,10 +3,10 @@ import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable, Al
 import ScreenTitle from "./ScreenTitle";
 import { useEffect, useRef, useState } from "react";
 
-type ClassScheduleModalModalProps = {
+type ClassScheduleModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onScheduleDelete: (scheduleId: number, day: number) => void;
+    onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => Boolean;
     scheduleData: Map<number, [number, string][]>;
@@ -25,7 +25,7 @@ const ClassScheduleModal = ({
     classId,
     className,
     isSheduleSuccess = false,
-}: ClassScheduleModalModalProps) => {
+}: ClassScheduleModalProps) => {
 
     const colorScheme = useColorScheme();
 
@@ -172,7 +172,7 @@ const ClassScheduleModal = ({
                                     <Pressable
                                         style={styles.timeButton}
                                         onPress={() => {
-                                            onScheduleDelete(scheduleId, day);
+                                            onScheduleDelete(scheduleId, day, time);
                                         }}
                                     >
                                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
