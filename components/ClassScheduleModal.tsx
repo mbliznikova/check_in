@@ -1,4 +1,4 @@
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable, Alert } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
 import { useEffect, useRef, useState } from "react";
@@ -8,6 +8,7 @@ type ClassScheduleModalModalProps = {
     onModalClose: () => void;
     onScheduleDelete: (scheduleId: number, day: number) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
+    onUniquenessCheck: (dayId: number, time: string) => Boolean;
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
     className: string | null;
@@ -19,6 +20,7 @@ const ClassScheduleModal = ({
     onModalClose,
     onScheduleDelete,
     onScheduleClass,
+    onUniquenessCheck,
     scheduleData = new Map(),
     classId,
     className,
@@ -126,9 +128,14 @@ const ClassScheduleModal = ({
                                         console.warn('Missing data: cannot schedule.');
                                         return;
                                     } else {
-                                        onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
-                                        setIsAddTimeOpen(false);
-                                        setTimeToSchedule("");
+                                        if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
+                                                onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
+                                                setIsAddTimeOpen(false);
+                                                setTimeToSchedule("");
+                                        } else {
+                                            alert('Such schedule is already taken');
+                                            console.log(`There is already a class scheduled to ${dayToSchedule}(${dayNames[dayToSchedule]}), ${timeToSchedule}`);
+                                        }
                                     }
                                 }}
                             >

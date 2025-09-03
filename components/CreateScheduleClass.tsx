@@ -10,6 +10,7 @@ type ClassCreationModalProps = {
     onModalClose: () => void;
     onCreateClass: (className: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
+    onUniquenessCheck: (dayId: number, time: string) => Boolean;
     statusMessage: string;
     isSheduleSuccess: boolean;
 };
@@ -19,6 +20,7 @@ const CreateScheduleClass = ({
     onModalClose,
     onCreateClass,
     onScheduleClass,
+    onUniquenessCheck,
     statusMessage,
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
@@ -164,7 +166,12 @@ const CreateScheduleClass = ({
                                 console.warn('Missing data: cannot schedule');
                                 return;
                             } else {
-                                onScheduleClass(classId, className, selectedDayId, selectedDayName, time)
+                                if (onUniquenessCheck(selectedDayId, time)) {
+                                    onScheduleClass(classId, className, selectedDayId, selectedDayName, time)
+                                } else {
+                                    alert('Such schedule is already taken');
+                                    console.log(`There is already a class scheduled to ${selectedDayId}(${selectedDayName}), ${time}`);
+                                }
                             }
                         }
                     }

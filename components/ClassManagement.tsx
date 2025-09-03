@@ -158,6 +158,12 @@ const ClassManagement = () => {
         setCurrentClassScheduleMap(udpatedSchedule);
     };
 
+    const checkIfScheduleUnique = (dayId: number, time: string): Boolean => {
+        const scheduleToCheck = `${dayId}-${time}`;
+        console.log(`Function checkIfScheduleUnique! Checking for ${scheduleToCheck}: ${!currentScheduleSet.has(scheduleToCheck)}`);
+        return !currentScheduleSet.has(scheduleToCheck);
+    };
+
     const fetchClasses = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/backend/classes/');
@@ -533,6 +539,7 @@ const ClassManagement = () => {
                     isVisible={isCreateModalVisible}
                     onCreateClass={createClass}
                     onScheduleClass={scheduleClass}
+                    onUniquenessCheck={checkIfScheduleUnique}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
                         setCreateClassStatus("");
@@ -591,6 +598,7 @@ const ClassManagement = () => {
                 }}
                 onScheduleDelete={deleteClassSchedule}
                 onScheduleClass={scheduleClass}
+                onUniquenessCheck={checkIfScheduleUnique}
                 scheduleData={currentClassScheduleMap}
                 classId={selectedClassId}
                 className={selectedClassName}
