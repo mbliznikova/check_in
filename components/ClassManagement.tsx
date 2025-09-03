@@ -37,9 +37,11 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
-    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map());
+    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map()); // dayId: [scheduleID, time]
 
     const [createClassStatus, setCreateClassStatus] = useState("");
+
+    const [currentScheduleSet, setCurrentScheduleSet] = useState<Set<string>>(new Set());
 
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
@@ -427,6 +429,38 @@ const ClassManagement = () => {
         fetchClasses();
     },
     []);
+
+    useEffect(() => {
+        console.log(`currentScheduleSet before updating:`);
+        if (currentScheduleSet.size !== 0) {
+            currentScheduleSet.forEach(item => {
+                console.log(item);
+            })
+        } else {
+            console.log("Set is currently empty");
+        }
+
+        const scheduleSet: Set<string> = new Set();
+
+        currentClassScheduleMap.forEach((tuples, dayId) => {
+            tuples.forEach(([_, time]) => {
+                // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
+                scheduleSet.add(`${dayId}-${time.slice(0,5)}`);
+                console.log(`Adding to the set: ${dayId}-${time.slice(0,5)}`);
+            })
+        });
+        console.log(`currentScheduleSet after updating:`);
+        if (scheduleSet.size !== 0) {
+            scheduleSet.forEach(item => {
+                console.log(item);
+            })
+        } else {
+            console.log("Set is currently empty");
+        }
+
+        setCurrentScheduleSet(scheduleSet);
+    },
+    [currentClassScheduleMap]);
 
     // add useEffect to handle adding the created class to the list?
 
