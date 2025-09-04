@@ -33,13 +33,14 @@ const ClassManagement = () => {
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
 
+    const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
     const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map()); // dayId: [scheduleID, time]
 
-    const [createClassStatus, setCreateClassStatus] = useState("");
+    const [createdClassId, setCreatedClassId] = useState<number | null>(null);
 
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
@@ -271,7 +272,8 @@ const ClassManagement = () => {
 
                     const newClass = {id: responseData.id, name: responseData.name};
 
-                    setCreateClassStatus(`Class ${className} has been created with id ${responseData.id}`);
+                    setIsCreateSuccessful(true);
+                    setCreatedClassId(responseData.id);
                     setClasses(prevClasses => [...prevClasses, newClass]);
 
                 } else {
@@ -566,10 +568,10 @@ const ClassManagement = () => {
                     onUniquenessCheck={checkIfScheduleUnique}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
-                        setCreateClassStatus("");
                         setIsScheduleSuccessful(false);
                     }}
-                    statusMessage={createClassStatus}
+                    isCreateSuccess={isCreateSuccessful}
+                    createdClassId={createdClassId}
                     isSheduleSuccess={isScheduleSuccessful}
                 />
         );

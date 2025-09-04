@@ -11,7 +11,8 @@ type ClassCreationModalProps = {
     onCreateClass: (className: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => Boolean;
-    statusMessage: string;
+    isCreateSuccess: boolean;
+    createdClassId: number | null;
     isSheduleSuccess: boolean;
 };
 
@@ -21,13 +22,13 @@ const CreateScheduleClass = ({
     onCreateClass,
     onScheduleClass,
     onUniquenessCheck,
-    statusMessage,
+    isCreateSuccess,
+    createdClassId,
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
     const colorScheme = useColorScheme();
 
     const [className, setClassName] = useState("");
-    const [classId, setClassId] = useState("");
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -47,7 +48,7 @@ const CreateScheduleClass = ({
       ]);
 
 
-    // TODO: open time scheduling view only when day is selected. Otherwise keep hidden
+    // TODO: open time scheduling view only when day is selected. Otherwise keep hidden #17
 
     const renderAddDayView = () => {
         return (
@@ -98,7 +99,7 @@ const CreateScheduleClass = ({
                 <Text
                     style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                 >
-                    {statusMessage}
+                    {isCreateSuccess ? `Class ${className} has been created with id ${createdClassId}` : ``}
                 </Text>
             </View>
         );
@@ -107,17 +108,16 @@ const CreateScheduleClass = ({
     const renderClassScheduleForm = () => {
         return (
             <View>
+                <ScreenTitle titleText='Schedule new class'/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                     >
                         Class:
                     </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={classId}
-                        onChangeText={(newClassId) => {setClassId(newClassId)}}
-                    />
+                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>
+                        {`${className} (id ${createdClassId})`}
+                    </Text>
                 </View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
@@ -155,9 +155,9 @@ const CreateScheduleClass = ({
                     <Pressable
                         style={styles.createButton}
                         onPress={() => {
-                            console.log(`Class id is ${classId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
+                            console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
                             if (
-                                classId === null ||
+                                createdClassId === null ||
                                 className === null ||
                                 selectedDayId === null ||
                                 selectedDayName === null ||
@@ -167,7 +167,7 @@ const CreateScheduleClass = ({
                                 return;
                             } else {
                                 if (onUniquenessCheck(selectedDayId, time)) {
-                                    onScheduleClass(classId, className, selectedDayId, selectedDayName, time)
+                                    onScheduleClass(createdClassId.toString(), className, selectedDayId, selectedDayName, time) // TODO: classId as a number
                                 } else {
                                     alert('Such schedule is already taken');
                                     console.log(`There is already a class scheduled to ${selectedDayId}(${selectedDayName}), ${time}`);
@@ -189,13 +189,7 @@ const CreateScheduleClass = ({
                 <View style={styles.modalView}>
                     <ScreenTitle titleText='Create new class'/>
 
-                    {renderClassCreationForm()}
-
-                    <View style={{paddingVertical: 30}}></View>
-
-                    <ScreenTitle titleText='Schedule new class'/>
-
-                    {renderClassScheduleForm()}
+                    {!isCreateSuccess? renderClassCreationForm() : renderClassScheduleForm()}
 
                     <Pressable
                         style={styles.modalCancelButton}
