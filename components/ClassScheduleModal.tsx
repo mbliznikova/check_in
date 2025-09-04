@@ -118,7 +118,8 @@ const ClassScheduleModal = ({
                                 onPress={() => {
                                     console.log(
                                         `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${dayNames[dayToSchedule!]}, time ${timeToSchedule}`);
-                                    if (
+                                        setTimeToSchedule("");
+                                        if (
                                         initialClassId.current === null ||
                                         initialClassName.current === null ||
                                         dayToSchedule === null ||
@@ -131,7 +132,6 @@ const ClassScheduleModal = ({
                                         if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
                                                 onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
                                                 setIsAddTimeOpen(false);
-                                                setTimeToSchedule("");
                                         } else {
                                             alert('Such schedule is already taken');
                                             console.log(`There is already a class scheduled to ${dayToSchedule}(${dayNames[dayToSchedule]}), ${timeToSchedule}`);
