@@ -108,7 +108,7 @@ const CreateScheduleClass = ({
     const renderClassScheduleForm = () => {
         return (
             <View>
-                <ScreenTitle titleText='Schedule new class'/>
+                <ScreenTitle titleText={isCreateSuccess ? 'Schedule new class' : ''}/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
                         style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
@@ -187,9 +187,9 @@ const CreateScheduleClass = ({
         return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
-                    <ScreenTitle titleText='Create new class'/>
+                    <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'}/>
 
-                    {!isCreateSuccess? renderClassCreationForm() : renderClassScheduleForm()}
+                    {isCreateSuccess? renderClassScheduleForm() : renderClassCreationForm()}
 
                     <Pressable
                         style={styles.modalCancelButton}
