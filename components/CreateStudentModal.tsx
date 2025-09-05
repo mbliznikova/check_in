@@ -26,7 +26,7 @@ const CreateStudentModal = ({
 
     const renderCreateForm = () => {
         return (
-            <View style={styles.container}>
+            <View style={styles.modalContainer}>
                 <ScreenTitle titleText='Add new student'/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
@@ -80,23 +80,57 @@ const CreateStudentModal = ({
         );
     };
 
+    const renderSuccessConfirmation = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            {`Student was added successfully!`}
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     return (
         <Modal
             visible={isVisible}
             transparent={true}
             onRequestClose={onModalClose}
         >
-            {renderCreateForm()}
+            {isCreateSuccess ? renderSuccessConfirmation() : renderCreateForm()}
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+    },
+    modalView: {
+        width: '50%',
+        height: '40%',
+        backgroundColor: 'black', //TODO: make it adjustable
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalInfo: {
+        padding: 20,
     },
     itemContainer: {
         padding: 10,
@@ -140,6 +174,14 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         backgroundColor: 'grey',
     },
+   modalConfirmButton: {
+       alignItems: 'center',
+       paddingVertical: 5,
+       paddingHorizontal: 10,
+       marginVertical: 10,
+       borderRadius: 15,
+       backgroundColor: 'green',
+   },
     modalButtonsContainer: {
         flexDirection: 'row',
         padding: 20,
@@ -151,6 +193,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         gap: 60,
+    },
+    modalSingleButtonContainer: {
+        justifyContent: 'center'
     },
 });
 
