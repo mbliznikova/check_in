@@ -93,10 +93,10 @@ const CreateScheduleClass = ({
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
                         onPress={() => {onCreateClass(className)}}
-                        style={styles.createButton}
+                        style={className ? styles.createButton : styles.disabledButton}
                         disabled={!className}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, !className? {color: 'grey'} : null]}>Create</Text>
+                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
                     </Pressable>
                     <Pressable
                         style={styles.modalCancelButton}
@@ -155,7 +155,7 @@ const CreateScheduleClass = ({
 
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, isAddDayOpen && styles.hiddenButtonContainer]}>
                     <Pressable
-                        style={styles.createButton}
+                        style={(selectedDayName === "" || time.length < 5)? styles.disabledButton : styles.createButton}
                         onPress={() => {
                             isAddDayOpen ? undefined :
                             console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
@@ -180,7 +180,7 @@ const CreateScheduleClass = ({
                         disabled={selectedDayName === "" || time.length < 5}
 
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, (selectedDayName === "" || time.length < 5)? {color: 'grey'} : null]}>Schedule</Text>
+                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
                     </Pressable>
                     <Pressable
                         style={styles.modalCancelButton}
@@ -301,6 +301,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
+    },
+    disabledButton: {
+        padding: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        opacity: 0.5,
     },
     modalCancelButton: {
         alignItems: 'center',
