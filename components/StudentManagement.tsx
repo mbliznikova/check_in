@@ -22,6 +22,24 @@ const StudentManagement = () => {
         );
     };
 
+    const renderHeader = () => {
+        return (
+            <View style={styles.headerRow}>
+                <Pressable
+                    onPress={() => {}}
+                    style={({pressed}) => [
+                        styles.button,
+                        pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
+                    ]}
+                >
+                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>
+                        + Add new student
+                    </Text>
+                </Pressable>
+            </View>
+        );
+    };
+
     const fetchStudents = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/backend/students/');
@@ -83,12 +101,18 @@ const StudentManagement = () => {
     return (
         <SafeAreaView>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
+            {renderHeader()}
             {renderStudentList()}
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    headerRow: {
+        padding: 20,
+        paddingBottom: 20,
+        marginLeft: 'auto'
+    },
     studentList: {
         flex: 1,
         flexDirection: 'row',
@@ -99,6 +123,19 @@ const styles = StyleSheet.create({
     studentName: {
         paddingLeft: 10,
         textDecorationLine: 'underline',
+    },
+    button: {
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        // elevation: 3,
+    },
+    primaryButtonPressed: {
+        backgroundColor: '#c2c0c0',
+        borderRadius: 8,
+    },
+    primaryButtonUnpressed: {
+        backgroundColor: 'blue',
+        borderRadius: 8,
     },
     actionButtonText: {
         paddingRight: 10,
