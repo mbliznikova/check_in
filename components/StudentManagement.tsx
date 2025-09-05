@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable, Modal } from "react-native";
+
 import ScreenTitle from "./ScreenTitle";
+import CreateStudentModal from "./CreateStudentModal";
 
 type StudentType = {
     id: number,
@@ -13,6 +15,12 @@ const StudentManagement = () => {
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+    const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
+
+    const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
+
     const isValidArrayResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === "object" &&
@@ -22,11 +30,35 @@ const StudentManagement = () => {
         );
     };
 
+    const addStudentToUniqueness = (firstName: string, lastName: string) => {
+        const newSet = new Set(studentsSet);
+        newSet.add(`${firstName} ${lastName}`)
+        console.log(`Added ${firstName} ${lastName}`);
+
+        setStudentsSet(newSet);
+    };
+
+    const removeStudentFromUniqueness = (firstName: string, lastName: string) => {
+        const newSet = new Set(studentsSet);
+        newSet.delete(`${firstName} ${lastName}`)
+        console.log(`Removed ${firstName} ${lastName}`);
+
+        setStudentsSet(newSet);
+    };
+
+    const ifStudentNameUnique = (firstName: string, lastName: string): boolean => {
+        const studentToCheck = `${firstName} ${lastName}`;
+
+        return !studentsSet.has(studentToCheck);
+    };
+
     const renderHeader = () => {
         return (
             <View style={styles.headerRow}>
                 <Pressable
-                    onPress={() => {}}
+                    onPress={() => {
+                        setIsCreateModalVisible(true);
+                    }}
                     style={({pressed}) => [
                         styles.button,
                         pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
@@ -61,9 +93,70 @@ const StudentManagement = () => {
         }
     };
 
+    const createStudent = async (firstName: string, lastName: string) => {
+        const data = {
+            "firstName": firstName,
+            "lastName": lastName,
+        };
+
+        console.log('data is: ' + JSON.stringify(data));
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/students/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function createStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Student was created successfully!');
+
+                const responseData = await response.json();
+
+                if (
+                    typeof responseData === 'object' &&
+                    responseData !== null &&
+                    'message' in responseData && responseData.message === 'Student was created successfully' &&
+                    'studentId' in responseData &&
+                    'firstName' in responseData && responseData.firstName === firstName &&
+                    'lastName' in responseData && responseData.lastName === lastName
+                ) {
+                    console.log(`Function createStudent. The response from backend is valid. ${JSON.stringify(responseData)}`);
+
+                    setIsCreateSuccessful(true);
+                } else {
+                    console.warn(`Function createStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+
+                // setFirstName("");
+                // setLastName("");
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server at creating student: ${error}`);
+        }
+    };
+
     useEffect(() => {
         fetchStudents();
     }, []);
+
+    useEffect(() => {
+        const allStudentsSet: Set<string> = new Set();
+
+        students.forEach((std) => {
+            allStudentsSet.add(`${std.firstName} ${std.lastName}`)
+        });
+
+        setStudentsSet(allStudentsSet);
+    }, [students]);
 
     const renderStudentList = () => {
         return (
@@ -98,11 +191,30 @@ const StudentManagement = () => {
         );
     };
 
+    const renderCreateModal = () => {
+        if (!isCreateModalVisible) {
+            return null;
+        }
+        return (
+            <CreateStudentModal
+                isVisible={isCreateModalVisible}
+                onModalClose={() => {
+                    setIsCreateModalVisible(false);
+                    setIsCreateSuccessful(false);
+                }}
+                onCreateStudent={createStudent}
+                onUniquenessCheck={ifStudentNameUnique}
+                isCreateSuccess={isCreateSuccessful}
+            />
+        );
+    };
+
     return (
         <SafeAreaView>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}
+            {renderCreateModal()}
         </SafeAreaView>
     );
 };
