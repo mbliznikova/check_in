@@ -286,28 +286,30 @@ const School = () => {
     return (
         <View style={styles.container}>
 
-            <FlatList
-                data={classList}
-                keyExtractor={cls => cls.id.toString()}
-                renderItem={({ item: cls }) => (
-                    <View>
-                        <StudentList
-                            studentList={checkedInStudents.get(cls.id) || []}
-                            onStudentPress={(student => {
-                                setCurrentStudent(student);
-                                setIsModalVisible(true);
-                            })}
-                            header={
-                                <ClassName
-                                    id={cls.id}
-                                    name={cls.name}
-                                />
-                            }
-                            style={styles.students}
-                        />
-                    </View>
-                )}
-            />
+            <View style={{flex: 1}}>
+                <FlatList
+                    data={classList}
+                    keyExtractor={cls => cls.id.toString()}
+                    renderItem={({ item: cls }) => (
+                        <View>
+                            <StudentList
+                                studentList={checkedInStudents.get(cls.id) || []}
+                                onStudentPress={(student => {
+                                    setCurrentStudent(student);
+                                    setIsModalVisible(true);
+                                })}
+                                header={
+                                    <ClassName
+                                        id={cls.id}
+                                        name={cls.name}
+                                    />
+                                }
+                                style={styles.students}
+                            />
+                        </View>
+                    )}
+                />
+            </View>
 
             <View style={styles.separator} />
 
@@ -322,15 +324,17 @@ const School = () => {
                 }}
             />
 
-            <View style={styles.rowWrapper}>
-                <StudentList
-                    studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
-                    onStudentPress={(student) => {
-                        setCurrentStudent(student);
-                        setIsModalVisible(true);
-                    }}
-                    style={styles.students}
-                />
+            <View style={{flex: 1.5}}>
+                <View style={styles.rowWrapper}>
+                    <StudentList
+                        studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
+                        onStudentPress={(student) => {
+                            setCurrentStudent(student);
+                            setIsModalVisible(true);
+                        }}
+                        style={styles.students}
+                    />
+                </View>
             </View>
         </View>
     );
