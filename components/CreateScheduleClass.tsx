@@ -94,8 +94,9 @@ const CreateScheduleClass = ({
                     <Pressable
                         onPress={() => {onCreateClass(className)}}
                         style={styles.createButton}
+                        disabled={!className}
                     >
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, !className? {color: 'grey'} : null]}>Create</Text>
                     </Pressable>
                     <Pressable
                         style={styles.modalCancelButton}
@@ -176,10 +177,10 @@ const CreateScheduleClass = ({
                                 }
                             }
                         }}
-                        disabled={isAddDayOpen}
+                        disabled={selectedDayName === "" || time.length < 5}
 
                     >
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, (selectedDayName === "" || time.length < 5)? {color: 'grey'} : null]}>Schedule</Text>
                     </Pressable>
                     <Pressable
                         style={styles.modalCancelButton}
