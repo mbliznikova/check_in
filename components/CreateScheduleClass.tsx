@@ -12,6 +12,7 @@ type ClassCreationModalProps = {
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => Boolean;
     isCreateSuccess: boolean;
+    isError: boolean;
     createdClassId: number | null;
     isSheduleSuccess: boolean;
 };
@@ -23,6 +24,7 @@ const CreateScheduleClass = ({
     onScheduleClass,
     onUniquenessCheck,
     isCreateSuccess,
+    isError,
     createdClassId,
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
@@ -88,19 +90,20 @@ const CreateScheduleClass = ({
                         onChangeText={(createdClassName) => {setClassName(createdClassName)}}
                     />
                 </View>
-                <View style={styles.itemContainer}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
                         onPress={() => {onCreateClass(className)}}
                         style={styles.createButton}
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
                     </Pressable>
+                    <Pressable
+                        style={styles.modalCancelButton}
+                        onPress={onModalClose}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                    </Pressable>
                 </View>
-                <Text
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                >
-                    {isCreateSuccess ? `Class ${className} has been created with id ${createdClassId}` : ``}
-                </Text>
             </View>
         );
     };
@@ -108,53 +111,52 @@ const CreateScheduleClass = ({
     const renderClassScheduleForm = () => {
         return (
             <View>
-                <ScreenTitle titleText={isCreateSuccess ? 'Schedule new class' : ''}/>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Class:
-                    </Text>
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>
-                        {`${className} (id ${createdClassId})`}
+                <ScreenTitle titleText={isCreateSuccess ? `Schedule class ${className}` : ''}/>
+
+                <View style={[styles.itemContainer, styles.itemRow, {justifyContent: 'center'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}
+                        >
+                            {isCreateSuccess ? `Class ${className} has been successfully created!` : ''}
                     </Text>
                 </View>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Day:
-                    </Text>
-                    <View style={{position: 'relative'}}>
-                        <Pressable
-                            style={styles.dayContainer}
-                            onPress={() => {
-                                setIsAddDayOpen(!isAddDayOpen);
-                            }}
-                            >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
-                        </Pressable>
-                        <View>
-                            {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
+
+                <View style={styles.modalManyButtonsContainer}>
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <View style={{position: 'relative'}}>
+                            <Pressable
+                                style={styles.dayContainer}
+                                onPress={() => {
+                                    setIsAddDayOpen(!isAddDayOpen);
+                                }}
+                                >
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
+                            </Pressable>
+                            <View>
+                                {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
+                            </View>
                         </View>
                     </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        >
+                            Time ("10:00"):
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={time}
+                            onChangeText={(timeStr) => {setTime(timeStr)}}
+                        />
+                    </View>
                 </View>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Time ("10:00"):
-                    </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                        value={time}
-                        onChangeText={(timeStr) => {setTime(timeStr)}}
-                    />
-                </View>
-                <View style={styles.itemContainer}>
+
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, isAddDayOpen && styles.hiddenButtonContainer]}>
                     <Pressable
                         style={styles.createButton}
                         onPress={() => {
+                            isAddDayOpen ? undefined :
                             console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
                             if (
                                 createdClassId === null ||
@@ -173,10 +175,17 @@ const CreateScheduleClass = ({
                                     console.log(`There is already a class scheduled to ${selectedDayId}(${selectedDayName}), ${time}`);
                                 }
                             }
-                        }
-                    }
+                        }}
+                        disabled={isAddDayOpen}
+
                     >
                         <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
+                    </Pressable>
+                    <Pressable
+                        style={styles.modalCancelButton}
+                        onPress={onModalClose}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                     </Pressable>
                 </View>
             </View>
@@ -188,15 +197,7 @@ const CreateScheduleClass = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'}/>
-
                     {isCreateSuccess? renderClassScheduleForm() : renderClassCreationForm()}
-
-                    <Pressable
-                        style={styles.modalCancelButton}
-                        onPress={onModalClose}
-                        >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                    </Pressable>
                 </View>
             </View>
         );
@@ -278,7 +279,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '100%',
         borderWidth: 1,
-        borderColor: 'grey',
         borderRadius: 10,
     },
     darkColor: {
@@ -303,10 +303,10 @@ const styles = StyleSheet.create({
     },
     modalCancelButton: {
         alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
+        padding: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
         backgroundColor: 'grey',
     },
     modalButtonsContainer: {
@@ -316,7 +316,9 @@ const styles = StyleSheet.create({
         width: '30%',
     },
     modalManyButtonsContainer: {
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
+        flexDirection: 'row',
+        width: '100%',
     },
     modalSingleButtonContainer: {
          justifyContent: 'center'
@@ -328,6 +330,11 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'green',
+    },
+    hiddenButtonContainer: {
+        opacity: 0,
+        width: 0,
+        overflow: 'hidden',
     },
 });
 

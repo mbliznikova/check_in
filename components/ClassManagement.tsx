@@ -38,6 +38,8 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
 
+    const [isCreateClassError, setIsCreateClassError] = useState(false);
+
     const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map()); // dayId: [scheduleID, time]
 
     const [createdClassId, setCreatedClassId] = useState<number | null>(null);
@@ -260,6 +262,7 @@ const ClassManagement = () => {
 
             // TODO: refactor component and make function to follow the commom structure
             if (!response.ok) {
+                setIsCreateClassError(true);
                 const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
                 throw Error(errorMessage);
             } else {
@@ -568,9 +571,12 @@ const ClassManagement = () => {
                     onUniquenessCheck={checkIfScheduleUnique}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
+                        setIsCreateSuccessful(false);
+                        setCreatedClassId(null);
                         setIsScheduleSuccessful(false);
                     }}
                     isCreateSuccess={isCreateSuccessful}
+                    isError={isCreateClassError}
                     createdClassId={createdClassId}
                     isSheduleSuccess={isScheduleSuccessful}
                 />
@@ -585,7 +591,8 @@ const ClassManagement = () => {
             <DeleteClassModal
                 isVisible={isDeleteModalVisible}
                 onModalClose={() => {
-                    setIsDeleteModalVisible(false)
+                    setIsDeleteModalVisible(false);
+                    setIsDeleteSuccessful(false);
                 }}
                 onDeleteClass={deleteClass}
                 className={selectedClassName ?? ""}
@@ -602,7 +609,8 @@ const ClassManagement = () => {
             <EditClassModal
                 isVisible={isEditModalVisible}
                 onModalClose={() => {
-                    setIsEditModalVisible(false)
+                    setIsEditModalVisible(false);
+                    setIsEditSuccessful(false);
                 }}
                 onEditClass={editClassName}
                 oldClassName={selectedClassName ?? ""}
