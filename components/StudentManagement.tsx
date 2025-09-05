@@ -30,6 +30,26 @@ const StudentManagement = () => {
         );
     };
 
+    const addStudentToState = (studentId: number, firstName: string, lastName: string) => {
+        const newStudents = [...students];
+        newStudents.push({id: studentId, firstName: firstName, lastName: lastName});
+        newStudents.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
+
+        setStudents(newStudents);
+
+        console.log(`Added new student to the state variable: ${firstName} ${lastName} : ${studentId}`);
+    };
+
+    const removeStudentFromState = (targetStudentId: number) => {
+        if (!targetStudentId) {
+            console.warn(`No student with id ${targetStudentId}`);
+            return;
+        }
+        const newStudents = students.filter((std) => std.id !== targetStudentId);
+        setStudents(newStudents);
+        console.log(`Removed the student ${targetStudentId} from the state variable`);
+    };
+
     const addStudentToUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
         newSet.add(`${firstName} ${lastName}`)
@@ -132,12 +152,11 @@ const StudentManagement = () => {
                     console.log(`Function createStudent. The response from backend is valid. ${JSON.stringify(responseData)}`);
 
                     setIsCreateSuccessful(true);
+
+                    addStudentToState(responseData.studentId, responseData.firstName, responseData.lastName);
                 } else {
                     console.warn(`Function createStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
-
-                // setFirstName("");
-                // setLastName("");
             }
         } catch(error) {
             console.error(`Error while sending the data to the server at creating student: ${error}`);
