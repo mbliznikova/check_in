@@ -159,6 +159,7 @@ const CreateScheduleClass = ({
                         onPress={() => {
                             isAddDayOpen ? undefined :
                             console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
+                            setTime("");
                             if (
                                 createdClassId === null ||
                                 className === null ||
