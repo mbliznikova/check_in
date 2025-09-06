@@ -3,6 +3,7 @@ import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressab
 
 import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
+import DeleteStudentModal from "./DeleteStudentModal";
 
 type StudentType = {
     id: number,
@@ -16,8 +17,14 @@ const StudentManagement = () => {
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+    const [studentId, setStudentId] = useState<number | null>(null);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
 
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
+    const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
 
     const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
 
@@ -27,6 +34,15 @@ const StudentManagement = () => {
             responseData !== null &&
             key in responseData &&
             Array.isArray(responseData[key])
+        );
+    };
+
+    const isValidDeleteStudentResponse = (responseData: any, studentId: number): Boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Student ${studentId} was delete successfully` &&
+            'studentId' in responseData && responseData.studentId === studentId
         );
     };
 
@@ -163,6 +179,39 @@ const StudentManagement = () => {
         }
     };
 
+    const deleteStudent = async () => {
+        if (studentId === null) {
+            console.warn("No student selected to delete");
+            return null;
+        }
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/delete/`,
+                {
+                    method: 'DELETE',
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidDeleteStudentResponse(responseData, studentId)) {
+                    console.log(`Function deleteStudent. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                } else {
+                    console.warn(`Function deleteStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+
+                setIsDeleteSuccessful(true);
+
+                removeStudentFromState(studentId);
+
+            } else {
+                console.warn(`Function deleteStudent. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch(error) {
+            console.error(`Error while deleting the student: ${error}`);
+        }
+    };
+
     useEffect(() => {
         fetchStudents();
     }, []);
@@ -188,7 +237,8 @@ const StudentManagement = () => {
                             onPress={() => {}}
                             style={{padding: 10}}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}>
+                            {/* <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}> */}
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
                                 {`${std.firstName} ${std.lastName}`}
                             </Text>
                         </Pressable>
@@ -199,7 +249,12 @@ const StudentManagement = () => {
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Edit</Text>
                             </Pressable>
                             <Pressable
-                                onPress={() => {}}
+                                onPress={() => {
+                                    setStudentId(std.id);
+                                    setFirstName(std.firstName);
+                                    setLastName(std.lastName);
+                                    setIsDeleteModalVisible(true);
+                                }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Delete</Text>
                             </Pressable>
@@ -228,12 +283,35 @@ const StudentManagement = () => {
         );
     };
 
+    const renderDeleteStudentModal = () => {
+        if (!isDeleteModalVisible) {
+            return null;
+        }
+        return (
+            <DeleteStudentModal
+                isVisible={isDeleteModalVisible}
+                onModalClose={() => {
+                    setIsDeleteModalVisible(false);
+                    setIsDeleteSuccessful(false);
+                    setStudentId(null);
+                    setFirstName('');
+                    setLastName('');
+                }}
+                onDeleteStudent={deleteStudent}
+                firstName={firstName}
+                lastName={lastName}
+                isSuccess={isDeleteSuccessful}
+            />
+        );
+    };
+
     return (
         <SafeAreaView>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}
             {renderCreateModal()}
+            {renderDeleteStudentModal()}
         </SafeAreaView>
     );
 };
