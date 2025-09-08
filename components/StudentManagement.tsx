@@ -316,11 +316,15 @@ const StudentManagement = () => {
                 renderItem={({ item: std }) => (
                     <View style={styles.studentList}>
                         <Pressable
-                            onPress={() => {}}
+                            onPress={() => {
+                                setStudentId(std.id);
+                                setFirstName(std.firstName);
+                                setLastName(std.lastName);
+                                setIsEditModalVisible(true);
+                            }}
                             style={{padding: 10}}
                         >
-                            {/* <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}> */}
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}>
                                 {`${std.firstName} ${std.lastName}`}
                             </Text>
                         </Pressable>
