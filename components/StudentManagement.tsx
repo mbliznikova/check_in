@@ -365,6 +365,7 @@ const StudentManagement = () => {
                 oldFirstName={firstName}
                 oldLastName={lastName}
                 onEditStudent={editStudent}
+                onUniquenessCheck={ifStudentNameUnique}
                 isSuccess={isEditSuccessful}
             />
         );

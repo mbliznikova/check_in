@@ -10,6 +10,7 @@ type EditStudentModalProps = {
     oldLastName: string;
     onModalClose: () => void;
     onEditStudent: (newFirstName: string, newLastName: string) => void;
+    onUniquenessCheck: (firstName: string, lastName: string) => boolean;
     isSuccess: boolean;
 };
 
@@ -19,6 +20,7 @@ const EditStudentModal = ({
     oldLastName,
     onModalClose,
     onEditStudent,
+    onUniquenessCheck,
     isSuccess = false,
 }: EditStudentModalProps) => {
 
@@ -86,7 +88,16 @@ const EditStudentModal = ({
 
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
-                            onPress={() => onEditStudent(newFirstName, newLastName)}
+                            onPress={() => {
+                                if (onUniquenessCheck(newFirstName, newLastName)) {
+                                    onEditStudent(newFirstName, newLastName);
+                                } else {
+                                    alert('There is already a student with the same name')
+                                    console.log(`There is already a student with name ${newFirstName} ${newLastName}`);
+                                }
+                                setNewFirstName("");
+                                setNewLastName("");
+                            }}
                             style={styles.modalConfirmButton}
                         >
                             <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
