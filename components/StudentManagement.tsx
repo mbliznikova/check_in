@@ -70,6 +70,22 @@ const StudentManagement = () => {
         console.log(`Added new student to the state variable: ${firstName} ${lastName} : ${studentId}`);
     };
 
+    const editStudentInState = (targetStudentId: number, newFirstName: string, newLastName: string) => {
+        if (!targetStudentId) {
+            console.warn(`No student with id ${targetStudentId}`);
+            return;
+        }
+
+        setStudents(prevStudents => prevStudents.map(student =>
+                student.id === targetStudentId
+                ? { ...student, firstName: newFirstName, lastName: newLastName }
+                : student
+            ).sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()))
+        );
+
+        console.log(`Updated student ${targetStudentId} name to ${newFirstName} ${newLastName}`);
+    };
+
     const removeStudentFromState = (targetStudentId: number) => {
         if (!targetStudentId) {
             console.warn(`No student with id ${targetStudentId}`);
@@ -83,7 +99,7 @@ const StudentManagement = () => {
     const addStudentToUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
         newSet.add(`${firstName} ${lastName}`)
-        console.log(`Added ${firstName} ${lastName}`);
+        console.log(`Added ${firstName} ${lastName} to uniqueness`);
 
         setStudentsSet(newSet);
     };
@@ -92,7 +108,7 @@ const StudentManagement = () => {
     const removeStudentFromUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
         newSet.delete(`${firstName} ${lastName}`)
-        console.log(`Removed ${firstName} ${lastName}`);
+        console.log(`Removed ${firstName} ${lastName} from uniqueness`);
 
         setStudentsSet(newSet);
     };
@@ -230,7 +246,10 @@ const StudentManagement = () => {
 
                 setIsEditSuccessful(true);
 
-                // TODO: update name in the state and in uniqueness?
+                removeStudentFromUniqueness(firstName, lastName);
+                addStudentToUniqueness(newFirstName, newLastName)
+
+                editStudentInState(studentId, newFirstName, newLastName);
 
             } else {
                 console.warn(`Function editStudent. Request was unsuccessful: ${response.status, response.statusText}`);
@@ -361,6 +380,9 @@ const StudentManagement = () => {
                 onModalClose={() => {
                     setIsEditModalVisible(false);
                     setIsEditSuccessful(false);
+                    setStudentId(null);
+                    setFirstName('');
+                    setLastName('');
                 }}
                 oldFirstName={firstName}
                 oldLastName={lastName}
