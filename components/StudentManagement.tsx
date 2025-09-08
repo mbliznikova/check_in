@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable, Modal } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
+import EditStudentModal from "./EditStudentModal";
 
 type StudentType = {
     id: number,
@@ -17,6 +18,7 @@ const StudentManagement = () => {
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
     const [studentId, setStudentId] = useState<number | null>(null);
@@ -24,6 +26,7 @@ const StudentManagement = () => {
     const [lastName, setLastName] = useState("");
 
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
+    const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
 
     const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
@@ -34,6 +37,17 @@ const StudentManagement = () => {
             responseData !== null &&
             key in responseData &&
             Array.isArray(responseData[key])
+        );
+    };
+
+    const isValidEditStudentResponse = (responseData: any, studentId: number, newFirstName: string, newLastName: string): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Student ${studentId} was updated successfully` &&
+            'studentId' in responseData && responseData.studentId === studentId &&
+            'firstName' in responseData && responseData.firstName === newFirstName &&
+            'lastName' in responseData && responseData.lastName === newLastName
         );
     };
 
@@ -74,6 +88,7 @@ const StudentManagement = () => {
         setStudentsSet(newSet);
     };
 
+    // TODO: make sure the parameters are not empty?
     const removeStudentFromUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
         newSet.delete(`${firstName} ${lastName}`)
@@ -170,12 +185,58 @@ const StudentManagement = () => {
                     setIsCreateSuccessful(true);
 
                     addStudentToState(responseData.studentId, responseData.firstName, responseData.lastName);
+
+                    addStudentToUniqueness(responseData.firstName, responseData.lastName);
                 } else {
                     console.warn(`Function createStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
             }
         } catch(error) {
             console.error(`Error while sending the data to the server at creating student: ${error}`);
+        }
+    };
+
+    const editStudent = async (newFirstName: string, newLastName: string) => {
+        if (studentId === null) {
+            console.warn("No student selected to delete");
+            return null;
+        }
+
+        const data = {
+            'firstName': newFirstName,
+            'lastName': newLastName,
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/edit/`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidEditStudentResponse(responseData, studentId, newFirstName, newLastName)) {
+                    console.log(`Function editStudent. The response from backend is valid! ${JSON.stringify(responseData)}`);
+                } else {
+                    console.warn(`Function editStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+
+                setIsEditSuccessful(true);
+
+                // TODO: update name in the state and in uniqueness?
+
+            } else {
+                console.warn(`Function editStudent. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch(error) {
+            console.error(`Error while editing the student: ${error}`);
         }
     };
 
@@ -203,6 +264,8 @@ const StudentManagement = () => {
                 setIsDeleteSuccessful(true);
 
                 removeStudentFromState(studentId);
+
+                removeStudentFromUniqueness(firstName, lastName);
 
             } else {
                 console.warn(`Function deleteStudent. Request was unsuccessful: ${response.status, response.statusText}`);
@@ -244,7 +307,12 @@ const StudentManagement = () => {
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
                             <Pressable
-                                onPress={() => {}}
+                                onPress={() => {
+                                    setStudentId(std.id);
+                                    setFirstName(std.firstName);
+                                    setLastName(std.lastName);
+                                    setIsEditModalVisible(true);
+                                }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Edit</Text>
                             </Pressable>
@@ -283,6 +351,25 @@ const StudentManagement = () => {
         );
     };
 
+    const renderEditModal = () => {
+        if (!isEditModalVisible) {
+            return null;
+        }
+        return (
+            <EditStudentModal
+                isVisible={isEditModalVisible}
+                onModalClose={() => {
+                    setIsEditModalVisible(false);
+                    setIsEditSuccessful(false);
+                }}
+                oldFirstName={firstName}
+                oldLastName={lastName}
+                onEditStudent={editStudent}
+                isSuccess={isEditSuccessful}
+            />
+        );
+    };
+
     const renderDeleteStudentModal = () => {
         if (!isDeleteModalVisible) {
             return null;
@@ -311,6 +398,7 @@ const StudentManagement = () => {
             {renderHeader()}
             {renderStudentList()}
             {renderCreateModal()}
+            {renderEditModal()}
             {renderDeleteStudentModal()}
         </SafeAreaView>
     );
