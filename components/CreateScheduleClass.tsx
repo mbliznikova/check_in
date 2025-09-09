@@ -159,7 +159,7 @@ const CreateScheduleClass = ({
                         onPress={() => {
                             isAddDayOpen ? undefined :
                             console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
-                            setTime("");
+                            setTime(""); // TODO: move after it is called in this function, when it is safe to set it to ""
                             if (
                                 createdClassId === null ||
                                 className === null ||
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'grey',
+        backgroundColor: 'green',
     },
     disabledButton: {
         padding: 10,
@@ -315,7 +315,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'grey',
         backgroundColor: 'grey',
     },
     modalButtonsContainer: {

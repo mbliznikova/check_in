@@ -157,13 +157,13 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'grey',
+        backgroundColor: 'green',
     },
     disabledButton: {
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'grey',
+        borderColor: 'gray',
         opacity: 0.5,
     },
     modalCancelButton: {
@@ -171,7 +171,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'grey',
         backgroundColor: 'grey',
     },
    modalConfirmButton: {
