@@ -31,6 +31,7 @@ const CreateScheduleClass = ({
     const colorScheme = useColorScheme();
 
     const [className, setClassName] = useState("");
+    const [classId, setClassId] = useState<number | null>(null);
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -38,6 +39,7 @@ const CreateScheduleClass = ({
     const [time, setTime] = useState("");
 
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
+    const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 
     const dayNumbers = new Map<string, number>([
         ["Monday", 1],
@@ -64,6 +66,7 @@ const CreateScheduleClass = ({
                             setSelectedDayId(dayIndex);
                             setSelectedDayName(dayName);
                             setIsAddDayOpen(false);
+                            setIsAddTimeOpen(true);
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
@@ -71,6 +74,73 @@ const CreateScheduleClass = ({
                         </Text>
                     </Pressable>
                 ))}
+            </View>
+        );
+    };
+
+    const renderAddTimeView = () => {
+        return (
+            <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
+                    <View>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        >
+                            {`Time for ${selectedDayId ? selectedDayName : ""}:`}
+                        </Text>
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Select time ("10:00"):
+                            </Text>
+
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                value={time}
+                                onChangeText={(timeStr) => {setTime(timeStr)}}
+                            />
+                        </View>
+
+                        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={() => {
+                                    console.log(
+                                        `Class id ${classId}, class name ${className}, day ${selectedDayName}, time ${time}`);
+                                        setTime("");
+                                        if (
+                                            classId === null ||
+                                            selectedDayId === null ||
+                                            time === null ||
+                                            !time
+                                    ){
+                                        console.warn('Missing data: cannot schedule.');
+                                        return;
+                                    } else {
+                                        if (onUniquenessCheck(selectedDayId, time)) {
+                                                onScheduleClass(classId?.toString(), className, selectedDayId, selectedDayName, time);
+                                                setIsAddTimeOpen(false);
+                                                setTime("");
+                                        } else {
+                                            alert('Such schedule is already taken');
+                                            console.log(`There is already a class scheduled to ${selectedDayName}, ${time}`);
+                                        }
+                                    }
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.modalCancelButton}
+                                onPress={() => {
+                                    setIsAddTimeOpen(false);
+                                    setTime("");
+                                }}
+                                >
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                        </View>
+                    </View>
             </View>
         );
     };
@@ -135,25 +205,13 @@ const CreateScheduleClass = ({
                             </Pressable>
                             <View>
                                 {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
+                                {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
                             </View>
                         </View>
                     </View>
-
-                    <View style={[styles.itemContainer, styles.itemRow]}>
-                        <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                        >
-                            Time ("10:00"):
-                        </Text>
-                        <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                            value={time}
-                            onChangeText={(timeStr) => {setTime(timeStr)}}
-                        />
-                    </View>
                 </View>
 
-                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, isAddDayOpen && styles.hiddenButtonContainer]}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButtonContainer]}>
                     <Pressable
                         style={(selectedDayName === "" || time.length < 5)? styles.disabledButton : styles.createButton}
                         onPress={() => {
