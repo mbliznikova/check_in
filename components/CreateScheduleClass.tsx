@@ -11,6 +11,7 @@ type ClassCreationModalProps = {
     onCreateClass: (className: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => Boolean;
+    onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
     isCreateSuccess: boolean;
     isError: boolean;
     createdClassId: number | null;
@@ -24,6 +25,7 @@ const CreateScheduleClass = ({
     onCreateClass,
     onScheduleClass,
     onUniquenessCheck,
+    onScheduleDelete,
     isCreateSuccess,
     isError,
     createdClassId,
@@ -180,12 +182,12 @@ const CreateScheduleClass = ({
                                     <Pressable
                                         style={styles.timeButton}
                                         onPress={() => {
-                                            // onScheduleDelete(scheduleId, day, time);
+                                            onScheduleDelete(scheduleId, day, time);
                                         }}
                                     >
-                                        {/* <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
                                         x
-                                        </Text> */}
+                                        </Text>
                                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
                                             {time.slice(0,5)}
                                         </Text>
@@ -211,7 +213,7 @@ const CreateScheduleClass = ({
                                 setIsAddDayOpen(!isAddDayOpen);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
@@ -268,62 +270,18 @@ const CreateScheduleClass = ({
                     </Text>
                 </View>
 
-                <View style={styles.modalManyButtonsContainer}>
-                    <View style={[styles.itemContainer, styles.itemRow]}>
-                        <View style={{position: 'relative'}}>
-                            <Pressable
-                                style={styles.dayContainer}
-                                onPress={() => {
-                                    setIsAddDayOpen(!isAddDayOpen);
-                                }}
-                                >
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
-                            </Pressable>
-                            <View>
-                                {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                                {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
-                            </View>
-                        </View>
-                    </View>
-                </View>
+                {renderSchedules(scheduleData)}
 
-                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButtonContainer]}>
+                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                     <Pressable
-                        style={(selectedDayName === "" || time.length < 5)? styles.disabledButton : styles.createButton}
-                        onPress={() => {
-                            isAddDayOpen ? undefined :
-                            console.log(`Class id is ${createdClassId}, day is ${selectedDayName} (${selectedDayId}), time is ${time}`);
-                            setTime(""); // TODO: move after it is called in this function, when it is safe to set it to ""
-                            if (
-                                createdClassId === null ||
-                                className === null ||
-                                selectedDayId === null ||
-                                selectedDayName === null ||
-                                time === null
-                            ){
-                                console.warn('Missing data: cannot schedule');
-                                return;
-                            } else {
-                                if (onUniquenessCheck(selectedDayId, time)) {
-                                    onScheduleClass(createdClassId.toString(), className, selectedDayId, selectedDayName, time) // TODO: classId as a number
-                                } else {
-                                    alert('Such schedule is already taken');
-                                    console.log(`There is already a class scheduled to ${selectedDayId}(${selectedDayName}), ${time}`);
-                                }
-                            }
-                        }}
-                        disabled={selectedDayName === "" || time.length < 5}
-
+                        style={styles.modalConfirmButton}
+                        onPress={isAddDayOpen ? undefined : onModalClose}
+                        disabled={isAddDayOpen}
                     >
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Schedule</Text>
-                    </Pressable>
-                    <Pressable
-                        style={styles.modalCancelButton}
-                        onPress={onModalClose}
-                        >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                     </Pressable>
                 </View>
+
             </View>
         );
     };
@@ -420,7 +378,9 @@ const styles = StyleSheet.create({
         width: 150,
         justifyContent: 'center',
         paddingRight: 10,
+        paddingVertical: 3,
         borderRadius: 10,
+        marginRight: 10,
         borderWidth: 1,
         borderColor: 'grey',
     },
@@ -490,7 +450,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 20,
         alignItems: 'center',
-        width: '30%',
+        width: '100%',
+        justifyContent: 'center',
     },
     modalManyButtonsContainer: {
         justifyContent: 'space-evenly',
@@ -512,6 +473,15 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    hiddenButton: {
+        opacity: 0,
+        width: 0,
+        overflow: 'hidden',
+    },
+    deleteTimeButton: {
+        textAlign: 'right',
+        paddingRight: 5, color: 'red',
     },
     successOverlay: {
         position: 'absolute',

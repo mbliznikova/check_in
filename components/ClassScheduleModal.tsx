@@ -203,7 +203,7 @@ const ClassScheduleModal = ({
                                 setIsAddDayOpen(!isAddDayOpen);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{dayToSchedule ? dayNames[dayToSchedule] : "+ Add day"}</Text>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
@@ -343,17 +343,6 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingLeft: 20,
         fontSize: 20,
-    },
-    addDayButton: {
-        width: 100,
-        padding: 10,
-        marginLeft: 25,
-        marginTop: 20,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'grey',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     dayText: {
         fontWeight: "bold",

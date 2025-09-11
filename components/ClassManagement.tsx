@@ -569,6 +569,7 @@ const ClassManagement = () => {
                     onCreateClass={createClass}
                     onScheduleClass={scheduleClass}
                     onUniquenessCheck={checkIfScheduleUnique}
+                    onScheduleDelete={deleteClassSchedule}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
                         setIsCreateSuccessful(false);
