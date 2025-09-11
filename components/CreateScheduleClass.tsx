@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
@@ -14,6 +14,7 @@ type ClassCreationModalProps = {
     isCreateSuccess: boolean;
     isError: boolean;
     createdClassId: number | null;
+    scheduleData: Map<number, [number, string][]>;
     isSheduleSuccess: boolean;
 };
 
@@ -26,12 +27,12 @@ const CreateScheduleClass = ({
     isCreateSuccess,
     isError,
     createdClassId,
+    scheduleData = new Map(),
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
     const colorScheme = useColorScheme();
 
     const [className, setClassName] = useState("");
-    const [classId, setClassId] = useState<number | null>(null);
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -41,41 +42,56 @@ const CreateScheduleClass = ({
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 
-    const dayNumbers = new Map<string, number>([
-        ["Monday", 1],
-        ["Tuesday", 2],
-        ["Wednesday", 3],
-        ["Thursday", 4],
-        ["Friday", 5],
-        ["Saturday", 6],
-        ["Sunday", 7],
-      ]);
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
 
+    const dayNames = [
+        "",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+    ];
 
-    // TODO: open time scheduling view only when day is selected. Otherwise keep hidden #17
+    useEffect(() => {
+        setIsConfirmationOpen(isSheduleSuccess)
+    }, [isSheduleSuccess]);
 
     const renderAddDayView = () => {
         return (
             <View>
-                {[...dayNumbers].map(([dayName, dayIndex]) => (
+                {getRemainedDays().map((dayIndex) => (
                     <Pressable
                         key={dayIndex}
                         style={styles.dayContainer}
                         onPress={() => {
-                            console.log(`Selected ${dayName} (${dayIndex})`);
+                            console.log(`Selected ${dayNames[dayIndex]}`);
                             setSelectedDayId(dayIndex);
-                            setSelectedDayName(dayName);
+                            setSelectedDayName(dayNames[dayIndex]);
                             setIsAddDayOpen(false);
                             setIsAddTimeOpen(true);
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
-                            {dayName}
+                            {dayNames[dayIndex]}
                         </Text>
                     </Pressable>
                 ))}
             </View>
         );
+    };
+
+    const getRemainedDays = (): number[] => {
+        const remainedDays: number[] = [];
+        for (let i = 1; i < dayNames.length; i++) {
+            if (!scheduleData.has(i)){
+                remainedDays.push(i);
+            }
+        }
+
+        return remainedDays;
     };
 
     const renderAddTimeView = () => {
@@ -106,10 +122,10 @@ const CreateScheduleClass = ({
                                 style={styles.modalConfirmButton}
                                 onPress={() => {
                                     console.log(
-                                        `Class id ${classId}, class name ${className}, day ${selectedDayName}, time ${time}`);
+                                        `Class id ${createdClassId}, class name ${className}, day ${selectedDayName}, time ${time}`);
                                         setTime("");
                                         if (
-                                            classId === null ||
+                                            createdClassId === null ||
                                             selectedDayId === null ||
                                             time === null ||
                                             !time
@@ -118,7 +134,7 @@ const CreateScheduleClass = ({
                                         return;
                                     } else {
                                         if (onUniquenessCheck(selectedDayId, time)) {
-                                                onScheduleClass(classId?.toString(), className, selectedDayId, selectedDayName, time);
+                                                onScheduleClass(createdClassId?.toString(), className, selectedDayId, selectedDayName, time);
                                                 setIsAddTimeOpen(false);
                                                 setTime("");
                                         } else {
@@ -141,6 +157,66 @@ const CreateScheduleClass = ({
                             </Pressable>
                         </View>
                     </View>
+            </View>
+        );
+    };
+
+    // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
+    const renderSchedules = (schedule: Map<number, [number, string][]>) => {
+        return (
+            <View style={styles.scheduleRowContainder}>
+                {[...schedule].map(([day, times]) => (
+                    <View
+                        key={day}
+                        style={styles.scheduleRow}>
+                            <View style={styles.dayContainer}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                                    {dayNames[day]}
+                                </Text>
+                            </View>
+                            {times.map(([scheduleId, time]) => (
+                                <View
+                                    key={scheduleId}>
+                                    <Pressable
+                                        style={styles.timeButton}
+                                        onPress={() => {
+                                            // onScheduleDelete(scheduleId, day, time);
+                                        }}
+                                    >
+                                        {/* <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        x
+                                        </Text> */}
+                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                            {time.slice(0,5)}
+                                        </Text>
+                                    </Pressable>
+                            </View>
+                            ))}
+                            <Pressable
+                                onPress={() => {
+                                    setSelectedDayId(day); // TODO: something more reliable in case when the state var has not set yet?
+                                    setIsAddTimeOpen(true);
+                                }}
+                                style={styles.addTimeButton}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+</Text>
+                            </Pressable>
+                    </View>
+                ))}
+                <View style={styles.scheduleRow}>
+                    <View style={{position: 'relative'}}>
+                        <Pressable
+                            style={styles.dayContainer}
+                            onPress={() => {
+                                setIsAddDayOpen(!isAddDayOpen);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>{selectedDayName ? selectedDayName : "+ Add day"}</Text>
+                        </Pressable>
+                        {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
+                        {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
+                    </View>
+                </View>
             </View>
         );
     };
@@ -275,7 +351,10 @@ const CreateScheduleClass = ({
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
                             style={styles.modalConfirmButton}
-                            onPress={onModalClose}
+                            onPress={() => {
+                                setIsAddTimeOpen(false);
+                                setIsConfirmationOpen(false);
+                            }}
                         >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                         </Pressable>
@@ -291,7 +370,14 @@ const CreateScheduleClass = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            {isSheduleSuccess ? renderSuccessConfirmation() : renderCreateScheduleForm()}
+            <View style={{flex: 1}}>
+                {isConfirmationOpen && (
+                    <View style={styles.successOverlay}>
+                        {renderSuccessConfirmation()}
+                    </View>
+                )}
+                {renderCreateScheduleForm()}
+            </View>
         </Modal>
 
     );
@@ -321,6 +407,14 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row'
+    },
+    scheduleRowContainder: {
+        padding: 10,
+    },
+    scheduleRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        padding: 5,
     },
     dayContainer: {
         width: 150,
@@ -375,6 +469,23 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         backgroundColor: 'grey',
     },
+    timeButton: {
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        justifyContent: 'center',
+        minWidth: 70,
+        marginHorizontal: 10,
+    },
+    addTimeButton: {
+        padding: 10,
+        paddingLeft: 20,
+        fontSize: 20,
+    },
+    timeText: {
+        paddingHorizontal: 10,
+        paddingBottom: 10,
+    },
     modalButtonsContainer: {
         flexDirection: 'row',
         padding: 20,
@@ -401,6 +512,17 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    successOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 10,
     },
 });
 

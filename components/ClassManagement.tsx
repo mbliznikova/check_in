@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable, Modal } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
@@ -578,6 +578,7 @@ const ClassManagement = () => {
                     isCreateSuccess={isCreateSuccessful}
                     isError={isCreateClassError}
                     createdClassId={createdClassId}
+                    scheduleData={currentClassScheduleMap}
                     isSheduleSuccess={isScheduleSuccessful}
                 />
         );
