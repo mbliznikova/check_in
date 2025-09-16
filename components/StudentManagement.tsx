@@ -9,7 +9,9 @@ import EditStudentModal from "./EditStudentModal";
 type StudentType = {
     id: number,
     firstName: string,
-    lastName: string
+    lastName: string,
+    isLiabilityForm: boolean,
+    emergencyContact: string,
 };
 
 const StudentManagement = () => {
@@ -24,6 +26,8 @@ const StudentManagement = () => {
     const [studentId, setStudentId] = useState<number | null>(null);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [isLiabilityFormSent, setIsLiabilityFormSent] = useState(false);
+    const [emergencyContact, setEmergencyContact] = useState("");
 
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
@@ -47,7 +51,9 @@ const StudentManagement = () => {
             'message' in responseData && responseData.message === `Student ${studentId} was updated successfully` &&
             'studentId' in responseData && responseData.studentId === studentId &&
             'firstName' in responseData && responseData.firstName === newFirstName &&
-            'lastName' in responseData && responseData.lastName === newLastName
+            'lastName' in responseData && responseData.lastName === newLastName &&
+            'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityFormSent &&
+            'emergencyContacts' in responseData && responseData.emergencyContacts === emergencyContact
         );
     };
 
@@ -60,9 +66,9 @@ const StudentManagement = () => {
         );
     };
 
-    const addStudentToState = (studentId: number, firstName: string, lastName: string) => {
+    const addStudentToState = (studentId: number, firstName: string, lastName: string, isLiabilityForm: boolean, contacts: string) => {
         const newStudents = [...students];
-        newStudents.push({id: studentId, firstName: firstName, lastName: lastName});
+        newStudents.push({id: studentId, firstName: firstName, lastName: lastName, isLiabilityForm: isLiabilityForm, emergencyContact: contacts});
         newStudents.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
 
         setStudents(newStudents);
@@ -188,19 +194,27 @@ const StudentManagement = () => {
 
                 const responseData = await response.json();
 
-                if (
+                if ( // TODO: use validation function
                     typeof responseData === 'object' &&
                     responseData !== null &&
                     'message' in responseData && responseData.message === 'Student was created successfully' &&
                     'studentId' in responseData &&
                     'firstName' in responseData && responseData.firstName === firstName &&
-                    'lastName' in responseData && responseData.lastName === lastName
+                    'lastName' in responseData && responseData.lastName === lastName &&
+                    'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityFormSent &&
+                    'emergencyContacts' in responseData && responseData.emergencyContacts === emergencyContact
                 ) {
                     console.log(`Function createStudent. The response from backend is valid. ${JSON.stringify(responseData)}`);
 
                     setIsCreateSuccessful(true);
 
-                    addStudentToState(responseData.studentId, responseData.firstName, responseData.lastName);
+                    addStudentToState(
+                        responseData.studentId,
+                        responseData.firstName,
+                        responseData.lastName,
+                        responseData.isLiabilityFormSent,
+                        responseData.emergencyContacts,
+                    );
 
                     addStudentToUniqueness(responseData.firstName, responseData.lastName);
                 } else {
@@ -320,6 +334,8 @@ const StudentManagement = () => {
                                 setStudentId(std.id);
                                 setFirstName(std.firstName);
                                 setLastName(std.lastName);
+                                setIsLiabilityFormSent(std.isLiabilityForm);
+                                setEmergencyContact(std.emergencyContact);
                                 setIsEditModalVisible(true);
                             }}
                             style={{padding: 10}}
@@ -334,6 +350,8 @@ const StudentManagement = () => {
                                     setStudentId(std.id);
                                     setFirstName(std.firstName);
                                     setLastName(std.lastName);
+                                    setIsLiabilityFormSent(std.isLiabilityForm);
+                                    setEmergencyContact(std.emergencyContact);
                                     setIsEditModalVisible(true);
                                 }}
                             >
@@ -387,11 +405,17 @@ const StudentManagement = () => {
                     setStudentId(null);
                     setFirstName('');
                     setLastName('');
+                    setIsLiabilityFormSent(false);
+                    setEmergencyContact("");
                 }}
                 oldFirstName={firstName}
                 oldLastName={lastName}
                 onEditStudent={editStudent}
                 onUniquenessCheck={ifStudentNameUnique}
+                onLiabilityFormCheck={() => {}} // TODO: add function
+                onChangeEmergencyContact={() => {}}  // TODO: add function
+                isLiabilityFormSent={isLiabilityFormSent}
+                emergencyContacts={emergencyContact}
                 isSuccess={isEditSuccessful}
             />
         );
@@ -410,6 +434,8 @@ const StudentManagement = () => {
                     setStudentId(null);
                     setFirstName('');
                     setLastName('');
+                    setIsLiabilityFormSent(false);
+                    setEmergencyContact("");
                 }}
                 onDeleteStudent={deleteStudent}
                 firstName={firstName}

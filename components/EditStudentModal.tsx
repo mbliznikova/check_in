@@ -1,8 +1,9 @@
+import React from 'react';
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
-import React from 'react';
+import Checkbox from './Checkbox';
 
 type EditStudentModalProps = {
     isVisible: boolean;
@@ -11,6 +12,10 @@ type EditStudentModalProps = {
     onModalClose: () => void;
     onEditStudent: (newFirstName: string, newLastName: string) => void;
     onUniquenessCheck: (firstName: string, lastName: string) => boolean;
+    onLiabilityFormCheck: () => void,
+    onChangeEmergencyContact: () => void,
+    isLiabilityFormSent: boolean;
+    emergencyContacts: string;
     isSuccess: boolean;
 };
 
@@ -21,6 +26,10 @@ const EditStudentModal = ({
     onModalClose,
     onEditStudent,
     onUniquenessCheck,
+    onLiabilityFormCheck,
+    onChangeEmergencyContact,
+    isLiabilityFormSent = false,
+    emergencyContacts='',
     isSuccess = false,
 }: EditStudentModalProps) => {
 
@@ -28,6 +37,8 @@ const EditStudentModal = ({
 
     const [newFirstName, setNewFirstName] = useState(oldFirstName);
     const [newLastName, setNewLastName] = useState(oldLastName);
+
+    const [newEemergencyContact, setNewEemergencyContact] = useState(emergencyContacts);
 
     const renderSuccessConfirmation = () => {
         return (
@@ -82,6 +93,35 @@ const EditStudentModal = ({
                             value={newLastName}
                             onChangeText={(newLastName) => {
                                 setNewLastName(newLastName)
+                            }}
+                        ></TextInput>
+                    </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                        >
+                            Did submit liability form?
+                        </Text>
+                        <Checkbox
+                            label=''
+                            checked={false}
+                            onChange={() => {}}
+                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                        />
+                    </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                        >
+                            Emergency contact:
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={newEemergencyContact}
+                            onChangeText={(newContact) => {
+                                setNewEemergencyContact(newContact)
                             }}
                         ></TextInput>
                     </View>
