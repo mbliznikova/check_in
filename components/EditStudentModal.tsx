@@ -10,7 +10,7 @@ type EditStudentModalProps = {
     oldFirstName: string;
     oldLastName: string;
     onModalClose: () => void;
-    onEditStudent: (newFirstName: string, newLastName: string) => void;
+    onEditStudent: (newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => void;
     onUniquenessCheck: (firstName: string, lastName: string) => boolean;
     onLiabilityFormCheck: () => void,
     onChangeEmergencyContact: () => void,
@@ -38,6 +38,7 @@ const EditStudentModal = ({
     const [newFirstName, setNewFirstName] = useState(oldFirstName);
     const [newLastName, setNewLastName] = useState(oldLastName);
 
+    const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(false);
     const [newEemergencyContact, setNewEemergencyContact] = useState(emergencyContacts);
 
     const renderSuccessConfirmation = () => {
@@ -105,8 +106,8 @@ const EditStudentModal = ({
                         </Text>
                         <Checkbox
                             label=''
-                            checked={false}
-                            onChange={() => {}}
+                            checked={isLiabilityFormChecked}
+                            onChange={() => {setIsLiabilityFormChecked(!isLiabilityFormChecked)}}
                             labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                         />
                     </View>
@@ -130,7 +131,7 @@ const EditStudentModal = ({
                         <Pressable
                             onPress={() => {
                                 if (onUniquenessCheck(newFirstName, newLastName)) {
-                                    onEditStudent(newFirstName, newLastName);
+                                    onEditStudent(newFirstName, newLastName, isLiabilityFormChecked, newEemergencyContact);
                                 } else {
                                     alert('There is already a student with the same name')
                                     console.log(`There is already a student with name ${newFirstName} ${newLastName}`);

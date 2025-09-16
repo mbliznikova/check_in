@@ -125,6 +125,33 @@ const StudentManagement = () => {
         return !studentsSet.has(studentToCheck);
     };
 
+    const getChangesFromEdit = (newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => {
+        const dataToUpdate: Record<string, string | boolean> = {};
+
+        const currentStudentState = {
+            'firstName': firstName,
+            'lastName': lastName,
+            'isLiabilityFormSent': isLiabilityFormSent,
+            'emergencyContacts': emergencyContact,
+        };
+
+        const newStudentState = {
+            'firstName': newFirstName,
+            'lastName': newLastName,
+            'isLiabilityFormSent': isLiabilityChecked,
+            'emergencyContacts': contacts,
+        };
+
+        for (const key in newStudentState) {
+            if (newStudentState[key as keyof typeof newStudentState] !== currentStudentState[key as keyof typeof currentStudentState]) {
+                const dynamicKey: string = key
+                dataToUpdate[dynamicKey] = newStudentState[key as keyof typeof newStudentState]
+            }
+        }
+
+        return dataToUpdate;
+    };
+
     const renderHeader = () => {
         return (
             <View style={styles.headerRow}>
@@ -226,16 +253,14 @@ const StudentManagement = () => {
         }
     };
 
-    const editStudent = async (newFirstName: string, newLastName: string) => {
+    const editStudent = async (newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => {
         if (studentId === null) {
             console.warn("No student selected to delete");
             return null;
         }
 
-        const data = {
-            'firstName': newFirstName,
-            'lastName': newLastName,
-        }
+        const data = getChangesFromEdit(newFirstName, newLastName, isLiabilityChecked, contacts);
+        console.log(`The data to send in PUT request is ${data}`);
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/edit/`,
