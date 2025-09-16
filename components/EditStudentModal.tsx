@@ -37,6 +37,15 @@ const EditStudentModal = ({
     const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(isLiabilityFormSent);
     const [newEemergencyContact, setNewEemergencyContact] = useState(emergencyContacts);
 
+    const ifNoChanges = (): boolean => {
+        return (
+            oldFirstName === newFirstName &&
+            oldLastName === newLastName &&
+            isLiabilityFormSent === isLiabilityFormChecked &&
+            emergencyContacts === newEemergencyContact
+        );
+    };
+
     const renderSuccessConfirmation = () => {
         return (
             <View style={styles.modalContainer}>
@@ -126,7 +135,11 @@ const EditStudentModal = ({
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             onPress={() => {
-                                if ((oldFirstName === newFirstName && oldLastName === newLastName) || onUniquenessCheck(newFirstName, newLastName)) {
+                                if (ifNoChanges()) {
+                                    console.log('No changes made');
+                                    return;
+                                }
+                                else if ((oldFirstName === newFirstName && oldLastName === newLastName) || onUniquenessCheck(newFirstName, newLastName)) {
                                     onEditStudent(newFirstName, newLastName, isLiabilityFormChecked, newEemergencyContact);
                                 } else {
                                     alert('There is already a student with the same name')
