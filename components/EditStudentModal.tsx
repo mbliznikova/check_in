@@ -24,7 +24,7 @@ const EditStudentModal = ({
     onModalClose,
     onEditStudent,
     onUniquenessCheck,
-    isLiabilityFormSent = false,
+    isLiabilityFormSent,
     emergencyContacts='',
     isSuccess = false,
 }: EditStudentModalProps) => {
@@ -43,7 +43,7 @@ const EditStudentModal = ({
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                            {`Student name was updated successfully to ${newFirstName} ${newLastName}`}
+                            Student was updated successfully!
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>

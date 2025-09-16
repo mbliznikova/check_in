@@ -10,8 +10,8 @@ type StudentType = {
     id: number,
     firstName: string,
     lastName: string,
-    isLiabilityForm: boolean,
-    emergencyContact: string,
+    isLiabilityFormSent: boolean,
+    emergencyContacts: string,
 };
 
 const StudentManagement = () => {
@@ -68,7 +68,7 @@ const StudentManagement = () => {
 
     const addStudentToState = (studentId: number, firstName: string, lastName: string, isLiabilityForm: boolean, contacts: string) => {
         const newStudents = [...students];
-        newStudents.push({id: studentId, firstName: firstName, lastName: lastName, isLiabilityForm: isLiabilityForm, emergencyContact: contacts});
+        newStudents.push({id: studentId, firstName: firstName, lastName: lastName, isLiabilityFormSent: isLiabilityForm, emergencyContacts: contacts});
         newStudents.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
 
         setStudents(newStudents);
@@ -76,7 +76,7 @@ const StudentManagement = () => {
         console.log(`Added new student to the state variable: ${firstName} ${lastName} : ${studentId}`);
     };
 
-    const editStudentInState = (targetStudentId: number, newFirstName: string, newLastName: string) => {
+    const editStudentInState = (targetStudentId: number, newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => {
         if (!targetStudentId) {
             console.warn(`No student with id ${targetStudentId}`);
             return;
@@ -84,12 +84,12 @@ const StudentManagement = () => {
 
         setStudents(prevStudents => prevStudents.map(student =>
                 student.id === targetStudentId
-                ? { ...student, firstName: newFirstName, lastName: newLastName }
+                ? { ...student, firstName: newFirstName, lastName: newLastName, isLiabilityFormSent: isLiabilityChecked, emergencyContacts: contacts }
                 : student
             ).sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()))
         );
 
-        console.log(`Updated student ${targetStudentId} name to ${newFirstName} ${newLastName}`);
+        console.log(`Updated student ${targetStudentId} name to ${newFirstName} ${newLastName}, liability form sent: ${isLiabilityChecked}, emergency contacts: ${contacts}`);
     };
 
     const removeStudentFromState = (targetStudentId: number) => {
@@ -289,7 +289,7 @@ const StudentManagement = () => {
                 removeStudentFromUniqueness(firstName, lastName);
                 addStudentToUniqueness(newFirstName, newLastName)
 
-                editStudentInState(studentId, newFirstName, newLastName);
+                editStudentInState(studentId, newFirstName, newLastName, isLiabilityChecked, contacts);
 
             } else {
                 console.warn(`Function editStudent. Request was unsuccessful: ${response.status, response.statusText}`);
@@ -360,8 +360,8 @@ const StudentManagement = () => {
                                 setStudentId(std.id);
                                 setFirstName(std.firstName);
                                 setLastName(std.lastName);
-                                setIsLiabilityFormSent(std.isLiabilityForm);
-                                setEmergencyContact(std.emergencyContact);
+                                setIsLiabilityFormSent(std.isLiabilityFormSent);
+                                setEmergencyContact(std.emergencyContacts);
                                 setIsEditModalVisible(true);
                             }}
                             style={{padding: 10}}
@@ -376,8 +376,8 @@ const StudentManagement = () => {
                                     setStudentId(std.id);
                                     setFirstName(std.firstName);
                                     setLastName(std.lastName);
-                                    setIsLiabilityFormSent(std.isLiabilityForm);
-                                    setEmergencyContact(std.emergencyContact);
+                                    setIsLiabilityFormSent(std.isLiabilityFormSent);
+                                    setEmergencyContact(std.emergencyContacts);
                                     setIsEditModalVisible(true);
                                 }}
                             >
