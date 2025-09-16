@@ -12,8 +12,6 @@ type EditStudentModalProps = {
     onModalClose: () => void;
     onEditStudent: (newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => void;
     onUniquenessCheck: (firstName: string, lastName: string) => boolean;
-    onLiabilityFormCheck: () => void,
-    onChangeEmergencyContact: () => void,
     isLiabilityFormSent: boolean;
     emergencyContacts: string;
     isSuccess: boolean;
@@ -26,8 +24,6 @@ const EditStudentModal = ({
     onModalClose,
     onEditStudent,
     onUniquenessCheck,
-    onLiabilityFormCheck,
-    onChangeEmergencyContact,
     isLiabilityFormSent = false,
     emergencyContacts='',
     isSuccess = false,
@@ -38,7 +34,7 @@ const EditStudentModal = ({
     const [newFirstName, setNewFirstName] = useState(oldFirstName);
     const [newLastName, setNewLastName] = useState(oldLastName);
 
-    const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(false);
+    const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(isLiabilityFormSent);
     const [newEemergencyContact, setNewEemergencyContact] = useState(emergencyContacts);
 
     const renderSuccessConfirmation = () => {
@@ -130,7 +126,7 @@ const EditStudentModal = ({
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             onPress={() => {
-                                if (onUniquenessCheck(newFirstName, newLastName)) {
+                                if ((oldFirstName === newFirstName && oldLastName === newLastName) || onUniquenessCheck(newFirstName, newLastName)) {
                                     onEditStudent(newFirstName, newLastName, isLiabilityFormChecked, newEemergencyContact);
                                 } else {
                                     alert('There is already a student with the same name')

@@ -144,8 +144,9 @@ const StudentManagement = () => {
 
         for (const key in newStudentState) {
             if (newStudentState[key as keyof typeof newStudentState] !== currentStudentState[key as keyof typeof currentStudentState]) {
-                const dynamicKey: string = key
-                dataToUpdate[dynamicKey] = newStudentState[key as keyof typeof newStudentState]
+                const dynamicKey: string = key;
+                dataToUpdate[dynamicKey] = newStudentState[key as keyof typeof newStudentState];
+                console.log(`Adding ${dynamicKey}: ${newStudentState[key as keyof typeof newStudentState]}`);
             }
         }
 
@@ -437,8 +438,6 @@ const StudentManagement = () => {
                 oldLastName={lastName}
                 onEditStudent={editStudent}
                 onUniquenessCheck={ifStudentNameUnique}
-                onLiabilityFormCheck={() => {}} // TODO: add function
-                onChangeEmergencyContact={() => {}}  // TODO: add function
                 isLiabilityFormSent={isLiabilityFormSent}
                 emergencyContacts={emergencyContact}
                 isSuccess={isEditSuccessful}
