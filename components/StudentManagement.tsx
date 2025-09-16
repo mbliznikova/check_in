@@ -44,17 +44,23 @@ const StudentManagement = () => {
         );
     };
 
-    const isValidEditStudentResponse = (responseData: any, studentId: number, newFirstName: string, newLastName: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Student ${studentId} was updated successfully` &&
-            'studentId' in responseData && responseData.studentId === studentId &&
-            'firstName' in responseData && responseData.firstName === newFirstName &&
-            'lastName' in responseData && responseData.lastName === newLastName &&
-            'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityFormSent &&
-            'emergencyContacts' in responseData && responseData.emergencyContacts === emergencyContact
-        );
+    const isValidEditStudentResponse = (
+        responseData: any,
+        studentId: number,
+        newFirstName: string,
+        newLastName: string,
+        isLiabilityChecked: boolean,
+        contacts: string): boolean => {
+            return (
+                typeof responseData === 'object' &&
+                responseData !== null &&
+                'message' in responseData && responseData.message === `Student ${studentId} was updated successfully` &&
+                'studentId' in responseData && responseData.studentId === studentId &&
+                'firstName' in responseData && responseData.firstName === newFirstName &&
+                'lastName' in responseData && responseData.lastName === newLastName &&
+                'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityChecked &&
+                'emergencyContacts' in responseData && responseData.emergencyContacts === contacts
+            );
     };
 
     const isValidDeleteStudentResponse = (responseData: any, studentId: number): Boolean => {
@@ -82,6 +88,8 @@ const StudentManagement = () => {
             return;
         }
 
+        // TODO: update onlu changed fields?
+
         setStudents(prevStudents => prevStudents.map(student =>
                 student.id === targetStudentId
                 ? { ...student, firstName: newFirstName, lastName: newLastName, isLiabilityFormSent: isLiabilityChecked, emergencyContacts: contacts }
@@ -89,7 +97,9 @@ const StudentManagement = () => {
             ).sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()))
         );
 
-        console.log(`Updated student ${targetStudentId} name to ${newFirstName} ${newLastName}, liability form sent: ${isLiabilityChecked}, emergency contacts: ${contacts}`);
+        console.log(`Updated student ${targetStudentId} from
+            ${firstName} ${lastName}, is liability form sent: ${isLiabilityFormSent}, contacts ${emergencyContact} to
+            ${newFirstName} ${newLastName}, liability form sent: ${isLiabilityChecked}, emergency contacts: ${contacts}`);
     };
 
     const removeStudentFromState = (targetStudentId: number) => {
@@ -146,7 +156,7 @@ const StudentManagement = () => {
             if (newStudentState[key as keyof typeof newStudentState] !== currentStudentState[key as keyof typeof currentStudentState]) {
                 const dynamicKey: string = key;
                 dataToUpdate[dynamicKey] = newStudentState[key as keyof typeof newStudentState];
-                console.log(`Adding ${dynamicKey}: ${newStudentState[key as keyof typeof newStudentState]}`);
+                console.log(`Adding to request body ${dynamicKey}: ${newStudentState[key as keyof typeof newStudentState]}`);
             }
         }
 
@@ -261,7 +271,6 @@ const StudentManagement = () => {
         }
 
         const data = getChangesFromEdit(newFirstName, newLastName, isLiabilityChecked, contacts);
-        console.log(`The data to send in PUT request is ${data}`);
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/edit/`,
@@ -278,7 +287,7 @@ const StudentManagement = () => {
             if (response.ok) {
                 const responseData = await response.json();
 
-                if (isValidEditStudentResponse(responseData, studentId, newFirstName, newLastName)) {
+                if (isValidEditStudentResponse(responseData, studentId, newFirstName, newLastName, isLiabilityChecked, contacts)) {
                     console.log(`Function editStudent. The response from backend is valid! ${JSON.stringify(responseData)}`);
                 } else {
                     console.warn(`Function editStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -286,8 +295,11 @@ const StudentManagement = () => {
 
                 setIsEditSuccessful(true);
 
-                removeStudentFromUniqueness(firstName, lastName);
-                addStudentToUniqueness(newFirstName, newLastName)
+                if (firstName !== newFirstName || lastName !== newLastName) {
+                    console.log(`Updating uniqueness with ${newFirstName} ${newLastName}`);
+                    removeStudentFromUniqueness(firstName, lastName);
+                    addStudentToUniqueness(newFirstName, newLastName)
+                }
 
                 editStudentInState(studentId, newFirstName, newLastName, isLiabilityChecked, contacts);
 
