@@ -44,6 +44,25 @@ const StudentManagement = () => {
         );
     };
 
+    const isValidCreateStudentResponse = (
+        responseData: any,
+        firstName: string,
+        lastName: string,
+        isLiabilityChecked: boolean,
+        contacts: string
+    ) => {
+        return (
+            typeof responseData === 'object' &&
+            typeof responseData !== null &&
+            'message' in responseData && responseData.message === 'Student was created successfully' &&
+            'studentId' in responseData &&
+            'firstName' in responseData && responseData.firstName === firstName &&
+            'lastName' in responseData && responseData.lastName === lastName &&
+            'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityChecked &&
+            'emergencyContacts' in responseData && responseData.emergencyContacts === contacts
+        );
+    };
+
     const isValidEditStudentResponse = (
         responseData: any,
         studentId: number,
@@ -204,10 +223,12 @@ const StudentManagement = () => {
         }
     };
 
-    const createStudent = async (firstName: string, lastName: string) => {
+    const createStudent = async (firstName: string, lastName: string, isLiabilityChecked: boolean, contacts: string) => {
         const data = {
             "firstName": firstName,
             "lastName": lastName,
+            "isLiabilityFormSent": isLiabilityChecked,
+            "emergencyContacts": contacts,
         };
 
         console.log('data is: ' + JSON.stringify(data));
@@ -232,15 +253,7 @@ const StudentManagement = () => {
 
                 const responseData = await response.json();
 
-                if ( // TODO: use validation function
-                    typeof responseData === 'object' &&
-                    responseData !== null &&
-                    'message' in responseData && responseData.message === 'Student was created successfully' &&
-                    'studentId' in responseData &&
-                    'firstName' in responseData && responseData.firstName === firstName &&
-                    'lastName' in responseData && responseData.lastName === lastName &&
-                    'isLiabilityFormSent' in responseData && responseData.isLiabilityFormSent === isLiabilityFormSent &&
-                    'emergencyContacts' in responseData && responseData.emergencyContacts === emergencyContact
+                if ( isValidCreateStudentResponse(responseData, firstName, lastName, isLiabilityChecked, contacts)
                 ) {
                     console.log(`Function createStudent. The response from backend is valid. ${JSON.stringify(responseData)}`);
 

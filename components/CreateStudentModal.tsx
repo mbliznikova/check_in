@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
+import Checkbox from './Checkbox';
 
 type StudentCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onCreateStudent: (firstName: string, lastName: string) => void;
+    onCreateStudent: (firstName: string, lastName: string, isLiabilityChecked: boolean, contacts: string) => void;
     onUniquenessCheck: (firstName: string, lastName: string) => boolean;
     isCreateSuccess: boolean,
 };
@@ -23,6 +24,9 @@ const CreateStudentModal = ({
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+
+    const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(false);
+    const [emergencyContact, setEmergencyContact] = useState("");
 
     const renderCreateForm = () => {
         return (
@@ -52,17 +56,49 @@ const CreateStudentModal = ({
                         onChangeText={(newLastName) => {setLastName(newLastName)}}
                     />
                 </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                        >
+                            Did submit liability form?
+                        </Text>
+                        <Checkbox
+                            label=''
+                            checked={isLiabilityFormChecked}
+                            onChange={() => {setIsLiabilityFormChecked(!isLiabilityFormChecked)}}
+                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                        />
+                    </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                        >
+                            Emergency contact:
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={emergencyContact}
+                            onChangeText={(newContact) => {
+                                setEmergencyContact(newContact)
+                            }}
+                        ></TextInput>
+                    </View>
+
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                         onPress={() => {
                             if (onUniquenessCheck(firstName, lastName)) {
-                                onCreateStudent(firstName, lastName);
+                                onCreateStudent(firstName, lastName, isLiabilityFormChecked, emergencyContact);
                             } else {
                                 alert('There is already a student with the same name')
                                 console.log(`There is already a student with name ${firstName} ${lastName}`);
                             }
                             setFirstName("");
                             setLastName("");
+                            setIsLiabilityFormChecked(false);
+                            setEmergencyContact("");
                         }}
                         style={[(firstName === "" || lastName === "") ? styles.disabledButton : styles.createButton]}
                         disabled={firstName === "" || lastName === ""}

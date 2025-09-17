@@ -25,7 +25,7 @@ const EditStudentModal = ({
     onEditStudent,
     onUniquenessCheck,
     isLiabilityFormSent,
-    emergencyContacts='',
+    emergencyContacts,
     isSuccess = false,
 }: EditStudentModalProps) => {
 
@@ -35,14 +35,14 @@ const EditStudentModal = ({
     const [newLastName, setNewLastName] = useState(oldLastName);
 
     const [isLiabilityFormChecked, setIsLiabilityFormChecked] = useState(isLiabilityFormSent);
-    const [newEemergencyContact, setNewEemergencyContact] = useState(emergencyContacts);
+    const [newEmergencyContact, setNewEmergencyContact] = useState(emergencyContacts);
 
     const ifNoChanges = (): boolean => {
         return (
             oldFirstName === newFirstName &&
             oldLastName === newLastName &&
             isLiabilityFormSent === isLiabilityFormChecked &&
-            emergencyContacts === newEemergencyContact
+            emergencyContacts === newEmergencyContact
         );
     };
 
@@ -125,9 +125,9 @@ const EditStudentModal = ({
                         </Text>
                         <TextInput
                             style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                            value={newEemergencyContact}
+                            value={newEmergencyContact}
                             onChangeText={(newContact) => {
-                                setNewEemergencyContact(newContact)
+                                setNewEmergencyContact(newContact)
                             }}
                         ></TextInput>
                     </View>
@@ -140,7 +140,7 @@ const EditStudentModal = ({
                                     return;
                                 }
                                 else if ((oldFirstName === newFirstName && oldLastName === newLastName) || onUniquenessCheck(newFirstName, newLastName)) {
-                                    onEditStudent(newFirstName, newLastName, isLiabilityFormChecked, newEemergencyContact);
+                                    onEditStudent(newFirstName, newLastName, isLiabilityFormChecked, newEmergencyContact);
                                 } else {
                                     alert('There is already a student with the same name')
                                     console.log(`There is already a student with name ${newFirstName} ${newLastName}`);
