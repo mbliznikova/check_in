@@ -180,6 +180,13 @@ const Attendance = () => {
         const ready = attendances.length > 0 && balance.size > 0;
         if (ready) {
             countAttendences(attendances);
+        } else {
+            setReport(new Map());
+            setStudent({
+                firstName: "",
+                lastName: "",
+                classesInfo:new Map()
+            });
         }
     },
     [attendances, balance]);
