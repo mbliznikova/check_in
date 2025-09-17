@@ -397,6 +397,13 @@ const Attendance = () => {
                                         );
                                     }}
                                 />
+                                <View style = {{alignItems: 'flex-end'}}>
+                                    <View style={[styles.container]}>
+                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, {fontSize: 20, fontWeight: 'bold'}]}>
+                                        {`Students attended: ${classInfo.students.size}`}
+                                        </Text>
+                                    </View>
+                                </View>
                                 <View style={styles.separator} />
                             </View>
                         );
