@@ -7,14 +7,16 @@ import React from 'react';
 type EditClassModalProps = {
     isVisible: boolean;
     oldClassName: string;
+    oldClassDuration: number | null;
     onModalClose: () => void;
-    onEditClass: (newClassName: string) => void;
+    onEditClass: (newClassName: string, newClassDuration: number) => void;
     isSuccess: boolean;
 };
 
 const EditClassModal = ({
     isVisible = false,
     oldClassName,
+    oldClassDuration,
     onModalClose,
     onEditClass,
     isSuccess = false,
@@ -23,6 +25,14 @@ const EditClassModal = ({
     const colorScheme = useColorScheme();
 
     const [newClassName, setNewClassName] = useState(oldClassName);
+    const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
+
+    const ifNoChanges = (): boolean => {
+        return (
+            oldClassName === newClassName &&
+            oldClassDuration === newClassDuration
+        );
+    };
 
     const renderSuccessConfirmation = () => {
         return (
@@ -66,9 +76,32 @@ const EditClassModal = ({
                         ></TextInput>
                     </View>
 
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        >
+                            Edit class duration:
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={newClassDuration?.toString()}
+                            onChangeText={(updatedClassDuration) => {
+                                setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
+                            }}
+                        ></TextInput>
+                    </View>
+
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
-                            onPress={() => onEditClass(newClassName)}
+                            onPress={() => {
+                                if (ifNoChanges()) {
+                                    console.log('No changes made');
+                                    return;
+                                } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration)) {
+                                    // TODO: add uniqueness check for class name
+                                    onEditClass(newClassName, newClassDuration)
+                                }
+                            }}
                             style={styles.modalConfirmButton}
                         >
                             <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>

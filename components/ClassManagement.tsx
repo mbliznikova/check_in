@@ -6,11 +6,13 @@ import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
+import ClassName from "./ClassName";
 
 
 type ClassType = {
     id: number;
     name: string;
+    durationMinutes: number;
 };
 
 type ScheduleType = {
@@ -27,6 +29,7 @@ const ClassManagement = () => {
 
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
     const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
+    const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
 
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -56,13 +59,14 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidCreateResponse = (responseData: any, className: string): Boolean => {
+    const isValidCreateResponse = (responseData: any, className: string, classDuration: number): Boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === 'Class was created successfully' &&
             'id' in responseData &&
-            'name' in responseData && responseData.name === className
+            'name' in responseData && responseData.name === className &&
+            'durationMinutes' in responseData && responseData.durationMinutes === classDuration
         );
     };
 
@@ -99,13 +103,14 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidEditResponse = (responseData: any, classId: number, className: string): Boolean => {
+    const isValidEditResponse = (responseData: any, classId: number, className: string, classDuration: number): Boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === `Class was updated successfully` && // TODO: update the message here and in BE
             'classId' in responseData && responseData.classId === classId &&
-            'className' in responseData && responseData.className === className
+            'className' in responseData && responseData.className === className &&
+            'durationMinutes' in responseData && responseData.durationMinutes === classDuration
         );
     };
 
@@ -114,8 +119,8 @@ const ClassManagement = () => {
         setClasses(updatedClasses);
     };
 
-    const updateClassName = (targetClassId: number, newName: string) => {
-        setClasses(prevClasses => prevClasses.map(cls => cls.id === targetClassId ? {...cls, name: newName} : cls));
+    const updateClassName = (targetClassId: number, newName: string, newDuration: number) => {
+        setClasses(prevClasses => prevClasses.map(cls => cls.id === targetClassId ? {...cls, name: newName, durationMinutes: newDuration} : cls));
     };
 
     const removeScheduleFromState = (targetScheduleId: number, day: number) => {
@@ -184,6 +189,30 @@ const ClassManagement = () => {
         return !schedulesSet.has(scheduleToCheck);
     };
 
+    const getChangesFromClassEdit = (newName: string, newDuration: number) => {
+        const dataToUpdate: Record<string, string | number> = {};
+
+        const currentClassState = {
+            'name': selectedClassName,
+            'durationMinutes': selectedClassDuration,
+        };
+
+        const newClassState = {
+            'name': newName,
+            'durationMinutes': newDuration,
+        };
+
+        for (const key in newClassState) {
+            if (newClassState[key as keyof typeof newClassState] !== currentClassState[key as keyof typeof currentClassState]) {
+                const dynamicKey: string = key;
+                dataToUpdate[dynamicKey] = newClassState[key as keyof typeof newClassState];
+                console.log(`Adding to request body ${dynamicKey}: ${newClassState[key as keyof typeof newClassState]}`);
+            }
+        }
+
+        return dataToUpdate;
+    };
+
     const fetchClasses = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/backend/classes/');
@@ -241,10 +270,11 @@ const ClassManagement = () => {
         }
     };
 
-    const createClass = async (className: string) => {
+    const createClass = async (className: string, classDuration: number = 60) => {
         // TODO: sanitize input
         const data = {
-            "name": className
+            "name": className,
+            "durationMinutes": classDuration,
         };
 
         try {
@@ -270,10 +300,10 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                if (isValidCreateResponse(responseData, className)) {
+                if (isValidCreateResponse(responseData, className, classDuration)) {
                     console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`);
 
-                    const newClass = {id: responseData.id, name: responseData.name};
+                    const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes};
 
                     setIsCreateSuccessful(true);
                     setCreatedClassId(responseData.id);
@@ -341,15 +371,13 @@ const ClassManagement = () => {
     };
 
     // TODO: should I rather have classId and className as parameters, not call state vars inside the function?
-    const editClassName = async (newClassName: string) => {
+    const editClass = async (newClassName: string, newClassDuration: number) => {
         if (selectedClassId === null || selectedClassName === null) {
             console.warn("No class selected to edit");
             return null;
         }
 
-        const data = {
-            "name": newClassName,
-        }
+        const data = getChangesFromClassEdit(newClassName, newClassDuration);
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/edit/`,
@@ -366,20 +394,24 @@ const ClassManagement = () => {
         if (response.ok) {
             const responseData = await response.json();
 
-            if (isValidEditResponse(responseData, selectedClassId, newClassName)) {
-                console.log(`Successfully edited class ${newClassName} (was ${selectedClassName}) - ${selectedClassId}!`);
+            if (isValidEditResponse(responseData, selectedClassId, newClassName, newClassDuration)) {
+                console.log(`Successfully edited class ${newClassName} (was ${selectedClassName}) - ${selectedClassId}. Duration: ${selectedClassDuration} -> ${newClassDuration}.`);
             } else {
-                console.warn(`Function editClassName. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                console.warn(`Function editClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
 
             setIsEditSuccessful(true);
 
-            updateClassName(selectedClassId, newClassName);
+            updateClassName(selectedClassId, newClassName, newClassDuration);
+            setSelectedClassDuration(newClassDuration);
+
+            // TODO: have state vars reset at modal close?
 
             setSelectedClassId(null);
             setSelectedClassName("");
+
         } else {
-            console.warn(`Function editClassName. Request was unsuccessful: ${response.status, response.statusText}`);
+            console.warn(`Function editClass. Request was unsuccessful: ${response.status, response.statusText}`);
         }
 
         } catch(error) {
@@ -530,6 +562,7 @@ const ClassManagement = () => {
                             onPress={() => {
                                 setSelectedClassId(cls.id);
                                 setSelectedClassName(cls.name);
+                                setSelectedClassDuration(cls.durationMinutes);
                                 fetchClassSchedules(cls.id);
                                 setIsScheduleModalVisible(true);
                                 }}>
@@ -540,6 +573,7 @@ const ClassManagement = () => {
                                 onPress={() => {
                                     setSelectedClassId(cls.id);
                                     setSelectedClassName(cls.name);
+                                    setSelectedClassDuration(cls.durationMinutes);
                                     setIsEditModalVisible(true);
                                 }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Edit</Text>
@@ -548,6 +582,7 @@ const ClassManagement = () => {
                                 onPress={() => {
                                     setSelectedClassId(cls.id);
                                     setSelectedClassName(cls.name);
+                                    setSelectedClassDuration(cls.durationMinutes);
                                     setIsDeleteModalVisible(true);
                                 }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Delete</Text>
@@ -613,9 +648,11 @@ const ClassManagement = () => {
                 onModalClose={() => {
                     setIsEditModalVisible(false);
                     setIsEditSuccessful(false);
+                    setSelectedClassDuration(null);
                 }}
-                onEditClass={editClassName}
+                onEditClass={editClass}
                 oldClassName={selectedClassName ?? ""}
+                oldClassDuration={selectedClassDuration}
                 isSuccess={isEditSuccessful}
             />
         );
