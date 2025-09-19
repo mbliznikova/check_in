@@ -10,6 +10,7 @@ type EditClassModalProps = {
     oldClassDuration: number | null;
     onModalClose: () => void;
     onEditClass: (newClassName: string, newClassDuration: number) => void;
+    onClassUniquenessCheck: (name: string) => boolean;
     isSuccess: boolean;
 };
 
@@ -19,6 +20,7 @@ const EditClassModal = ({
     oldClassDuration,
     onModalClose,
     onEditClass,
+    onClassUniquenessCheck,
     isSuccess = false,
 }: EditClassModalProps) => {
 
@@ -98,9 +100,9 @@ const EditClassModal = ({
                                     console.log('No changes made');
                                     return;
                                 } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration)) {
-                                    // TODO: add uniqueness check for class name
-                                    onEditClass(newClassName, newClassDuration)
+                                    onClassUniquenessCheck(newClassName) ? onEditClass(newClassName, newClassDuration) : alert('Class with such name already exists');
                                 }
+                                setNewClassName("");
                             }}
                             style={styles.modalConfirmButton}
                         >

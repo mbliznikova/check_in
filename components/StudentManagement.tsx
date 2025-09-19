@@ -35,7 +35,7 @@ const StudentManagement = () => {
 
     const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === "object" &&
             responseData !== null &&
@@ -82,7 +82,7 @@ const StudentManagement = () => {
             );
     };
 
-    const isValidDeleteStudentResponse = (responseData: any, studentId: number): Boolean => {
+    const isValidDeleteStudentResponse = (responseData: any, studentId: number): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&

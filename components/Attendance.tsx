@@ -108,7 +108,7 @@ const Attendance = () => {
         setYearInput(yearString);
     };
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&

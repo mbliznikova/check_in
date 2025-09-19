@@ -109,7 +109,7 @@ const Payments = () => {
         setYearInput(yearString);
     };
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === "object" &&
             responseData !== null &&
@@ -118,7 +118,7 @@ const Payments = () => {
         );
     };
 
-    const isGeneralValidResponse = (responseData: any, key: string): Boolean => {
+    const isGeneralValidResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === "object" &&
             responseData !== null &&

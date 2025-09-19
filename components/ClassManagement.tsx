@@ -27,6 +27,8 @@ const ClassManagement = () => {
 
     const [classes, setClasses] = useState<ClassType[]>([]);
 
+    const [classesSet, setClassesSet] = useState<Set<string>>(new Set());
+
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
     const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
     const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
@@ -50,7 +52,7 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -59,7 +61,7 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidCreateResponse = (responseData: any, className: string, classDuration: number): Boolean => {
+    const isValidCreateResponse = (responseData: any, className: string, classDuration: number): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -71,7 +73,7 @@ const ClassManagement = () => {
     };
 
     // TODO: handle the created class name - comes from the modal
-    const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): Boolean => {
+    const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -84,7 +86,7 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidDeleteClassResponse = (responseData: any, classId: number, className: string): Boolean => {
+    const isValidDeleteClassResponse = (responseData: any, classId: number, className: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -94,7 +96,7 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidDeleteScheduleResponse = (responseData: any, scheduleId: number): Boolean => {
+    const isValidDeleteScheduleResponse = (responseData: any, scheduleId: number): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -103,7 +105,7 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidEditResponse = (responseData: any, classId: number, className: string, classDuration: number): Boolean => {
+    const isValidEditResponse = (responseData: any, classId: number, className: string, classDuration: number): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -167,10 +169,22 @@ const ClassManagement = () => {
         setCurrentClassScheduleMap(udpatedSchedule);
     };
 
+    const addClassToUniqueness = (name: string) => {
+        const newClassSet = new Set(classesSet);
+        newClassSet.add(name);
+        console.log(`Added ${name} to class uniqueness`);
+    };
+
+    const removeClassFromUniqueness = (name: string) => {
+        const newClassSet = new Set(classesSet);
+        newClassSet.delete(name);
+        console.log(`Removed ${name} from class uniqueness`);
+    };
+
     const addScheduleToUniqueness = (day: number, time: string) => {
         const newSchedulesSet = new Set(schedulesSet);
         newSchedulesSet.add(`${day}-${time.slice(0, 5)}`);
-        console.log(`Added ${day}-${time.slice(0, 5)}`);
+        console.log(`Added ${day}-${time.slice(0, 5)} to schedule uniqueness`);
 
         setSchedulesSet(newSchedulesSet);
     };
@@ -178,12 +192,16 @@ const ClassManagement = () => {
     const removeScheduleFromUniqueness = (day: number, time: string) => {
         const newSchedulesSet = new Set(schedulesSet);
         newSchedulesSet.delete(`${day}-${time.slice(0, 5)}`);
-        console.log(`Removed ${day}-${time.slice(0, 5)}`);
+        console.log(`Removed ${day}-${time.slice(0, 5)} from schedule uniqueness`);
 
         setSchedulesSet(newSchedulesSet);
     };
 
-    const checkIfScheduleUnique = (dayId: number, time: string): Boolean => {
+    const checkIfClassUnique = (name: string): boolean => {
+        return !classesSet.has(name);
+    };
+
+    const checkIfScheduleUnique = (dayId: number, time: string): boolean => {
         const scheduleToCheck = `${dayId}-${time}`;
 
         return !schedulesSet.has(scheduleToCheck);
@@ -308,6 +326,7 @@ const ClassManagement = () => {
                     setIsCreateSuccessful(true);
                     setCreatedClassId(responseData.id);
                     setClasses(prevClasses => [...prevClasses, newClass]);
+                    addClassToUniqueness(className);
 
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
@@ -404,9 +423,9 @@ const ClassManagement = () => {
 
             updateClassName(selectedClassId, newClassName, newClassDuration);
             setSelectedClassDuration(newClassDuration);
+            addClassToUniqueness(newClassName);
 
             // TODO: have state vars reset at modal close?
-
             setSelectedClassId(null);
             setSelectedClassName("");
 
@@ -518,6 +537,17 @@ const ClassManagement = () => {
     []);
 
     useEffect(() => {
+        const classSet: Set<string> = new Set();
+
+        classes.forEach((cls) => {
+            classSet.add(cls.name)
+        });
+
+        setClassesSet(classSet);
+    },
+    [classes]);
+
+    useEffect(() => {
         const scheduleSet: Set<string> = new Set();
 
         allSchedulesList.forEach((schedule) => {
@@ -602,8 +632,9 @@ const ClassManagement = () => {
                 <CreateScheduleClass
                     isVisible={isCreateModalVisible}
                     onCreateClass={createClass}
+                    onClassUniquenessCheck={checkIfClassUnique}
                     onScheduleClass={scheduleClass}
-                    onUniquenessCheck={checkIfScheduleUnique}
+                    onScheduleUniquenessCheck={checkIfScheduleUnique}
                     onScheduleDelete={deleteClassSchedule}
                     onModalClose={() => {
                         setIsCreateModalVisible(false);
@@ -652,6 +683,7 @@ const ClassManagement = () => {
                     setSelectedClassDuration(null);
                 }}
                 onEditClass={editClass}
+                onClassUniquenessCheck={checkIfClassUnique}
                 oldClassName={selectedClassName ?? ""}
                 oldClassDuration={selectedClassDuration}
                 isSuccess={isEditSuccessful}

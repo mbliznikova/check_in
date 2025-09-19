@@ -9,8 +9,9 @@ type ClassCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onCreateClass: (className: string, newClassDuration?: number) => void;
+    onClassUniquenessCheck: (name: string) => boolean;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
-    onUniquenessCheck: (dayId: number, time: string) => Boolean;
+    onScheduleUniquenessCheck: (dayId: number, time: string) => boolean;
     onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
     defaultClassDuration: number;
     isCreateSuccess: boolean;
@@ -24,8 +25,9 @@ const CreateScheduleClass = ({
     isVisible = false,
     onModalClose,
     onCreateClass,
+    onClassUniquenessCheck,
     onScheduleClass,
-    onUniquenessCheck,
+    onScheduleUniquenessCheck,
     onScheduleDelete,
     defaultClassDuration,
     isCreateSuccess,
@@ -138,7 +140,7 @@ const CreateScheduleClass = ({
                                         console.warn('Missing data: cannot schedule.');
                                         return;
                                     } else {
-                                        if (onUniquenessCheck(selectedDayId, time)) {
+                                        if (onScheduleUniquenessCheck(selectedDayId, time)) {
                                                 onScheduleClass(createdClassId?.toString(), className, selectedDayId, selectedDayName, time);
                                                 setIsAddTimeOpen(false);
                                                 setTime("");
@@ -261,10 +263,11 @@ const CreateScheduleClass = ({
                     <Pressable
                         onPress={() => {
                             if (newClassDuration !== defaultClassDuration) {
-                                onCreateClass(className, newClassDuration); // TODO: add checks?
+                                onClassUniquenessCheck(className) ? onCreateClass(className, newClassDuration) : alert('Class with such name already exists');
                             } else {
-                                onCreateClass(className);
+                                onClassUniquenessCheck(className) ? onCreateClass(className) : alert('Class with such name already exists');
                             }
+                            setClassName("");
                         }}
                         style={className ? styles.createButton : styles.disabledButton}
                         disabled={!className}

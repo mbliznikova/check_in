@@ -56,7 +56,7 @@ const ConfirmationList = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -94,6 +94,7 @@ const ConfirmationList = () => {
         fetchAttendances();
     }, 
     []);
+
     return (
         <SafeAreaView style={styles.appContainer}>
                 <FlatList

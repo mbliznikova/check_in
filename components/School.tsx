@@ -38,7 +38,7 @@ const School = () => {
 
     const [studentsUpdated, setStudentsUpdated] = useState(false);
 
-    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
@@ -195,7 +195,7 @@ const School = () => {
         return studentClassMap;
     }
 
-    function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): Boolean {
+    function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): boolean {
         if (!Array.isArray(listOne) || !Array.isArray(listTwo)) {
             console.log('False: one or both arguments is not a list');
             return false;

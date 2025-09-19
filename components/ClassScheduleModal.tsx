@@ -8,11 +8,11 @@ type ClassScheduleModalProps = {
     onModalClose: () => void;
     onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
-    onUniquenessCheck: (dayId: number, time: string) => Boolean;
+    onUniquenessCheck: (dayId: number, time: string) => boolean;
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
     className: string | null;
-    isSheduleSuccess: Boolean;
+    isSheduleSuccess: boolean;
 };
 
 const ClassScheduleModal = ({
