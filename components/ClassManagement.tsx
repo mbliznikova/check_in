@@ -611,6 +611,7 @@ const ClassManagement = () => {
                         setCreatedClassId(null);
                         setIsScheduleSuccessful(false);
                     }}
+                    defaultClassDuration={60} // TODO: have as a variable
                     isCreateSuccess={isCreateSuccessful}
                     isError={isCreateClassError}
                     createdClassId={createdClassId}

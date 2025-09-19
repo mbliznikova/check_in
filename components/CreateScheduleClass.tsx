@@ -8,10 +8,11 @@ import ScreenTitle from './ScreenTitle';
 type ClassCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onCreateClass: (className: string) => void;
+    onCreateClass: (className: string, newClassDuration?: number) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => Boolean;
     onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
+    defaultClassDuration: number;
     isCreateSuccess: boolean;
     isError: boolean;
     createdClassId: number | null;
@@ -26,6 +27,7 @@ const CreateScheduleClass = ({
     onScheduleClass,
     onUniquenessCheck,
     onScheduleDelete,
+    defaultClassDuration,
     isCreateSuccess,
     isError,
     createdClassId,
@@ -35,6 +37,7 @@ const CreateScheduleClass = ({
     const colorScheme = useColorScheme();
 
     const [className, setClassName] = useState("");
+    const [newClassDuration, setNewClassDuration] = useState(defaultClassDuration);
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -238,9 +241,31 @@ const CreateScheduleClass = ({
                         onChangeText={(createdClassName) => {setClassName(createdClassName)}}
                     />
                 </View>
+
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                    >
+                        Class duration:
+                    </Text>
+                    <TextInput
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        value={newClassDuration?.toString()}
+                        onChangeText={(updatedClassDuration) => {
+                            setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
+                        }}
+                    ></TextInput>
+                </View>
+
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
-                        onPress={() => {onCreateClass(className)}}
+                        onPress={() => {
+                            if (newClassDuration !== defaultClassDuration) {
+                                onCreateClass(className, newClassDuration); // TODO: add checks?
+                            } else {
+                                onCreateClass(className);
+                            }
+                        }}
                         style={className ? styles.createButton : styles.disabledButton}
                         disabled={!className}
                     >
