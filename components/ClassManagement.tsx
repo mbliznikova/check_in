@@ -52,6 +52,8 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
+    const [availableTimeSlots, setAavailableTimeSlots] = useState<string[]>([]);
+
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
@@ -113,6 +115,15 @@ const ClassManagement = () => {
             'classId' in responseData && responseData.classId === classId &&
             'className' in responseData && responseData.className === className &&
             'durationMinutes' in responseData && responseData.durationMinutes === classDuration
+        );
+    };
+
+    const isValidAvailableTimeSlotsResponse = (responseData: any): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Available time slots' &&
+            'availableSlots' in responseData && Array.isArray(responseData.availableSlots)
         );
     };
 
@@ -527,6 +538,34 @@ const ClassManagement = () => {
 
         } catch (error) {
             console.error(`Error while deleting the schedule: ${error}`);
+        }
+    };
+
+    const fetchAvailableTimeSlots = async(dayName: string, classDurationToFit: number) => {
+        if (dayName === null || classDurationToFit === null) {
+            console.warn("No day or duration provided");
+            return null;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/available_time_slots?day=${dayName}&duration=${classDurationToFit}`)
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidAvailableTimeSlotsResponse(responseData)) {
+                    console.log(`Function fetchAvailableTimeSlots. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    const timeSlots = responseData.availableSlots;
+                    setAavailableTimeSlots(timeSlots)
+                } else {
+                    console.warn(`Function fetchAvailableTimeSlots. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function fetchAvailableTimeSlots. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching available time slots: ${error}`);
         }
     };
 
