@@ -1,4 +1,4 @@
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable, Alert } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable, ScrollView } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
 import { useEffect, useRef, useState } from "react";
@@ -6,24 +6,28 @@ import { useEffect, useRef, useState } from "react";
 type ClassScheduleModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
+    onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onUniquenessCheck: (dayId: number, time: string) => boolean;
     scheduleData: Map<number, [number, string][]>;
     classId: number | null;
     className: string | null;
+    classDuration: number | null;
     isSheduleSuccess: boolean;
 };
 
 const ClassScheduleModal = ({
     isVisible = false,
     onModalClose,
+    onRequestingTimeSlots,
     onScheduleDelete,
     onScheduleClass,
     onUniquenessCheck,
     scheduleData = new Map(),
     classId,
     className,
+    classDuration,
     isSheduleSuccess = false,
 }: ClassScheduleModalProps) => {
 
@@ -36,6 +40,8 @@ const ClassScheduleModal = ({
     const [timeToSchedule, setTimeToSchedule] = useState("");
 
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
+
+    const [timeSlots, setTimeSlots] = useState<string[]>([]);
 
     const initialClassId = useRef(classId);
     const initialClassName = useRef(className);
@@ -92,24 +98,33 @@ const ClassScheduleModal = ({
     const renderAddTimeView = () => {
         return (
             <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
+                <ScrollView style={{maxHeight: 200}}>
                     <View>
                         <Text
                             style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                         >
-                            {`Time for ${dayToSchedule ? dayNames[dayToSchedule] : ""}:`}
+                            {`Select or enter time for ${dayToSchedule ? dayNames[dayToSchedule] : ""}:`}
                         </Text>
-                        <View style={[styles.itemContainer, styles.itemRow]}>
-                            <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                            >
-                                Select time ("10:00"):
-                            </Text>
+                        <View style={[styles.itemContainer]}>
 
-                            <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                                value={timeToSchedule}
-                                onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
-                            />
+                            <View style={styles.timeSlotsContainer}>
+                                {timeSlots.map((sl) => (
+                                    <Text
+                                    key={sl}
+                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeSlot]}
+                                    >
+                                        {sl}
+                                    </Text>
+                                ))}
+                            </View>
+
+                            <View style={{paddingTop: 20}}>
+                                <TextInput
+                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                    value={timeToSchedule}
+                                    onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
+                                />
+                            </View>
                         </View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
@@ -120,11 +135,11 @@ const ClassScheduleModal = ({
                                         `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${dayNames[dayToSchedule!]}, time ${timeToSchedule}`);
                                         setTimeToSchedule("");
                                         if (
-                                        initialClassId.current === null ||
-                                        initialClassName.current === null ||
-                                        dayToSchedule === null ||
-                                        timeToSchedule === null ||
-                                        !timeToSchedule
+                                            initialClassId.current === null ||
+                                            initialClassName.current === null ||
+                                            dayToSchedule === null ||
+                                            timeToSchedule === null ||
+                                            !timeToSchedule
                                     ){
                                         console.warn('Missing data: cannot schedule.');
                                         return;
@@ -149,6 +164,7 @@ const ClassScheduleModal = ({
                             </Pressable>
                         </View>
                     </View>
+                </ScrollView>
             </View>
         );
     };
@@ -185,8 +201,12 @@ const ClassScheduleModal = ({
                             </View>
                             ))}
                             <Pressable
-                                onPress={() => {
+                                onPress={async () => {
                                     setDayToSchedule(day); // TODO: something more reliable in case when the state var has not set yet?
+                                    if (dayNames[day] !== null && classDuration !== null) {
+                                        const slots = onRequestingTimeSlots(dayNames[day], classDuration);
+                                        setTimeSlots(await slots);
+                                    }
                                     setIsAddTimeOpen(true);
                                 }}
                                 style={styles.addTimeButton}
@@ -394,6 +414,22 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    timeSlotsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        marginVertical: 10,
+    },
+    timeSlot: {
+        borderWidth: 1,
+        borderColor: "grey",
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        margin: 5,
+        minWidth: 60,
+        textAlign: "center",
     },
     cancelButton: {
         alignItems: 'center',

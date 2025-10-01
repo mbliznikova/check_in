@@ -52,8 +52,6 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
-    const [availableTimeSlots, setAavailableTimeSlots] = useState<string[]>([]);
-
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
@@ -541,11 +539,13 @@ const ClassManagement = () => {
         }
     };
 
-    const fetchAvailableTimeSlots = async(dayName: string, classDurationToFit: number) => {
+    const fetchAvailableTimeSlots = async(dayName: string, classDurationToFit: number): Promise<string[]> => {
         if (dayName === null || classDurationToFit === null) {
             console.warn("No day or duration provided");
-            return null;
+            return [];
         }
+
+        let slots: string[] = [];
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/available_time_slots?day=${dayName}&duration=${classDurationToFit}`)
@@ -556,8 +556,7 @@ const ClassManagement = () => {
                 if (isValidAvailableTimeSlotsResponse(responseData)) {
                     console.log(`Function fetchAvailableTimeSlots. The response from backend is valid: ${JSON.stringify(responseData)}`);
 
-                    const timeSlots = responseData.availableSlots;
-                    setAavailableTimeSlots(timeSlots)
+                    slots = responseData.availableSlots ?? [];
                 } else {
                     console.warn(`Function fetchAvailableTimeSlots. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -567,6 +566,8 @@ const ClassManagement = () => {
         } catch (error) {
             console.error(`Error while fetching available time slots: ${error}`);
         }
+
+        return slots;
     };
 
     useEffect(() => {
@@ -741,12 +742,14 @@ const ClassManagement = () => {
                     setIsScheduleModalVisible(false);
                     setIsScheduleSuccessful(false);
                 }}
+                onRequestingTimeSlots={fetchAvailableTimeSlots}
                 onScheduleDelete={deleteClassSchedule}
                 onScheduleClass={scheduleClass}
                 onUniquenessCheck={checkIfScheduleUnique}
                 scheduleData={currentClassScheduleMap}
                 classId={selectedClassId}
                 className={selectedClassName}
+                classDuration={selectedClassDuration}
                 isSheduleSuccess={isScheduleSuccessful}
             />
         );
