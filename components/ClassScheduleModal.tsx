@@ -42,6 +42,7 @@ const ClassScheduleModal = ({
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
 
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
+    const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
 
     const initialClassId = useRef(classId);
     const initialClassName = useRef(className);
@@ -108,13 +109,24 @@ const ClassScheduleModal = ({
                         <View style={[styles.itemContainer]}>
 
                             <View style={styles.timeSlotsContainer}>
-                                {timeSlots.map((sl) => (
-                                    <Text
-                                    key={sl}
-                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeSlot]}
+                                {timeSlots.map((sl, index) => (
+                                    <Pressable
+                                        key={sl}
+                                        onPress={() => {
+                                            setSelectedSlotIndex(index);
+                                            setTimeToSchedule(sl);
+                                        }}
                                     >
-                                        {sl}
-                                    </Text>
+                                        <Text
+                                            style={[
+                                                colorScheme === 'dark'? styles.lightColor : styles.darkColor,
+                                                styles.timeSlot,
+                                                selectedSlotIndex === index ? styles.selectedTimeSlotBorders : styles.notSelectedTimeSlotBorders
+                                            ]}
+                                        >
+                                            {sl}
+                                        </Text>
+                                    </Pressable>
                                 ))}
                             </View>
 
@@ -273,6 +285,7 @@ const ClassScheduleModal = ({
                             onPress={() => {
                                 setIsAddTimeOpen(false);
                                 setIsConfirmationOpen(false);
+                                setSelectedSlotIndex(-1);
                             }}
                         >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
@@ -422,14 +435,20 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     timeSlot: {
-        borderWidth: 1,
-        borderColor: "grey",
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
         margin: 5,
         minWidth: 60,
         textAlign: "center",
+    },
+    selectedTimeSlotBorders: {
+        borderWidth: 3,
+        borderColor: "white",
+    },
+    notSelectedTimeSlotBorders: {
+        borderWidth: 1,
+        borderColor: "grey",
     },
     cancelButton: {
         alignItems: 'center',
