@@ -673,6 +673,7 @@ const ClassManagement = () => {
                     isVisible={isCreateModalVisible}
                     onCreateClass={createClass}
                     onClassUniquenessCheck={checkIfClassUnique}
+                    onRequestingTimeSlots={fetchAvailableTimeSlots}
                     onScheduleClass={scheduleClass}
                     onScheduleUniquenessCheck={checkIfScheduleUnique}
                     onScheduleDelete={deleteClassSchedule}
@@ -681,6 +682,7 @@ const ClassManagement = () => {
                         setIsCreateSuccessful(false);
                         setCreatedClassId(null);
                         setIsScheduleSuccessful(false);
+                        setCurrentClassScheduleMap(new Map());
                     }}
                     defaultClassDuration={60} // TODO: have as a variable
                     isCreateSuccess={isCreateSuccessful}
@@ -741,6 +743,7 @@ const ClassManagement = () => {
                 onModalClose={() => {
                     setIsScheduleModalVisible(false);
                     setIsScheduleSuccessful(false);
+                    setCurrentClassScheduleMap(new Map());
                 }}
                 onRequestingTimeSlots={fetchAvailableTimeSlots}
                 onScheduleDelete={deleteClassSchedule}

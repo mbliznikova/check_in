@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, ScrollView } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -10,6 +10,7 @@ type ClassCreationModalProps = {
     onModalClose: () => void;
     onCreateClass: (className: string, newClassDuration?: number) => void;
     onClassUniquenessCheck: (name: string) => boolean;
+    onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
     onScheduleUniquenessCheck: (dayId: number, time: string) => boolean;
     onScheduleDelete: (scheduleId: number, day: number, time: string) => void;
@@ -26,6 +27,7 @@ const CreateScheduleClass = ({
     onModalClose,
     onCreateClass,
     onClassUniquenessCheck,
+    onRequestingTimeSlots,
     onScheduleClass,
     onScheduleUniquenessCheck,
     onScheduleDelete,
@@ -51,6 +53,9 @@ const CreateScheduleClass = ({
 
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
 
+    const [timeSlots, setTimeSlots] = useState<string[]>([]);
+    const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
+
     const dayNames = [
         "",
         "Monday",
@@ -73,12 +78,16 @@ const CreateScheduleClass = ({
                     <Pressable
                         key={dayIndex}
                         style={styles.dayContainer}
-                        onPress={() => {
+                        onPress={async () => {
                             console.log(`Selected ${dayNames[dayIndex]}`);
                             setSelectedDayId(dayIndex);
                             setSelectedDayName(dayNames[dayIndex]);
                             setIsAddDayOpen(false);
                             setIsAddTimeOpen(true);
+                            if (dayNames[dayIndex] !== null && newClassDuration !== null) {
+                                const slots = onRequestingTimeSlots(dayNames[dayIndex], newClassDuration);
+                                setTimeSlots(await slots);
+                            }
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
@@ -104,30 +113,50 @@ const CreateScheduleClass = ({
     const renderAddTimeView = () => {
         return (
             <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
+                <ScrollView style={{maxHeight: 200}}>
                     <View>
                         <Text
                             style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
                         >
-                            {`Time for ${selectedDayId ? selectedDayName : ""}:`}
+                            {`Select or enter time for ${selectedDayId ? selectedDayName : ""}:`}
                         </Text>
-                        <View style={[styles.itemContainer, styles.itemRow]}>
-                            <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                            >
-                                Select time ("10:00"):
-                            </Text>
+                        <View style={[styles.itemContainer]}>
 
-                            <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
-                                value={time}
-                                onChangeText={(timeStr) => {setTime(timeStr)}}
-                            />
+                            <View style={styles.timeSlotsContainer}>
+                                {timeSlots.map((sl, index) => (
+                                    <Pressable
+                                        key={sl}
+                                        onPress={() => {
+                                            setSelectedSlotIndex(index);
+                                            setTime(sl);
+                                        }}
+                                    >
+                                        <Text
+                                            style={[
+                                                colorScheme === 'dark'? styles.lightColor : styles.darkColor,
+                                                styles.timeSlot,
+                                                selectedSlotIndex === index ? styles.selectedTimeSlotBorders : styles.notSelectedTimeSlotBorders
+                                            ]}
+                                        >
+                                            {sl}
+                                        </Text>
+                                    </Pressable>
+                                ))}
+                            </View>
+
+                            <View style={{paddingTop: 20}}>
+                                <TextInput
+                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                    value={time}
+                                    onChangeText={(timeStr) => {setTime(timeStr)}}
+                                />
+                            </View>
                         </View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={() => {
+                                onPress={async () => {
                                     console.log(
                                         `Class id ${createdClassId}, class name ${className}, day ${selectedDayName}, time ${time}`);
                                         setTime("");
@@ -144,11 +173,14 @@ const CreateScheduleClass = ({
                                                 onScheduleClass(createdClassId?.toString(), className, selectedDayId, selectedDayName, time);
                                                 setIsAddTimeOpen(false);
                                                 setTime("");
+                                                const slots = onRequestingTimeSlots(selectedDayName, newClassDuration);
+                                                setTimeSlots(await slots);
                                         } else {
                                             alert('Such schedule is already taken');
                                             console.log(`There is already a class scheduled to ${selectedDayName}, ${time}`);
                                         }
                                     }
+                                    setSelectedSlotIndex(-1);
                                 }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
@@ -158,12 +190,14 @@ const CreateScheduleClass = ({
                                 onPress={() => {
                                     setIsAddTimeOpen(false);
                                     setTime("");
+                                    setSelectedSlotIndex(-1);
                                 }}
                                 >
                                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
+                </ScrollView>
             </View>
         );
     };
@@ -200,8 +234,12 @@ const CreateScheduleClass = ({
                             </View>
                             ))}
                             <Pressable
-                                onPress={() => {
+                                onPress={async () => {
                                     setSelectedDayId(day); // TODO: something more reliable in case when the state var has not set yet?
+                                    if (dayNames[day] !== null && newClassDuration !== null) {
+                                        const slots = onRequestingTimeSlots(dayNames[day], newClassDuration);
+                                        setTimeSlots(await slots);
+                                    }
                                     setIsAddTimeOpen(true);
                                 }}
                                 style={styles.addTimeButton}
@@ -340,6 +378,7 @@ const CreateScheduleClass = ({
                             onPress={() => {
                                 setIsAddTimeOpen(false);
                                 setIsConfirmationOpen(false);
+                                setSelectedSlotIndex(-1);
                             }}
                         >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
@@ -438,22 +477,29 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     createButton: {
-        padding: 10,
-        borderRadius: 10,
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
         borderWidth: 1,
         backgroundColor: 'green',
     },
     disabledButton: {
-        padding: 10,
-        borderRadius: 10,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
         borderWidth: 1,
         borderColor: 'grey',
         opacity: 0.5,
     },
     modalCancelButton: {
         alignItems: 'center',
-        padding: 10,
-        borderRadius: 10,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
         borderWidth: 1,
         backgroundColor: 'grey',
     },
@@ -478,11 +524,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 20,
         alignItems: 'center',
-        width: '100%',
+        width: '30%',
         justifyContent: 'center',
     },
     modalManyButtonsContainer: {
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-between',
         flexDirection: 'row',
         width: '100%',
     },
@@ -506,6 +552,28 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    timeSlotsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        marginVertical: 10,
+    },
+    timeSlot: {
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        margin: 5,
+        minWidth: 60,
+        textAlign: "center",
+    },
+    selectedTimeSlotBorders: {
+        borderWidth: 3,
+        borderColor: "white",
+    },
+    notSelectedTimeSlotBorders: {
+        borderWidth: 1,
+        borderColor: "grey",
     },
     deleteTimeButton: {
         textAlign: 'right',

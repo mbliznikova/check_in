@@ -80,11 +80,15 @@ const ClassScheduleModal = ({
                     <Pressable
                         key={dayIndex}
                         style={styles.dayContainer}
-                        onPress={() => {
+                        onPress={async () => {
                             console.log(`Selected ${dayNames[dayIndex]}`);
                             setIsAddDayOpen(false);
                             setIsAddTimeOpen(true);
                             setDayToSchedule(dayIndex);
+                            if (dayNames[dayIndex] !== null && classDuration !== null) {
+                                const slots = onRequestingTimeSlots(dayNames[dayIndex], classDuration);
+                                setTimeSlots(await slots);
+                            }
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
@@ -142,7 +146,7 @@ const ClassScheduleModal = ({
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={() => {
+                                onPress={async () => {
                                     console.log(
                                         `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${dayNames[dayToSchedule!]}, time ${timeToSchedule}`);
                                         setTimeToSchedule("");
@@ -152,18 +156,22 @@ const ClassScheduleModal = ({
                                             dayToSchedule === null ||
                                             timeToSchedule === null ||
                                             !timeToSchedule
-                                    ){
-                                        console.warn('Missing data: cannot schedule.');
-                                        return;
-                                    } else {
-                                        if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
-                                                onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
-                                                setIsAddTimeOpen(false);
+                                        ){
+                                            console.warn('Missing data: cannot schedule.');
+                                            return;
                                         } else {
-                                            alert('Such schedule is already taken');
-                                            console.log(`There is already a class scheduled to ${dayToSchedule}(${dayNames[dayToSchedule]}), ${timeToSchedule}`);
+                                            if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
+                                                    onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, dayNames[dayToSchedule], timeToSchedule);
+                                                    setIsAddTimeOpen(false);
+                                                    if (dayNames[dayToSchedule] !== null && classDuration !== null){
+                                                        const slots = onRequestingTimeSlots(dayNames[dayToSchedule], classDuration);
+                                                        setTimeSlots(await slots);
+                                                    }
+                                            } else {
+                                                alert('Such schedule is already taken');
+                                                console.log(`There is already a class scheduled to ${dayToSchedule}(${dayNames[dayToSchedule]}), ${timeToSchedule}`);
+                                            }
                                         }
-                                    }
                                 }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
