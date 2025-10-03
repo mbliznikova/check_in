@@ -495,7 +495,7 @@ const StudentManagement = () => {
     };
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ flex: 1 }}>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}
