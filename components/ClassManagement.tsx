@@ -759,7 +759,7 @@ const ClassManagement = () => {
     };
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ flex: 1 }}>
             <ScreenTitle titleText={'Class management'}/>
             {renderHeaderRow()}
             {renderClassList()}
