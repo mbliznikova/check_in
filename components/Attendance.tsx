@@ -177,7 +177,7 @@ const Attendance = () => {
     }, [payments]);
 
     useEffect(() => {
-        const ready = attendances.length > 0 && balance.size > 0;
+        const ready = attendances.length;
         if (ready) {
             countAttendences(attendances);
         } else {
