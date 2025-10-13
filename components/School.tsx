@@ -18,11 +18,28 @@ type ClassType = {
     name: string;
 };
 
+type ClassOccurrenceType = {
+    id: number;
+    classId: number | null;
+    fallbackClassName: string;
+    schedule: string;
+    plannedDate: string;
+    actualDate: string;
+    plannedStartTime: string;
+    actualStartTime: string;
+    plannedDuration: number;
+    actualDuration: number;
+    isCancelled: boolean;
+    notes: string;
+};
+
 const screenWidth = Dimensions.get('window').width;
 
 
 const School = () => {
     const [classList, setClassList] = useState<ClassType[]>([]);
+
+    const [classOccurrenceList, setClassOccurrenceList] = useState<ClassOccurrenceType[]>([]);
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
@@ -71,6 +88,45 @@ const School = () => {
                     }
                 } else {
                     console.log("Function fetchClasses. Response was unsuccessful: ", response.status, response.statusText)
+                }
+            } catch (err) {
+                console.error("Error while fetching the list of classes: ", err)
+            }
+        }
+
+        const fetchClassOccurrences = async () => { // NEW
+            try {
+                const response = await fetch('http://127.0.0.1:8000/backend/today_class_occurrences/');
+                if (response.ok) {
+                    const responseData = await response.json();
+                    if (
+                        isValidArrayResponse(responseData, 'response')
+                    ) {
+                        console.log('Function fetchClassOccurrences. The response from backend is valid.' + JSON.stringify(responseData))
+
+                        const dataClassOccurrencesList: ClassOccurrenceType[] = responseData.response;
+                        const fetchedClassOccurrences = dataClassOccurrencesList.map(cls => ({
+                            id: cls.id,
+                            classId: cls.classId,
+                            fallbackClassName: cls.fallbackClassName,
+                            schedule: cls.schedule,
+                            plannedDate: cls.plannedDate,
+                            actualDate: cls.actualDate,
+                            plannedStartTime: cls.plannedStartTime,
+                            actualStartTime: cls.actualStartTime,
+                            plannedDuration: cls.plannedDuration,
+                            actualDuration: cls.actualDuration,
+                            isCancelled: cls.isCancelled,
+                            notes: cls.notes,
+                        }));
+
+                        setClassOccurrenceList(fetchedClassOccurrences);
+                        console.log("Fetched class occurrences: ", fetchedClassOccurrences);
+                    } else {
+                        console.warn('Function fetchClassOccurrences. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                    }
+                } else {
+                    console.log("Function fetchClassOccurrences. Response was unsuccessful: ", response.status, response.statusText)
                 }
             } catch (err) {
                 console.error("Error while fetching the list of classes: ", err)
