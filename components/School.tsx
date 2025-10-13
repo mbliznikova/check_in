@@ -11,6 +11,7 @@ type StudentType = {
     lastName: string;
     id: number;
     classes?: Set<number>;
+    occurrences?: Set<number>;
 };
 
 type ClassType = {
@@ -183,6 +184,7 @@ const School = () => {
                                 firstName: att.firstName,
                                 lastName: att.lastName,
                                 classes: new Set(att.classes),
+                                occurrences: new Set(att.occurrences),
                             }));
 
                             setAttendance(fetchedAttendances);
