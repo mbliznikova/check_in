@@ -262,7 +262,7 @@ const School = () => {
         return listOne.every((value) => listTwo.includes(value));
     }
 
-    const submitCheckInRequest = async(studentId: number, classIds: number[]) => {
+    const submitCheckInRequest = async(studentId: number, classIds: number[], occurrenceIds: number[]) => {
         // One student can check-in to multiple classes
         const today = new Date();
         const todayDate = today.toISOString().slice(0, 10);
@@ -271,6 +271,7 @@ const School = () => {
             checkInData: {
                 studentId: Number(studentId),
                 classesList: classIds.map(Number),
+                classOccurrencesList: occurrenceIds.map(Number),
                 todayDate: todayDate,
             }
         };
@@ -319,7 +320,7 @@ const School = () => {
         }
     }
 
-    function checkIn(studentId: number, classIds: number[]) {
+    function checkIn(studentId: number, classIds: number[], occurrenceIds: number[]) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
@@ -334,7 +335,7 @@ const School = () => {
             return updatesStudents;
         });
         setCheckedInStudents(assignStudentsToClasses);
-        submitCheckInRequest(studentId=studentId, classIds=classIds);
+        submitCheckInRequest(studentId=studentId, classIds=classIds, occurrenceIds=occurrenceIds);
     }
 
     if (loading) {
@@ -377,7 +378,7 @@ const School = () => {
                 allClassesList={classList}
                 onModalClose={() => setIsModalVisible(false)}
                 onConfirm={(selectedClassesIds: number[]) => {
-                    checkIn(currentStudent?.id!, selectedClassesIds);
+                    checkIn(currentStudent?.id!, selectedClassesIds, new Array());
                     setIsModalVisible(false);
                 }}
             />
