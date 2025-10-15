@@ -9,11 +9,7 @@ type StudentType = {
     lastName: string;
     id: number;
     classes?: Set<number>;
-};
-
-type ClassType = {
-    id: number;
-    name: string;
+    occurrences?: Set<number>;
 };
 
 type ClassSelectionModalProps = {
@@ -21,7 +17,22 @@ type ClassSelectionModalProps = {
     onModalClose: () => void;
     onConfirm: (selectedClassesIds: number[]) => void;
     student?: StudentType | null;
-    allClassesList: ClassType[];
+    allClassOccurrencesList: ClassOccurrenceType[];
+};
+
+type ClassOccurrenceType = {
+    id: number;
+    classId: number | null;
+    fallbackClassName: string;
+    schedule: string;
+    plannedDate: string;
+    actualDate: string;
+    plannedStartTime: string;
+    actualStartTime: string;
+    plannedDuration: number;
+    actualDuration: number;
+    isCancelled: boolean;
+    notes: string;
 };
 
 const ClassSelectionModal = ({
@@ -29,11 +40,11 @@ const ClassSelectionModal = ({
     onModalClose,
     onConfirm,
     student,
-    allClassesList
+    allClassOccurrencesList: allClassOccurrencesList
 }: ClassSelectionModalProps) => {
 
     const [classSelectionState, setClassSelectionState] = useState(() => {
-        return new Map(allClassesList.map(cls => [cls.id, false]))
+        return new Map(allClassOccurrencesList.map(cls => [cls.id, false]))
     });
 
     const [isModalVisible, setIsModalVisible] = useState(isVisible);
@@ -41,7 +52,7 @@ const ClassSelectionModal = ({
     useEffect(() => {
         setIsModalVisible(isVisible);
 
-        if (student?.classes?.size) {
+        if (student?.occurrences?.size) {
             initializeClassSelection(student);
         }
 
@@ -51,37 +62,37 @@ const ClassSelectionModal = ({
 
     }, [isVisible, student]);
 
-    function getSelectedClassesIds() {
-        const classesIds: number[] = [];
-        classSelectionState?.forEach((value, key) => {
-            if (value === true) {
-                classesIds.push(key);
-            }
-        })
-        return classesIds;
-    }
+    function getSelectedOccurrenceIds(selectedStateMap: Map<number, boolean>) {
+        return Array.from(selectedStateMap.entries()).filter(([_, v]) => v).map(([k]) => k);
+      }
 
     function toggleClass(classId: number) {
-        setClassSelectionState(prevSelectedClasses => {
-            return new Map(prevSelectedClasses).set(classId, !prevSelectedClasses?.get(classId));
-        })
+        setClassSelectionState(prev => {
+            const next = new Map(prev);
+            next.set(classId, !Boolean(prev.get(classId)));
+            return next;
+          });
     }
 
     function initializeClassSelection(student: StudentType) {
-        if (student.classes?.size) {
-            Array.from(student.classes).forEach(clsId => {
-                setClassSelectionState(prevSelectedClasses => {
-                    return new Map(prevSelectedClasses).set(clsId, true);
-                })
-            })
-        }
+            const base = new Map<number, boolean>(
+              allClassOccurrencesList.map(cls => [cls.id, false])
+            );
+
+            if (student?.occurrences) {
+              for (const clsId of student.occurrences) {
+                if (base.has(clsId)) base.set(clsId, true);
+              }
+            }
+
+            setClassSelectionState(base);
     }
 
     function resetClassSelection() {
-        setClassSelectionState(new Map(allClassesList.map(cls => [cls.id, false])));
+        setClassSelectionState(new Map(allClassOccurrencesList.map(cls => [cls.id, false])));
     }
 
-    function closeModal() {
+    function closeModal() { // TODO: set all necessary things to null?
         setIsModalVisible(false);
         onModalClose();
     }
@@ -99,26 +110,34 @@ const ClassSelectionModal = ({
                 <View style={styles.modalView}>
                      <Text style={styles.modalTitle}>Check in {student?.firstName} {student?.lastName}</Text>
                      <View style={styles.modalList}>
-                        {allClassesList.map((cls) => (
+                        {allClassOccurrencesList.map((cls) => ( // TODO: check/make it scrollable?
                                 <Checkbox
                                     key={cls.id}
-                                    label={cls.name}
+                                    label={`${cls.fallbackClassName} - ${cls.actualStartTime.slice(0, 5)}`}
                                     checked={classSelectionState?.get(cls.id) ?? false}
-                                    onChange={() => {toggleClass(cls.id)}}>
+                                    onChange={() => {
+                                        toggleClass(cls.id)
+                                        }}>
                                 </Checkbox>
                             ))}
                      </View>
-                     <Pressable style={styles.modalConfirmButton} onPress={() => {
-                        onConfirm(getSelectedClassesIds());
-                        closeModal();
-                     }}>
+
+                     <Pressable
+                        style={styles.modalConfirmButton}
+                        onPress={() => {
+                            const selected = getSelectedOccurrenceIds(classSelectionState)
+                            onConfirm(selected);
+                            closeModal();
+                        }}
+                    >
                         <Text style={styles.modalText}>Confirm</Text>
-                     </Pressable>
+                    </Pressable>
+
                      <Pressable style={styles.modalCancelButton} onPress={() => {
                         closeModal();
                      }}>
                         <Text style={styles.modalText}>Cancel</Text>
-                     </Pressable>
+                    </Pressable>
                 </View>
             </View>
         </Modal>

@@ -38,15 +38,13 @@ const screenWidth = Dimensions.get('window').width;
 
 
 const School = () => {
-    const [classList, setClassList] = useState<ClassType[]>([]);
-
     const [classOccurrenceList, setClassOccurrenceList] = useState<ClassOccurrenceType[]>([]);
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const [attendance, setAttendance] = useState<StudentType[]>([]);
 
-    const [checkedInStudents, setCheckedInStudents] = useState(() => assignStudentsToClasses());
+    const [checkedInStudents, setCheckedInStudents] = useState(() => assignStudentsToOccurrences());
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -66,36 +64,7 @@ const School = () => {
     }
 
     useEffect(() => {
-        const fetchClasses = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_classes_list/');
-                if (response.ok) {
-                    const responseData = await response.json();
-                    if (
-                        isValidArrayResponse(responseData, 'response')
-                    ) {
-                        console.log('Function fetchClasses. The response from backend is valid.' + JSON.stringify(responseData))
-
-                        const dataClassesList: ClassType[] = responseData.response;
-                        const fetchedClasses = dataClassesList.map(cls => ({
-                            id: cls.id,
-                            name: cls.name
-                        }));
-
-                        setClassList(fetchedClasses);
-                        console.log("Fetched classes: ", fetchedClasses);
-                    } else {
-                        console.warn('Function fetchClasses. The response from backend is NOT valid! '  + JSON.stringify(responseData));
-                    }
-                } else {
-                    console.log("Function fetchClasses. Response was unsuccessful: ", response.status, response.statusText)
-                }
-            } catch (err) {
-                console.error("Error while fetching the list of classes: ", err)
-            }
-        }
-
-        const fetchClassOccurrences = async () => { // NEW
+        const fetchClassOccurrences = async () => {
             try {
                 const response = await fetch('http://127.0.0.1:8000/backend/today_class_occurrences/');
                 if (response.ok) {
@@ -205,7 +174,7 @@ const School = () => {
             }
         }
 
-        fetchClasses();
+        fetchClassOccurrences();
         fetchStudents();
         fetchAttendedStudents();
         setLoading(false);
@@ -228,29 +197,28 @@ const School = () => {
 
     useEffect(() => {
         if (!studentsUpdated) return;
-        setCheckedInStudents(assignStudentsToClasses());
+        setCheckedInStudents(assignStudentsToOccurrences());
         setStudentsUpdated(false);
 
     }, [studentsUpdated]);
 
-
-    function assignStudentsToClasses() {
+    function assignStudentsToOccurrences() {
         // Add students who attends a certain class to the class map: [class_id, [student1, student2]]
-        const studentClassMap = new Map<number, StudentType[]>();
+        const studentOccuurenceMap = new Map<number, StudentType[]>();
 
-        classList.forEach(cls => {
-            studentClassMap.set(cls.id, []);
+        classOccurrenceList.forEach(cls => {
+            studentOccuurenceMap.set(cls.id, [])
         })
 
         students.forEach(student => {
-            Array.from(student.classes ?? []).forEach(clsId => {
-                if (studentClassMap.has(clsId)) {
-                    studentClassMap.get(clsId)?.push(student);
+            Array.from(student.occurrences ?? []).forEach(occId => {
+                if (studentOccuurenceMap.has(occId)) {
+                    studentOccuurenceMap.get(occId)?.push(student);
                 }
             });
         });
 
-        return studentClassMap;
+        return studentOccuurenceMap;
     }
 
     function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): boolean {
@@ -262,15 +230,15 @@ const School = () => {
         return listOne.every((value) => listTwo.includes(value));
     }
 
-    const submitCheckInRequest = async(studentId: number, classIds: number[], occurrenceIds: number[]) => {
-        // One student can check-in to multiple classes
+    const submitCheckInRequest = async(studentId: number, occurrenceIds: number[]) => {
+        // One student can check-in to multiple class occurrences
         const today = new Date();
         const todayDate = today.toISOString().slice(0, 10);
 
         const data = {
             checkInData: {
                 studentId: Number(studentId),
-                classesList: classIds.map(Number),
+                // classesList: classIds.map(Number),
                 classOccurrencesList: occurrenceIds.map(Number),
                 todayDate: todayDate,
             }
@@ -307,7 +275,7 @@ const School = () => {
                 'checkedIn' in responseData &&
                 'checkedOut' in responseData &&
                 Array.isArray(responseData.checkedIn) &&
-                ifOneListsContainsAnother(responseData.checkedIn, classIds) &&
+                ifOneListsContainsAnother(responseData.checkedIn, occurrenceIds) &&
                 Array.isArray(responseData.checkedOut)
             ) {
                 console.log('Function submitCheckInRequest. The response from backend is valid. ' + JSON.stringify(responseData));
@@ -320,13 +288,14 @@ const School = () => {
         }
     }
 
-    function checkIn(studentId: number, classIds: number[], occurrenceIds: number[]) {
+    function checkIn(studentId: number, occurrenceIds: number[]) {
         setStudents(prevStudents => {
             const updatesStudents = prevStudents.map(student => {
                 if (student.id === studentId) {
                     student.classes = new Set();
-                    classIds.forEach(cls => {
-                        student.classes?.add(cls)
+                    student.occurrences = new Set();
+                    occurrenceIds.forEach(cls => {
+                        student.occurrences?.add(cls)
                     })
                 }
                 return student;
@@ -334,8 +303,8 @@ const School = () => {
 
             return updatesStudents;
         });
-        setCheckedInStudents(assignStudentsToClasses);
-        submitCheckInRequest(studentId=studentId, classIds=classIds, occurrenceIds=occurrenceIds);
+        setCheckedInStudents(assignStudentsToOccurrences);
+        submitCheckInRequest(studentId=studentId, occurrenceIds=occurrenceIds);
     }
 
     if (loading) {
@@ -347,7 +316,7 @@ const School = () => {
 
             <View style={{flex: 1}}>
                 <FlatList
-                    data={classList}
+                    data={classOccurrenceList}
                     keyExtractor={cls => cls.id.toString()}
                     renderItem={({ item: cls }) => (
                         <View>
@@ -360,7 +329,7 @@ const School = () => {
                                 header={
                                     <ClassName
                                         id={cls.id}
-                                        name={cls.name}
+                                        name={`${cls.fallbackClassName} - ${cls.actualStartTime.slice(0, 5)}`}
                                     />
                                 }
                                 style={styles.students}
@@ -375,10 +344,10 @@ const School = () => {
             <ClassSelectionModal
                 isVisible={isModalVisible}
                 student={currentStudent}
-                allClassesList={classList}
+                allClassOccurrencesList={classOccurrenceList}
                 onModalClose={() => setIsModalVisible(false)}
                 onConfirm={(selectedClassesIds: number[]) => {
-                    checkIn(currentStudent?.id!, selectedClassesIds, new Array());
+                    checkIn(currentStudent?.id!, selectedClassesIds);
                     setIsModalVisible(false);
                 }}
             />
@@ -386,7 +355,7 @@ const School = () => {
             <View style={{flex: 1.5}}>
                 <View style={styles.rowWrapper}>
                     <StudentList
-                        studentList={students.filter((student) => (student.classes?.size ?? 0) === 0)}
+                        studentList={students.filter((student) => (student.occurrences?.size ?? 0) === 0)}
                         onStudentPress={(student) => {
                             setCurrentStudent(student);
                             setIsModalVisible(true);
