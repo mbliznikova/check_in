@@ -163,6 +163,19 @@ const ConfirmationDetails = ({
                 <FlatList
                     data={Object.entries(occurrences)}
                     keyExtractor={([occurrenceId, _occurrenceInfo]) => occurrenceId.toString()}
+                    ListFooterComponent={
+                        <View style={styles.confirmButtonContainer}>
+                          <Pressable
+                            style={styles.confirmButton}
+                            onPress={() => {
+                              sendConfirmation();
+                              alert('Students have been confirmed');
+                            }}
+                          >
+                            <Text style={styles.lightColor}>Confirm</Text>
+                          </Pressable>
+                        </View>
+                      }
                     renderItem={( {item} ) => {
                         const [occurrenceId, occurrenceInfo] = item;
                         return (
@@ -211,18 +224,6 @@ const ConfirmationDetails = ({
                 />
             </View>
 
-            <View style={[styles.confirmButtonContainer, styles.smallFlex]}>
-                    <Pressable
-                        style={styles.confirmButton}
-                        onPress={() => {
-                            sendConfirmation();
-                            alert('Students have been confirmed');
-                        }}
-                    >
-                        <Text>Confirm</Text>
-                    </Pressable>
-            </View>
-
             <View style={styles.separator} />
 
         </SafeAreaView>
@@ -235,9 +236,6 @@ const styles = StyleSheet.create({
     },
     bigFlex: {
         flex: 5,
-    },
-    smallFlex: {
-        flex: 1,
     },
     contentContainer: {
         paddingHorizontal: 16,
@@ -269,6 +267,15 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'blue',
+    },
+    footerContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
     },
     studentRow: {
         flexDirection: 'row',
