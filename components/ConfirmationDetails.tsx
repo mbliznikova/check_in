@@ -14,6 +14,7 @@ type AttendanceStudentType = {
 
 type AttendanceClassType = {
     name: string;
+    time: string;
     students: {
         [studentId: string]: AttendanceStudentType;
     }
@@ -21,8 +22,8 @@ type AttendanceClassType = {
 
 type AttendanceType = {
     date: string;
-    classes: {
-        [classId: string]: AttendanceClassType;
+    occurrences: {
+        [occurrenceId: string]: AttendanceClassType;
     }
 }
 
@@ -37,7 +38,7 @@ type ConfirmationMap =
 
 const ConfirmationDetails = ({
     date,
-    classes,
+    occurrences,
 }: AttendanceType) => {
     const colorScheme = useColorScheme();
 
@@ -45,15 +46,15 @@ const ConfirmationDetails = ({
 
     useEffect(() => {
         populateConfirmation();
-    }, [classes]);
+    }, [occurrences]);
 
     const populateConfirmation = () => {
         const confirmationMap: ConfirmationMap = new Map();
-        for (const [classId, classData] of Object.entries(classes)) {
-            const classIdNumber = Number(classId);
+        for (const [occurrenceId, occurrenceData] of Object.entries(occurrences)) {
+            const occurrenceIdNumber = Number(occurrenceId);
             const studentsMap: Map<number, Map<string, boolean>> = new Map();
 
-            for (const [studentId, studentData] of Object.entries(classData.students)) {
+            for (const [studentId, studentData] of Object.entries(occurrenceData.students)) {
                 const studentIdNumber = Number(studentId);
                 const statusMap: Map<string, boolean> = new Map();
                 statusMap.set('isCheckedIn', true);
@@ -62,26 +63,26 @@ const ConfirmationDetails = ({
                 studentsMap.set(studentIdNumber, statusMap);
             }
 
-            confirmationMap.set(classIdNumber, studentsMap);
+            confirmationMap.set(occurrenceIdNumber, studentsMap);
         }
         setConfirmation(confirmationMap);
     };
 
-    const toggleCheckIn = (classId: number, studentId: number) => {
+    const toggleCheckIn = (occurrenceId: number, studentId: number) => {
         setConfirmation(prevConfirmation => {
             const newConfirmation = new Map(prevConfirmation);
-            const prevValue = newConfirmation.get(classId)?.get(studentId)?.get('isCheckedIn');
-            newConfirmation.get(classId)?.get(studentId)?.set('isCheckedIn', !prevValue);
+            const prevValue = newConfirmation.get(occurrenceId)?.get(studentId)?.get('isCheckedIn');
+            newConfirmation.get(occurrenceId)?.get(studentId)?.set('isCheckedIn', !prevValue);
 
             return newConfirmation;
         });
     };
 
-    const toggleShowUp = (classId: number, studentId: number) => {
+    const toggleShowUp = (occurrenceId: number, studentId: number) => {
         setConfirmation(prevConfirmation => {
             const newConfirmation = new Map(prevConfirmation);
-            const prevValue = newConfirmation.get(classId)?.get(studentId)?.get('isShowedUp');
-            newConfirmation.get(classId)?.get(studentId)?.set('isShowedUp', !prevValue);
+            const prevValue = newConfirmation.get(occurrenceId)?.get(studentId)?.get('isShowedUp');
+            newConfirmation.get(occurrenceId)?.get(studentId)?.set('isShowedUp', !prevValue);
 
             return newConfirmation;
         });
@@ -90,14 +91,14 @@ const ConfirmationDetails = ({
     const getConfirmationList = () => {
         const confirmationMap: Map<number, Map<number, boolean>> = new Map();
 
-        for (const [classId, classData] of confirmation) {
-            for (const [studentId, studentData] of classData) {
+        for (const [occurrenceId, occurrenceData] of confirmation) {
+            for (const [studentId, studentData] of occurrenceData) {
                 if (studentData.get('isCheckedIn') === true) {
                     if (confirmationMap.has(studentId)) {
-                        confirmationMap.get(studentId)?.set(classId, studentData.get('isShowedUp') ?? true)
+                        confirmationMap.get(studentId)?.set(occurrenceId, studentData.get('isShowedUp') ?? true)
                     } else {
                         const statusMap: Map<number, boolean> = new Map();
-                        statusMap.set(classId, studentData.get('isShowedUp') ?? true);
+                        statusMap.set(occurrenceId, studentData.get('isShowedUp') ?? true);
                         confirmationMap.set(studentId, statusMap);
                     }
                 }
@@ -111,10 +112,10 @@ const ConfirmationDetails = ({
         return confirmationList;
     };
 
-    const sendConfirmation = async () => {
+    const sendConfirmation = async () => { // TODO: move to parent component?
         const data = {
             'confirmationList': getConfirmationList(),
-            'date': date
+            'date': date // TODO: have as a param?
         };
 
         console.log('Data is ' + JSON.stringify(data));
@@ -139,7 +140,7 @@ const ConfirmationDetails = ({
            console.log('sendConfirmation function. Confirmation was sent successfully!');
 
            const responseData = await response.json();
-           if (
+           if ( // TODO: have validation function
                typeof responseData === 'object' &&
                responseData !== null &&
                'message' in responseData &&
@@ -160,15 +161,15 @@ const ConfirmationDetails = ({
             <View style={[styles.contentContainer, styles.bigFlex]}>
             <ScreenTitle titleText={date}></ScreenTitle>
                 <FlatList
-                    data={Object.entries(classes)}
-                    keyExtractor={([classId, _classInfo]) => classId.toString()}
+                    data={Object.entries(occurrences)}
+                    keyExtractor={([occurrenceId, _occurrenceInfo]) => occurrenceId.toString()}
                     renderItem={( {item} ) => {
-                        const [classId, classInfo] = item;
+                        const [occurrenceId, occurrenceInfo] = item;
                         return (
                             <View>
                                 <ClassName
-                                    id={Number(classId)}
-                                    name={classInfo.name}
+                                    id={Number(occurrenceId)}
+                                    name={`${occurrenceInfo.name} - ${occurrenceInfo.time.slice(0, 5)}`}
                                 />
                                 <View style={styles.spaceBetweenRow}>
                                     <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
@@ -180,7 +181,7 @@ const ConfirmationDetails = ({
                                 </View>
 
                                 <FlatList
-                                    data={Object.entries(classInfo.students)}
+                                    data={Object.entries(occurrenceInfo.students)}
                                     keyExtractor={([studentId, _studentInfo]) => studentId.toString()}
                                     renderItem={({ item }) => {
                                         const [studentId, studentInfo] = item;
@@ -189,14 +190,14 @@ const ConfirmationDetails = ({
                                             <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                                 <Checkbox
                                                     label={studentName}
-                                                    checked={confirmation.get(Number(classId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
-                                                    onChange={()=>{toggleCheckIn(Number(classId), Number(studentId))}}
+                                                    checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
+                                                    onChange={()=>{toggleCheckIn(Number(occurrenceId), Number(studentId))}}
                                                     labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                                 />
                                                 <Checkbox
                                                     label=''
-                                                    checked={confirmation.get(Number(classId))?.get(Number(studentId))?.get('isShowedUp') ?? true}
-                                                    onChange={()=>{toggleShowUp(Number(classId), Number(studentId))}}
+                                                    checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isShowedUp') ?? true}
+                                                    onChange={()=>{toggleShowUp(Number(occurrenceId), Number(studentId))}}
                                                     labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                                                 />
                                             </View>

@@ -4,11 +4,6 @@ import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorSchem
 
 import ConfirmationDetails from './ConfirmationDetails';
 
-type ClassType = {
-    id: number;
-    name: string;
-};
-
 // {"date": "2025-04-03", 
 //  "classes": 
 //      {"1": 
@@ -37,6 +32,7 @@ type AttendanceStudentType = {
 
 type AttendanceClassType = {
     name: string;
+    time: string;
     students: {
         [studentId: string]: AttendanceStudentType;
     }
@@ -44,8 +40,8 @@ type AttendanceClassType = {
 
 type AttendanceType = {
     date: string;
-    classes: {
-        [classId: string]: AttendanceClassType;
+    occurrences: {
+        [occurrenceId: string]: AttendanceClassType;
     }
 }
 
@@ -77,7 +73,7 @@ const ConfirmationList = () => {
                         const dataAttendanceList: AttendanceType[] = responseData.response;
                         const fetchedAttendances = dataAttendanceList.map(att => ({
                             date: att.date,
-                            classes: att.classes
+                            occurrences: att.occurrences,
                         }));
 
                         setAttendances(fetchedAttendances);
@@ -100,7 +96,7 @@ const ConfirmationList = () => {
                 <FlatList
                     data={attendances}
                     keyExtractor={att => att.date.toString()}
-                    renderItem={({ item: att }) => <ConfirmationDetails date={att.date} classes={att.classes}/>}
+                    renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
                 />
         </SafeAreaView>
     );
