@@ -24,7 +24,7 @@ type AttendanceClassType = {
 type AttendanceType = {
     date: string;
     occurrences: {
-        [classId: string]: AttendanceClassType;
+        [occurrenceId: string]: AttendanceClassType;
     }
 }
 
@@ -223,21 +223,21 @@ const Attendance = () => {
     const countAttendences = (attendanceList: AttendanceType[]) => {
         const reportMap: Map<number, ClassAttendanceCountType> = new Map();
         attendanceList.forEach(att => {
-            const classes = att.occurrences;
+            const occurrences = att.occurrences;
 
-            Object.entries(classes).forEach(([classId, classInfo]) => {
-                const classIdNum = Number(classInfo.class_id)
+            Object.entries(occurrences).forEach(([occurrenceId, occurrenceInfo]) => {
+                const classIdNum = Number(occurrenceInfo.class_id)
 
                 if (!reportMap.has(classIdNum)) {
                     reportMap.set(classIdNum, {
-                        name: classInfo.name,
+                        name: occurrenceInfo.name,
                         students: new Map<number, StudentAttendanceCountType>(),
                     });
                 }
 
                 const reportClassId = reportMap.get(classIdNum);
 
-                Object.entries(classInfo.students).forEach(([studentId, studentInfo]) => {
+                Object.entries(occurrenceInfo.students).forEach(([studentId, studentInfo]) => {
                     const studentIdNum = Number(studentId);
 
                     if (!reportClassId?.students.has(studentIdNum)) {
