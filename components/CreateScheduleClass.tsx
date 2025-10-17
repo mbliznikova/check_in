@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, ScrollView } from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
+import Checkbox from './Checkbox';
 
 
 type ClassCreationModalProps = {
@@ -42,6 +43,7 @@ const CreateScheduleClass = ({
 
     const [className, setClassName] = useState("");
     const [newClassDuration, setNewClassDuration] = useState(defaultClassDuration);
+    const [isRecurring, setIsRecurring] = useState(false);
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -295,6 +297,20 @@ const CreateScheduleClass = ({
                             setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
                         }}
                     ></TextInput>
+                </View>
+
+                <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between', alignSelf: 'center'}]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, ]}
+                        >
+                            Is recurring?
+                    </Text>
+                    <Checkbox
+                        label=''
+                        checked={isRecurring}
+                        onChange={() => {setIsRecurring(!isRecurring)}}
+                        labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                    />
                 </View>
 
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
