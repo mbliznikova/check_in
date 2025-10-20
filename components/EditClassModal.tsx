@@ -63,6 +63,63 @@ const EditClassModal = ({
         );
     };
 
+    // TODO: should I delete occurences when making class recurrent?
+    const renderConfirmationToRecurrent = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Make this class recurrent?
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {}} // TODO: remove occurrences?
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
+    const renderConfirmationToNonRecurrent = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Make this class non-recurrent? All schedules will be deleted.
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {}}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={onModalClose}
+                        >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     const renderEditForm = () => {
         return (
             <View style={styles.modalContainer}>
@@ -119,6 +176,7 @@ const EditClassModal = ({
                                     console.log('No changes made');
                                     return;
                                 } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration || newClassRecurrence !== oldClassRecurrence)) {
+                                    // TODO: add ability to edit only duration or recurrence
                                     onClassUniquenessCheck(newClassName) ? onEditClass(newClassName, newClassDuration, newClassRecurrence) : alert('Class with such name already exists');
                                 }
                                 setNewClassName("");
