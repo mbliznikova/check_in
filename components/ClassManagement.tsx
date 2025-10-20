@@ -61,14 +61,15 @@ const ClassManagement = () => {
         );
     };
 
-    const isValidCreateResponse = (responseData: any, className: string, classDuration: number): boolean => {
+    const isValidCreateResponse = (responseData: any, className: string, classDuration: number, isRecurring: boolean): boolean => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
             'message' in responseData && responseData.message === 'Class was created successfully' &&
             'id' in responseData &&
             'name' in responseData && responseData.name === className &&
-            'durationMinutes' in responseData && responseData.durationMinutes === classDuration
+            'durationMinutes' in responseData && responseData.durationMinutes === classDuration &&
+            'isRecurring' in responseData && responseData.isRecurring === isRecurring
         );
     };
 
@@ -297,11 +298,12 @@ const ClassManagement = () => {
         }
     };
 
-    const createClass = async (className: string, classDuration: number = 60) => {
+    const createClass = async (className: string, classDuration: number = 60, isRecurring: boolean = true) => {
         // TODO: sanitize input
         const data = {
             "name": className,
             "durationMinutes": classDuration,
+            "isRecurring": isRecurring,
         };
 
         try {
@@ -327,7 +329,7 @@ const ClassManagement = () => {
 
                 const responseData = await response.json();
 
-                if (isValidCreateResponse(responseData, className, classDuration)) {
+                if (isValidCreateResponse(responseData, className, classDuration, isRecurring)) {
                     console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`);
 
                     const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes};
