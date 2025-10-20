@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
 
+import Checkbox from './Checkbox';
 import ScreenTitle from "./ScreenTitle";
 import React from 'react';
 
@@ -28,6 +29,7 @@ const EditClassModal = ({
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
+    const [isRecurring, setIsRecurring] = useState(false);
 
     const ifNoChanges = (): boolean => {
         return (
@@ -91,6 +93,20 @@ const EditClassModal = ({
                                 setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
                             }}
                         ></TextInput>
+                    </View>
+
+                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between', alignSelf: 'center'}]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, ]}
+                            >
+                                Is recurring?
+                        </Text>
+                        <Checkbox
+                            label=''
+                            checked={isRecurring}
+                            onChange={() => {setIsRecurring(!isRecurring)}}
+                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                        />
                     </View>
 
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
