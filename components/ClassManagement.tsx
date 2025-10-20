@@ -133,8 +133,12 @@ const ClassManagement = () => {
         setClasses(updatedClasses);
     };
 
-    const updateClassName = (targetClassId: number, newName: string, newDuration: number) => {
-        setClasses(prevClasses => prevClasses.map(cls => cls.id === targetClassId ? {...cls, name: newName, durationMinutes: newDuration} : cls));
+    const updateClassName = (targetClassId: number, newName: string, newDuration: number, newRecurrence: boolean) => {
+        setClasses(
+            prevClasses => prevClasses.map(
+                cls => cls.id === targetClassId ? {...cls, name: newName, durationMinutes: newDuration, isRecurring: newRecurrence} : cls
+            )
+        );
     };
 
     const removeScheduleFromState = (targetScheduleId: number, day: number) => {
@@ -219,17 +223,19 @@ const ClassManagement = () => {
         return !schedulesSet.has(scheduleToCheck);
     };
 
-    const getChangesFromClassEdit = (newName: string, newDuration: number) => {
-        const dataToUpdate: Record<string, string | number> = {};
+    const getChangesFromClassEdit = (newName: string, newDuration: number, newRecurrence: boolean) => {
+        const dataToUpdate: Record<string, string | number | boolean> = {};
 
         const currentClassState = {
             'name': selectedClassName,
             'durationMinutes': selectedClassDuration,
+            'isRecurring': selectedClassRecurrence,
         };
 
         const newClassState = {
             'name': newName,
             'durationMinutes': newDuration,
+            'isRecurring': newRecurrence,
         };
 
         for (const key in newClassState) {
@@ -403,13 +409,13 @@ const ClassManagement = () => {
     };
 
     // TODO: should I rather have classId and className as parameters, not call state vars inside the function?
-    const editClass = async (newClassName: string, newClassDuration: number) => {
+    const editClass = async (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => {
         if (selectedClassId === null || selectedClassName === null) {
             console.warn("No class selected to edit");
             return null;
         }
 
-        const data = getChangesFromClassEdit(newClassName, newClassDuration);
+        const data = getChangesFromClassEdit(newClassName, newClassDuration, newClassRecurrence);
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/edit/`,
@@ -434,13 +440,15 @@ const ClassManagement = () => {
 
             setIsEditSuccessful(true);
 
-            updateClassName(selectedClassId, newClassName, newClassDuration);
+            updateClassName(selectedClassId, newClassName, newClassDuration, newClassRecurrence);
             setSelectedClassDuration(newClassDuration);
+            setSelectedClassRecurrence(newClassRecurrence);
             addClassToUniqueness(newClassName);
 
             // TODO: have state vars reset at modal close?
             setSelectedClassId(null);
             setSelectedClassName("");
+            // setSelectedClassRecurrence(true); // TODO: how to handle better?
 
         } else {
             console.warn(`Function editClass. Request was unsuccessful: ${response.status, response.statusText}`);

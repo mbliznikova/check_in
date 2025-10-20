@@ -11,7 +11,7 @@ type EditClassModalProps = {
     oldClassDuration: number | null;
     oldClassRecurrence: boolean;
     onModalClose: () => void;
-    onEditClass: (newClassName: string, newClassDuration: number) => void;
+    onEditClass: (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => void;
     onClassUniquenessCheck: (name: string) => boolean;
     isSuccess: boolean;
 };
@@ -31,12 +31,13 @@ const EditClassModal = ({
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
-    const [isRecurring, setIsRecurring] = useState(oldClassRecurrence);
+    const [newClassRecurrence, setNewClassRecurrence] = useState(oldClassRecurrence);
 
     const ifNoChanges = (): boolean => {
         return (
             oldClassName === newClassName &&
-            oldClassDuration === newClassDuration
+            oldClassDuration === newClassDuration &&
+            oldClassRecurrence === newClassRecurrence
         );
     };
 
@@ -105,8 +106,8 @@ const EditClassModal = ({
                         </Text>
                         <Checkbox
                             label=''
-                            checked={isRecurring}
-                            onChange={() => {setIsRecurring(!isRecurring)}}
+                            checked={newClassRecurrence}
+                            onChange={() => {setNewClassRecurrence(!newClassRecurrence)}}
                             labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                         />
                     </View>
@@ -117,8 +118,8 @@ const EditClassModal = ({
                                 if (ifNoChanges()) {
                                     console.log('No changes made');
                                     return;
-                                } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration)) {
-                                    onClassUniquenessCheck(newClassName) ? onEditClass(newClassName, newClassDuration) : alert('Class with such name already exists');
+                                } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration || newClassRecurrence !== oldClassRecurrence)) {
+                                    onClassUniquenessCheck(newClassName) ? onEditClass(newClassName, newClassDuration, newClassRecurrence) : alert('Class with such name already exists');
                                 }
                                 setNewClassName("");
                             }}
