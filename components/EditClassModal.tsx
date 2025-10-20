@@ -9,6 +9,7 @@ type EditClassModalProps = {
     isVisible: boolean;
     oldClassName: string;
     oldClassDuration: number | null;
+    oldClassRecurrence: boolean;
     onModalClose: () => void;
     onEditClass: (newClassName: string, newClassDuration: number) => void;
     onClassUniquenessCheck: (name: string) => boolean;
@@ -19,6 +20,7 @@ const EditClassModal = ({
     isVisible = false,
     oldClassName,
     oldClassDuration,
+    oldClassRecurrence,
     onModalClose,
     onEditClass,
     onClassUniquenessCheck,
@@ -29,7 +31,7 @@ const EditClassModal = ({
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
-    const [isRecurring, setIsRecurring] = useState(false);
+    const [isRecurring, setIsRecurring] = useState(oldClassRecurrence);
 
     const ifNoChanges = (): boolean => {
         return (

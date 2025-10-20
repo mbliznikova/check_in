@@ -13,6 +13,7 @@ type ClassType = {
     id: number;
     name: string;
     durationMinutes: number;
+    isRecurring: boolean;
 };
 
 type ScheduleType = {
@@ -32,6 +33,7 @@ const ClassManagement = () => {
     const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
     const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
     const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
+    const [selectedClassRecurrence, setSelectedClassRecurrence] = useState<boolean>(true);
 
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -332,7 +334,7 @@ const ClassManagement = () => {
                 if (isValidCreateResponse(responseData, className, classDuration, isRecurring)) {
                     console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`);
 
-                    const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes};
+                    const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes, isRecurring: responseData.isRecurring};
 
                     setIsCreateSuccessful(true);
                     setCreatedClassId(responseData.id);
@@ -645,6 +647,7 @@ const ClassManagement = () => {
                                 onPress={() => {
                                     setSelectedClassId(cls.id);
                                     setSelectedClassName(cls.name);
+                                    setSelectedClassRecurrence(cls.isRecurring);
                                     setSelectedClassDuration(cls.durationMinutes);
                                     setIsEditModalVisible(true);
                                 }}>
@@ -730,6 +733,7 @@ const ClassManagement = () => {
                 onClassUniquenessCheck={checkIfClassUnique}
                 oldClassName={selectedClassName ?? ""}
                 oldClassDuration={selectedClassDuration}
+                oldClassRecurrence={selectedClassRecurrence}
                 isSuccess={isEditSuccessful}
             />
         );
