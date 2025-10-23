@@ -61,6 +61,7 @@ const ClassManagement = () => {
     const [isCreateClassError, setIsCreateClassError] = useState(false);
 
     const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map()); // dayId: [scheduleID, time]
+    const [currentClassOccurrenceMap, setCurrentClassOccurrenceMap] = useState<Map<string, [number, string][]>>(new Map()); // date: [occurrenceID, time]
 
     const [createdClassId, setCreatedClassId] = useState<number | null>(null);
 
@@ -225,6 +226,25 @@ const ClassManagement = () => {
         const newClassSet = new Set(classesSet);
         newClassSet.add(name);
         console.log(`Added ${name} to class uniqueness`);
+    };
+
+    const addClassOccurrenceToState = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
+        console.log(`Adding class occurrence with id ${occurrenceId} for: day ${plannedDate}, time ${plannedTime}`);
+
+        const dayOccurrences = currentClassOccurrenceMap.get(plannedDate);
+        console.log(`Current occurrence data for ${plannedDate} is: ${dayOccurrences}`);
+
+        const updatedOccurences = new Map(currentClassOccurrenceMap);
+
+        if (!dayOccurrences) {
+            updatedOccurences.set(plannedDate, [[occurrenceId, plannedTime]]);
+        } else {
+            updatedOccurences.get(plannedDate)?.push([occurrenceId, plannedTime]);
+        };
+
+        console.log(`Occurrence data with added occurence: ${updatedOccurences}`);
+
+        setCurrentClassOccurrenceMap(updatedOccurences);
     };
 
     const removeClassFromUniqueness = (name: string) => { // TODO: WHY NOT USED?
@@ -669,6 +689,8 @@ const ClassManagement = () => {
                 const occurrenceId = responseData.occurrenceId;
 
                 setIsOccurrenceSuccessful(true);
+
+                addClassOccurrenceToState(occurrenceId, plannedDate, plannedTime)
 
                 // addScheduleToState(scheduleId, dayId, time); // TODO: add functions for occurrence accordingly
                 // addScheduleToUniqueness(dayId, time);
