@@ -6,6 +6,7 @@ import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
+import ClassOccurrenceModal from "./ClassOccurrencesModal";
 import ClassName from "./ClassName";
 
 
@@ -21,6 +22,16 @@ type ScheduleType = {
     classTime: string,
     classModel: number,
     day: number,
+};
+
+type ClassOccurrenceType = {
+    id: number;
+    classId: number;
+    fallbackClassName: string;
+    plannedDate: string;
+    plannedStartTime: string;
+    plannedDuration: string;
+    notes: string;
 };
 
 const ClassManagement = () => {
@@ -39,11 +50,13 @@ const ClassManagement = () => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
+    const [isOccurrencesModalVisible, setIsOccurrencesModalVisible] = useState(false);
 
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
+    const [isOccurrenceSuccessful, setIsOccurrenceSuccessful] = useState(false);
 
     const [isCreateClassError, setIsCreateClassError] = useState(false);
 
@@ -86,6 +99,29 @@ const ClassManagement = () => {
             'className' in responseData && responseData.className === className &&
             'day'  in responseData && responseData.day === dayName &&
             'time' in responseData // TODO: handle the time from response better
+        );
+    };
+
+    const isValidCreateOccurrenceResponse = (
+        responseData: any,
+        className: string,
+        plannedDate: string,
+        plannedStartTime: string,
+        plannedDuration: number = 60,
+        classId?: number,
+        notes?: string,
+    ) => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Class occurrence was created successfully' &&
+            'occurrenceId' in responseData &&
+            'fallbackClassName' in responseData && responseData.fallbackClassName === className &&
+            'plannedDate' in responseData && responseData.plannedDate === plannedDate &&
+            'plannedStartTime' in responseData && responseData.plannedStartTime === plannedStartTime &&
+            'plannedDuration' in responseData && responseData.plannedDuration === plannedDuration &&
+            ('classId' === undefined || ('classId' in responseData && responseData.classId === classId)) &&
+            ((responseData.notes || '') === (notes || ''))
         );
     };
 
@@ -191,7 +227,7 @@ const ClassManagement = () => {
         console.log(`Added ${name} to class uniqueness`);
     };
 
-    const removeClassFromUniqueness = (name: string) => {
+    const removeClassFromUniqueness = (name: string) => { // TODO: WHY NOT USED?
         const newClassSet = new Set(classesSet);
         newClassSet.delete(name);
         console.log(`Removed ${name} from class uniqueness`);
@@ -582,7 +618,70 @@ const ClassManagement = () => {
         return slots;
     };
 
-    useEffect(() => {
+    const createClassOccurrence = async (
+        className: string,
+        plannedDate: string,
+        plannedTime: string,
+        duration: number = 60,
+        classId?: number,
+        scheduleId?: number,
+        notes?: string) => {
+            // onCreateOccurrence: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
+            // TODO: add validation here?
+            const data = {
+                "fallbackClassName": className,
+                "plannedDate": plannedDate,
+                "plannedStartTime": plannedTime,
+                "plannedDuration": duration,
+                "classModel": classId,
+                "schedule": scheduleId,
+                "notes": notes,
+            };
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/class_occurrences/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function createClassOccurrence. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Class occurrence was created successfully!');
+
+                const responseData = await response.json();
+
+                if (isValidCreateOccurrenceResponse(responseData, className, plannedDate, plannedTime, duration, classId, notes)
+                ) {
+                    console.log(`Function createClassOccurrence. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                } else {
+                    console.log(`Function createClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+
+                const occurrenceId = responseData.occurrenceId;
+
+                setIsOccurrenceSuccessful(true);
+
+                // addScheduleToState(scheduleId, dayId, time); // TODO: add functions for occurrence accordingly
+                // addScheduleToUniqueness(dayId, time);
+
+                setSelectedClassId(null);
+                setSelectedClassName("");
+            }
+        } catch(error) {
+            console.error(`Error while sending the data to the server when creating class occurrence: ${error}`);
+        }
+        };
+
+        useEffect(() => {
         fetchClasses();
         fetchSchedules();
     },
@@ -651,6 +750,16 @@ const ClassManagement = () => {
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
+                            <Pressable
+                                onPress={() => {
+                                    setSelectedClassId(cls.id);
+                                    setSelectedClassName(cls.name);
+                                    setSelectedClassRecurrence(cls.isRecurring);
+                                    setSelectedClassDuration(cls.durationMinutes);
+                                    setIsOccurrencesModalVisible(true);
+                                }}>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>See occurrences</Text>
+                            </Pressable>
                             <Pressable
                                 onPress={() => {
                                     setSelectedClassId(cls.id);
@@ -768,6 +877,29 @@ const ClassManagement = () => {
                 className={selectedClassName}
                 classDuration={selectedClassDuration}
                 isSheduleSuccess={isScheduleSuccessful}
+            />
+        );
+    };
+
+    const renderClassOccurrencesModal = () => {
+        if (!isOccurrencesModalVisible) {
+            return null
+        }
+        return (
+            <ClassOccurrenceModal
+                isVisible={isOccurrencesModalVisible}
+                onModalClose={() => {
+                    setIsOccurrencesModalVisible(false)
+                    // TODO: have state vars for success and and current class occurrence
+                }}
+                onRequestingTimeSlots={fetchAvailableTimeSlots}
+                onCreateOccurrence={createClassOccurrence}
+                onUniquenessCheck={checkIfScheduleUnique} // TODO: check if occurrence unique? new function or combine with the previous one?
+                scheduleData={currentClassScheduleMap} // TODO: have occurrence data?
+                classId={selectedClassId}
+                className={selectedClassName}
+                classDuration={selectedClassDuration}
+                isCreateOccurrenceSuccess={isOccurrenceSuccessful}
             />
         );
     };
