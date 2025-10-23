@@ -68,6 +68,8 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
+    const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
+
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
             typeof responseData === 'object' &&
@@ -267,6 +269,22 @@ const ClassManagement = () => {
         console.log(`Removed ${day}-${time.slice(0, 5)} from schedule uniqueness`);
 
         setSchedulesSet(newSchedulesSet);
+    };
+
+    const addOccurrenceToUniqueness = (date: string, time: string) => {
+        const newOccurrencesSet = new Set(occurrencesSet);
+        newOccurrencesSet.add(`${date}-${time.slice(0, 5)}`)
+        console.log(`Added ${date}-${time.slice(0, 5)} to occurrence uniqueness`);
+
+        setOccurrencesSet(newOccurrencesSet);
+    };
+
+    const removeOccurrenceToUniqueness = (date: string, time: string) => {
+        const newOccurrencesSet = new Set(occurrencesSet);
+        newOccurrencesSet.delete(`${date}-${time.slice(0, 5)}`)
+        console.log(`Removed ${date}-${time.slice(0, 5)} from occurrence uniqueness`);
+
+        setOccurrencesSet(newOccurrencesSet);
     };
 
     const checkIfClassUnique = (name: string): boolean => {
@@ -691,9 +709,7 @@ const ClassManagement = () => {
                 setIsOccurrenceSuccessful(true);
 
                 addClassOccurrenceToState(occurrenceId, plannedDate, plannedTime)
-
-                // addScheduleToState(scheduleId, dayId, time); // TODO: add functions for occurrence accordingly
-                // addScheduleToUniqueness(dayId, time);
+                addOccurrenceToUniqueness(plannedDate, plannedTime);
 
                 setSelectedClassId(null);
                 setSelectedClassName("");
