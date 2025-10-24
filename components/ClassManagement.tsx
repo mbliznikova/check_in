@@ -245,7 +245,7 @@ const ClassManagement = () => {
             updatedOccurences.get(plannedDate)?.push([occurrenceId, plannedTime]);
         };
 
-        console.log(`Occurrence data with added occurence: ${updatedOccurences}`);
+        console.log(`Occurrence data with added occurrence: ${updatedOccurences}`);
 
         setCurrentClassOccurrenceMap(updatedOccurences);
     };
@@ -872,6 +872,7 @@ const ClassManagement = () => {
                                     setSelectedClassName(cls.name);
                                     setSelectedClassRecurrence(cls.isRecurring);
                                     setSelectedClassDuration(cls.durationMinutes);
+                                    fetchClassOccurrences(cls.id);
                                     setIsOccurrencesModalVisible(true);
                                 }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>See occurrences</Text>
@@ -1010,8 +1011,8 @@ const ClassManagement = () => {
                 }}
                 onRequestingTimeSlots={fetchAvailableTimeSlots}
                 onCreateOccurrence={createClassOccurrence}
-                onUniquenessCheck={checkIfScheduleUnique} // TODO: check if occurrence unique? new function or combine with the previous one?
-                scheduleData={currentClassScheduleMap} // TODO: have occurrence data?
+                onUniquenessCheck={checkIfOccurrenceUnique} // TODO: check if occurrence unique? new function or combine with the previous one?
+                occurrenceData={currentClassOccurrenceMap} // TODO: have occurrence data?
                 classId={selectedClassId}
                 className={selectedClassName}
                 classDuration={selectedClassDuration}
@@ -1029,6 +1030,7 @@ const ClassManagement = () => {
             {renderCreateClassModal()}
             {renderEditClassModal()}
             {renderScheduleListClassModal()}
+            {renderClassOccurrencesModal()}
         </SafeAreaView>
     );
 };

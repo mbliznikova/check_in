@@ -22,7 +22,7 @@ type ClassSelectionModalProps = {
 
 type ClassOccurrenceType = {
     id: number;
-    classId: number | null;
+    classModel: number | null;
     fallbackClassName: string;
     schedule: string;
     plannedDate: string;

@@ -8,8 +8,8 @@ type ClassOccurrenceModalProps = {
     onModalClose: () => void;
     onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onCreateOccurrence: (className: string, plannedDate: string, plannedTime: string, duration: number, classId?: number, scheduleId?: number, notes?: string) => void;
-    onUniquenessCheck: (dayId: number, time: string) => boolean;
-    scheduleData: Map<number, [number, string][]>;
+    onUniquenessCheck: (date: string, time: string) => boolean;
+    occurrenceData: Map<string, [number, string][]>;
     classId: number | null;
     className: string | null;
     classDuration: number | null;
@@ -22,7 +22,7 @@ const ClassOccurrenceModal = ({
     onRequestingTimeSlots,
     onCreateOccurrence,
     onUniquenessCheck,
-    scheduleData = new Map(),
+    occurrenceData = new Map(),
     classId,
     className,
     classDuration,
@@ -30,15 +30,159 @@ const ClassOccurrenceModal = ({
 }: ClassOccurrenceModalProps) => {
 
     const colorScheme = useColorScheme();
+
+    const renderClassOccurrences = (occurrences: Map<string, [number, string][]>) => {
+        return (
+            <View>
+                {[...occurrences].map(([date, times]) => (
+                    <View
+                        key={date}
+                        style={styles.occurrenceRow}
+                    >
+                        <View style={styles.dateContainer}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>
+                                {date}
+                            </Text>
+                        </View>
+                        {times.map(([occurrenceId, time]) => (
+                            <View
+                                key={occurrenceId}
+                            >
+                                <Pressable
+                                    style={styles.timeButton}
+                                    onPress={() => {
+                                        // TODO: have here onOccurrenceDelete()
+                                    }}
+                                >
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        x
+                                    </Text>
+                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                        {time.slice(0,5)}
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        ))}
+                    </View>
+                ))}
+            </View>
+        );
+    };
+
+    const renderOccurences = () => {
+        return (
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <View style={{padding: 10}}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                {`Occurrences for the class ${className}`}
+                            </Text>
+                        </View>
+
+                        {renderClassOccurrences(occurrenceData)}
+
+                        <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, {alignSelf: 'center'}]}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={onModalClose}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     return (
         <Modal
             visible={isVisible}
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <View></View>
+            {renderOccurences()}
         </Modal>
     );
 };
+
+const styles = StyleSheet.create({
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '50%',
+        height: '40%',
+        backgroundColor: 'black', //TODO: make it adjustable
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalInfo: {
+        padding: 20,
+    },
+    modalButtonsContainer: {
+        flexDirection: 'row',
+        padding: 20,
+        alignItems: 'center',
+        width: '30%',
+    },
+    modalSingleButtonContainer: {
+         justifyContent: 'center',
+    },
+    modalConfirmButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'green',
+    },
+    occurrenceRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        padding: 5,
+    },
+    dateContainer: {
+        width: 150,
+        justifyContent: 'center',
+        marginRight: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        paddingVertical: 3,
+    },
+    dateText: {
+        fontWeight: "bold",
+        padding: 10,
+        paddingHorizontal: 20,
+    },
+    timeButton: {
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        justifyContent: 'center',
+        minWidth: 70,
+        marginHorizontal: 10,
+    },
+    deleteTimeButton: {
+        textAlign: 'right',
+        paddingRight: 5, color: 'red',
+    },
+    timeText: {
+        paddingHorizontal: 10,
+        paddingBottom: 10,
+    },
+    darkColor: {
+        color: 'black',
+    },
+    lightColor: {
+        color: 'white',
+    },
+});
 
 export default ClassOccurrenceModal;
