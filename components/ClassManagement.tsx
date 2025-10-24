@@ -68,6 +68,7 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
+    const [allOccurrencesList, setAllOccurrencesList] = useState<ClassOccurrenceType[]>([]);
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
 
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
@@ -662,6 +663,27 @@ const ClassManagement = () => {
         return slots;
     };
 
+    const fetchAllClassOccurrences = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/class_occurrences/');
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidArrayResponse(responseData, 'response')) {
+                    console.log(`Function fetchAllClassOccurrences. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    const classOccurences = responseData.response;
+                    setAllOccurrencesList(classOccurences);
+                }
+            } else {
+                console.warn(`Function fetchAllClassOccurrences. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching all class occurrences data from the server: ${error}`);
+        }
+    };
+
     const createClassOccurrence = async (
         className: string,
         plannedDate: string,
@@ -728,6 +750,7 @@ const ClassManagement = () => {
         useEffect(() => {
         fetchClasses();
         fetchSchedules();
+        fetchAllClassOccurrences();
     },
     []);
 
@@ -755,6 +778,19 @@ const ClassManagement = () => {
     [allSchedulesList]);
 
     // add useEffect to handle adding the created class to the list?
+
+    useEffect(() => {
+        const occurrencesSetTemp: Set<string> = new Set();
+
+        allOccurrencesList.forEach((occurrence) => {
+            occurrencesSetTemp.add(`${occurrence.plannedDate}-${occurrence.plannedStartTime.slice(0, 5)}`);
+            // TODO: take actualStartDate into account later?
+            // also think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
+        });
+
+        setOccurrencesSet(occurrencesSetTemp);
+    },
+    [allOccurrencesList]);
 
     const renderHeaderRow = () => {
         return (
