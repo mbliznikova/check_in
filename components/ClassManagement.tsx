@@ -280,7 +280,7 @@ const ClassManagement = () => {
         setOccurrencesSet(newOccurrencesSet);
     };
 
-    const removeOccurrenceToUniqueness = (date: string, time: string) => {
+    const removeOccurrenceFromUniqueness = (date: string, time: string) => {
         const newOccurrencesSet = new Set(occurrencesSet);
         newOccurrencesSet.delete(`${date}-${time.slice(0, 5)}`)
         console.log(`Removed ${date}-${time.slice(0, 5)} from occurrence uniqueness`);
@@ -684,6 +684,41 @@ const ClassManagement = () => {
         }
     };
 
+    const fetchClassOccurrences = async (classId: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/?class_id=${classId}`)
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                // TODO: validation for elements of the array?
+                if (isValidArrayResponse(responseData, 'response')) {
+                    console.log(`Function fetchClassOccurrences. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    const occurrences = responseData.response;
+                    const occurrencesMap: Map<string, [number, string][]> = new Map();
+
+                    occurrences.forEach((element: ClassOccurrenceType) => {
+                        if (occurrencesMap.has(element.plannedDate)) {
+                            occurrencesMap.get(element.plannedDate)?.push([element.id, element.plannedStartTime])
+                        } else {
+                            occurrencesMap.set(element.plannedDate, [[element.id, element.plannedStartTime]])
+                        }
+                    });
+
+                    setCurrentClassOccurrenceMap(occurrencesMap);
+                    // TODO: reset setCurrentClassOccurrenceMap in appropriate place?
+
+                } else {
+                    console.warn(`Function fetchClassOccurrences. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function fetchClassOccurrences. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching occurrence data from the server for a class: ${error}`);
+        }
+    };
+
     const createClassOccurrence = async (
         className: string,
         plannedDate: string,
@@ -747,7 +782,8 @@ const ClassManagement = () => {
         }
         };
 
-        useEffect(() => {
+    useEffect(() => {
+        console.log('useEffect triggered');
         fetchClasses();
         fetchSchedules();
         fetchAllClassOccurrences();
