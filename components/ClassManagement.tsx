@@ -297,6 +297,12 @@ const ClassManagement = () => {
         return !schedulesSet.has(scheduleToCheck);
     };
 
+    const checkIfOccurrenceUnique = (date: string, time: string) => {
+        const occurrenceToCheck = `${date}-${time}`;
+
+        return !occurrencesSet.has(occurrenceToCheck);
+    };
+
     const getChangesFromClassEdit = (newName: string, newDuration: number, newRecurrence: boolean) => {
         const dataToUpdate: Record<string, string | number | boolean> = {};
 
