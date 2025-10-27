@@ -33,6 +33,20 @@ const ClassOccurrenceModal = ({
 
     const colorScheme = useColorScheme();
 
+    const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
+
+    const renderAddDateView = () => {
+        return (
+            <View></View>
+        );
+    };
+
+    const renderAddTimeView = () => {
+        return (
+            <View></View>
+        );
+    };
+
     const renderClassOccurrences = (occurrences: Map<string, [number, string][]>) => {
         return (
             <View>
@@ -53,6 +67,7 @@ const ClassOccurrenceModal = ({
                                 <Pressable
                                     style={styles.timeButton}
                                     onPress={() => {
+                                        // TODO: have a functionality to edit the occurrence - cancel class and keep it, rescchedule, etc
                                         onDeleteOccurrence(occurrenceId, className ?? "No name class", date, time);
                                     }}
                                 >
@@ -67,6 +82,20 @@ const ClassOccurrenceModal = ({
                         ))}
                     </View>
                 ))}
+                <View style={styles.occurrenceRow}>
+                    <View style={{position: 'relative'}}>
+                        <Pressable
+                            style={styles.dateContainer}
+                            onPress={() => {
+                                setIsAddOccurrenceOpen(!isAddOccurrenceOpen);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>+ Add occurrence</Text>
+                        </Pressable>
+                        {isAddOccurrenceOpen ? <View style={styles.dropdown}>{renderAddDateView()}</View> : null}
+                        {isAddOccurrenceOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
+                    </View>
+                </View>
             </View>
         );
     };
@@ -178,6 +207,12 @@ const styles = StyleSheet.create({
     timeText: {
         paddingHorizontal: 10,
         paddingBottom: 10,
+    },
+    dropdown: {
+        position: 'absolute',
+        top: '100%',
+        borderWidth: 1,
+        borderRadius: 10,
     },
     darkColor: {
         color: 'black',
