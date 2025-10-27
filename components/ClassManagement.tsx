@@ -148,6 +148,15 @@ const ClassManagement = () => {
         );
     };
 
+    const isValidDeleteOccurrenceResponse = (responseData: any, occurrenceId: number, className: string, date: string, time: string): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time} was delete successfully` &&
+            'occurrenceId' in responseData && responseData.occurrenceId === occurrenceId
+        );
+    };
+
     const isValidEditResponse = (responseData: any, classId: number, className: string, classDuration: number): boolean => {
         return (
             typeof responseData === 'object' &&
@@ -232,7 +241,7 @@ const ClassManagement = () => {
     };
 
     const addClassOccurrenceToState = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
-        console.log(`Adding class occurrence with id ${occurrenceId} for: day ${plannedDate}, time ${plannedTime}`);
+        console.log(`Adding class occurrence with id ${occurrenceId} for: date ${plannedDate}, time ${plannedTime}`);
 
         const dayOccurrences = currentClassOccurrenceMap.get(plannedDate);
         console.log(`Current occurrence data for ${plannedDate} is: ${dayOccurrences}`);
@@ -248,6 +257,32 @@ const ClassManagement = () => {
         console.log(`Occurrence data with added occurrence: ${updatedOccurences}`);
 
         setCurrentClassOccurrenceMap(updatedOccurences);
+    };
+
+    const removeOccurrenceFromState = (targetOccurrenceId: number, plannedDate: string) => {
+        console.log(`Removing class occurrence with id ${targetOccurrenceId} from date ${plannedDate}`);
+
+        const currentOccurrences = currentClassOccurrenceMap.get(plannedDate);
+        console.log(`Current Occurrence data is: ${currentOccurrences}`);
+        if (!currentOccurrences) {
+            console.log(`No such date ${plannedDate} in ${currentClassOccurrenceMap}`);
+            return;
+        }
+
+        const udpatedOccurrences = currentOccurrences.filter(([id]) => id !== targetOccurrenceId);
+
+        console.log(`Updated occurrences are ${udpatedOccurrences}`);
+
+        const updatedMap = new Map(currentClassOccurrenceMap);
+
+        if (udpatedOccurrences.length === 0) {
+            console.log(`No class occurrences for ${plannedDate}`);
+            updatedMap.delete(plannedDate);
+        } else {
+            updatedMap.set(plannedDate, udpatedOccurrences)
+        }
+
+        setCurrentClassOccurrenceMap(updatedMap);
     };
 
     const removeClassFromUniqueness = (name: string) => { // TODO: WHY NOT USED?
@@ -780,7 +815,41 @@ const ClassManagement = () => {
         } catch(error) {
             console.error(`Error while sending the data to the server when creating class occurrence: ${error}`);
         }
-        };
+    };
+
+    const deleteClassOccurrence = async(occurrenceId: number, className: string, date: string, time: string) => {
+        if (occurrenceId === null) {
+            console.warn("No occurrence selected");
+            return null;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/${occurrenceId}/delete/`,
+                {
+                    method: 'DELETE',
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidDeleteOccurrenceResponse(responseData, occurrenceId, className, date, time)) {
+                    console.log(`Function deleteClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    removeOccurrenceFromState(occurrenceId, date)
+                    removeOccurrenceFromUniqueness(date, time);
+
+                } else {
+                    console.warn(`Function deleteClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function deleteClassOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+
+        } catch (error) {
+            console.error(`Error while deleting the class occurrence: ${error}`);
+        }
+    };
 
     useEffect(() => {
         console.log('useEffect triggered');
@@ -1006,13 +1075,15 @@ const ClassManagement = () => {
             <ClassOccurrenceModal
                 isVisible={isOccurrencesModalVisible}
                 onModalClose={() => {
-                    setIsOccurrencesModalVisible(false)
+                    setIsOccurrencesModalVisible(false);
+                    setCurrentClassOccurrenceMap(new Map());
                     // TODO: have state vars for success and and current class occurrence
                 }}
                 onRequestingTimeSlots={fetchAvailableTimeSlots}
                 onCreateOccurrence={createClassOccurrence}
-                onUniquenessCheck={checkIfOccurrenceUnique} // TODO: check if occurrence unique? new function or combine with the previous one?
-                occurrenceData={currentClassOccurrenceMap} // TODO: have occurrence data?
+                onDeleteOccurrence={deleteClassOccurrence}
+                onUniquenessCheck={checkIfOccurrenceUnique}
+                occurrenceData={currentClassOccurrenceMap}
                 classId={selectedClassId}
                 className={selectedClassName}
                 classDuration={selectedClassDuration}

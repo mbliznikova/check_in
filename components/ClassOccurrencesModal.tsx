@@ -8,6 +8,7 @@ type ClassOccurrenceModalProps = {
     onModalClose: () => void;
     onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onCreateOccurrence: (className: string, plannedDate: string, plannedTime: string, duration: number, classId?: number, scheduleId?: number, notes?: string) => void;
+    onDeleteOccurrence: (occurrenceId: number, className: string, date: string, time: string) => void;
     onUniquenessCheck: (date: string, time: string) => boolean;
     occurrenceData: Map<string, [number, string][]>;
     classId: number | null;
@@ -21,6 +22,7 @@ const ClassOccurrenceModal = ({
     onModalClose,
     onRequestingTimeSlots,
     onCreateOccurrence,
+    onDeleteOccurrence,
     onUniquenessCheck,
     occurrenceData = new Map(),
     classId,
@@ -51,7 +53,7 @@ const ClassOccurrenceModal = ({
                                 <Pressable
                                     style={styles.timeButton}
                                     onPress={() => {
-                                        // TODO: have here onOccurrenceDelete()
+                                        onDeleteOccurrence(occurrenceId, className ?? "No name class", date, time);
                                     }}
                                 >
                                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
