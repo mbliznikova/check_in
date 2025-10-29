@@ -122,9 +122,9 @@ const ClassManagement = () => {
             'occurrenceId' in responseData &&
             'fallbackClassName' in responseData && responseData.fallbackClassName === className &&
             'plannedDate' in responseData && responseData.plannedDate === plannedDate &&
-            'plannedStartTime' in responseData && responseData.plannedStartTime === plannedStartTime &&
+            'plannedStartTime' in responseData && responseData.plannedStartTime.slice(0,5) === plannedStartTime && // TODO: handle in BE?
             'plannedDuration' in responseData && responseData.plannedDuration === plannedDuration &&
-            ('classId' === undefined || ('classId' in responseData && responseData.classId === classId)) &&
+            (classId === undefined || ('classId' in responseData && responseData.classId === classId)) &&
             ((responseData.notes || '') === (notes || ''))
         );
     };

@@ -1,6 +1,6 @@
 import * as React from 'react';  
 import { useEffect, useState } from 'react';
-import {View, StyleSheet, Pressable, Button, Text, Modal, useColorScheme, Platform} from 'react-native';
+import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Platform, ScrollView} from 'react-native';
 
 
 type ClassOccurrenceModalProps = {
@@ -35,9 +35,64 @@ const ClassOccurrenceModal = ({
 
     const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
 
+    const [duration, setDuration] = useState<number>(classDuration ?? 60);
+    const [notes, setNotes] = useState<string>('');
+
     const [selectedDate, setSelectedDate] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
     const [selectedTime, setSelectedTime] = useState<string>('');
+
+    const renderAddOccurrenceView = () => {
+        return (
+            <View style={styles.dropdown}>
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                    >
+                        Duration:
+                    </Text>
+                    <TextInput
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
+                        value={duration.toString()}
+                        onChangeText={(durationStr) => {setDuration(Number(durationStr))}}
+                    />
+                </View>
+
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                    >
+                        Notes:
+                    </Text>
+                    <TextInput
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
+                        value={notes}
+                        onChangeText={(noteStr) => {setNotes(noteStr)}}
+                    />
+                </View>
+
+                <View>{renderAddDateView()}</View>
+                <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
+                <View style={[
+                            styles.modalButtonsContainer,
+                            styles.modalSingleButtonContainer,
+                            {alignSelf: 'center'}
+                        ]}>
+                    <Pressable
+                        style={styles.modalConfirmButton}
+                        onPress={() => {
+                            setIsAddOccurrenceOpen(false);
+                            onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
+                            // onRequestingTimeSlots,
+                            // onUniquenessCheck,
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    };
 
     const renderAddDateView = () => {
         if (Platform.OS === 'web') {
@@ -146,8 +201,7 @@ const ClassOccurrenceModal = ({
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>+ Add occurrence</Text>
                         </Pressable>
-                        {isAddOccurrenceOpen ? <View style={styles.dropdown}>{renderAddDateView()}</View> : null}
-                        {isAddOccurrenceOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
+                        {isAddOccurrenceOpen ? (renderAddOccurrenceView()) : null}
                     </View>
                 </View>
             </View>
@@ -193,7 +247,9 @@ const ClassOccurrenceModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            {renderOccurences()}
+            <ScrollView contentContainerStyle={styles.modalInfo}>
+                {renderOccurences()}
+            </ScrollView>
         </Modal>
     );
 };
@@ -232,6 +288,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'green',
+    },
+    itemContainer: {
+        padding: 10,
+        alignItems: 'center',
+    },
+    itemRow: {
+        flexDirection: 'row'
     },
     occurrenceRow: {
         flexDirection: 'row',
@@ -273,6 +336,22 @@ const styles = StyleSheet.create({
         top: '100%',
         borderWidth: 1,
         borderRadius: 10,
+    },
+    shortInputFeld: {
+        height: 30,
+        width: 50,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
+    },
+    longInputFeld: {
+        height: 30,
+        width: 250,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
     },
     hiddenButton: {
         opacity: 0,
