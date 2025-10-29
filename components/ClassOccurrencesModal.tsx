@@ -37,11 +37,12 @@ const ClassOccurrenceModal = ({
 
     const [selectedDate, setSelectedDate] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
+    const [selectedTime, setSelectedTime] = useState<string>('');
 
     const renderAddDateView = () => {
         if (Platform.OS === 'web') {
             return (
-                <View>
+                <View style={{padding: 10}}>
                     {/* @ts-ignore using react-native-web for web date picker */}
                     <input
                         type="date"
@@ -50,7 +51,6 @@ const ClassOccurrenceModal = ({
                             const date = e.target.value;
                             setSelectedDate(date);
                             console.log(`Picked date (web) is: ${date}`);
-                            setIsAddOccurrenceOpen(false);
                         }}
                         style={{
                             padding: 8,
@@ -73,7 +73,24 @@ const ClassOccurrenceModal = ({
     const renderAddTimeView = () => {
         if (Platform.OS === 'web') {
             return (
-                <View></View>
+                <View style={{padding: 10}}>
+                    {/* @ts-ignore using react-native-web for web btime picker */}
+                    <input
+                        type="time"
+                        value={selectedTime}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const time = e.target.value;
+                            setSelectedTime(time);
+                            console.log(`Picked time (web) is: ${time}`);
+                        }}
+                        style={{
+                            padding: 8,
+                            borderRadius: 8,
+                            border: '1px solid grey',
+                            fontSize: 16,
+                        }}
+                    />
+                </View>
             );
         }
 
