@@ -1,6 +1,6 @@
 import * as React from 'react';  
 import { useEffect, useState } from 'react';
-import {View, StyleSheet, Pressable, Button, Text, Modal, useColorScheme} from 'react-native';
+import {View, StyleSheet, Pressable, Button, Text, Modal, useColorScheme, Platform} from 'react-native';
 
 
 type ClassOccurrenceModalProps = {
@@ -35,15 +35,52 @@ const ClassOccurrenceModal = ({
 
     const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
 
+    const [selectedDate, setSelectedDate] = useState<string>(() =>
+        new Date().toISOString().slice(0, 10));
+
     const renderAddDateView = () => {
+        if (Platform.OS === 'web') {
+            return (
+                <View>
+                    {/* @ts-ignore using react-native-web for web date picker */}
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const date = e.target.value;
+                            setSelectedDate(date);
+                            console.log(`Picked date (web) is: ${date}`);
+                            setIsAddOccurrenceOpen(false);
+                        }}
+                        style={{
+                            padding: 8,
+                            borderRadius: 8,
+                            border: '1px solid grey',
+                            fontSize: 16,
+                        }}
+                    />
+                </View>
+            );
+        }
+
         return (
-            <View></View>
+            <View>
+                <Text>Under construction</Text>
+            </View>
         );
     };
 
     const renderAddTimeView = () => {
+        if (Platform.OS === 'web') {
+            return (
+                <View></View>
+            );
+        }
+
         return (
-            <View></View>
+            <View>
+                <Text>Under construction</Text>
+            </View>
         );
     };
 
@@ -113,10 +150,16 @@ const ClassOccurrenceModal = ({
 
                         {renderClassOccurrences(occurrenceData)}
 
-                        <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, {alignSelf: 'center'}]}>
+                        <View style={[
+                                styles.modalButtonsContainer,
+                                styles.modalSingleButtonContainer,
+                                isAddOccurrenceOpen && styles.hiddenButton,
+                                {alignSelf: 'center'}
+                            ]}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={onModalClose}
+                                onPress={isAddOccurrenceOpen ? undefined : onModalClose}
+                                disabled={isAddOccurrenceOpen}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                             </Pressable>
@@ -213,6 +256,11 @@ const styles = StyleSheet.create({
         top: '100%',
         borderWidth: 1,
         borderRadius: 10,
+    },
+    hiddenButton: {
+        opacity: 0,
+        width: 0,
+        overflow: 'hidden',
     },
     darkColor: {
         color: 'black',
