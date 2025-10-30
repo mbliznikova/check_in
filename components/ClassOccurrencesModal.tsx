@@ -81,10 +81,13 @@ const ClassOccurrenceModal = ({
                     <Pressable
                         style={styles.modalConfirmButton}
                         onPress={() => {
-                            setIsAddOccurrenceOpen(false);
-                            onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
-                            // onRequestingTimeSlots,
-                            // onUniquenessCheck,
+                            if (onUniquenessCheck(selectedDate, selectedTime)) {
+                                onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
+                                setIsAddOccurrenceOpen(false);
+                            } else {
+                                alert('Such date and time have been already taken');
+                                console.log(`There is already an occurrence at ${selectedDate} - ${selectedTime}`);
+                            }
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
