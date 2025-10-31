@@ -64,13 +64,13 @@ const ClassOccurrenceModal = ({
             <View>
                 <View style={{padding: 20}}>
                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                        Set the start time assuming the intervals below
+                        {`Set any time from available intervals (for duration ${duration} mins):`}
                     </Text>
                 </View>
-                <View style={{alignItems: 'center'}}>
+                <View style={{alignItems: 'center', padding: 20}}>
                     {intervals.map((interval) => (
-                        <View key={interval}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
+                        <View key={interval} style={{padding: 5}}>
+                            <Text style={{color: 'green'}}>
                                 {`${interval[0]} - ${interval[1]}`}
                             </Text>
                         </View>
@@ -117,9 +117,8 @@ const ClassOccurrenceModal = ({
                         </View>
 
                         <View>{renderAddDateView()}</View>
-                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
-
                         <View>{isIntervalsOpen ? renderAvailableTimeIntervals() : null}</View>
+                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
