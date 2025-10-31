@@ -44,59 +44,68 @@ const ClassOccurrenceModal = ({
 
     const renderAddOccurrenceView = () => {
         return (
-            <View style={styles.dropdown}>
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Duration:
-                    </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
-                        value={duration.toString()}
-                        onChangeText={(durationStr) => {setDuration(Number(durationStr))}}
-                    />
-                </View>
+            <View style={styles.modalContainer}>
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}></View>
+                        <View style={{padding: 20}}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                Add new occurrence for class {className}
+                            </Text>
+                        </View>
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Duration:
+                            </Text>
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
+                                value={duration.toString()}
+                                onChangeText={(durationStr) => {setDuration(Number(durationStr))}}
+                            />
+                        </View>
 
-                <View style={[styles.itemContainer, styles.itemRow]}>
-                    <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
-                    >
-                        Notes:
-                    </Text>
-                    <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
-                        value={notes}
-                        onChangeText={(noteStr) => {setNotes(noteStr)}}
-                    />
-                </View>
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Notes:
+                            </Text>
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
+                                value={notes}
+                                onChangeText={(noteStr) => {setNotes(noteStr)}}
+                            />
+                        </View>
 
-                <View>{renderAddDateView()}</View>
-                <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
-                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
-                    <Pressable
-                        style={styles.modalConfirmButton}
-                        onPress={() => {
-                            if (onUniquenessCheck(selectedDate, selectedTime)) {
-                                onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
-                                setIsAddOccurrenceOpen(false);
-                            } else {
-                                alert('Such date and time have been already taken');
-                                console.log(`There is already an occurrence at ${selectedDate} - ${selectedTime}`);
-                            }
-                        }}
-                    >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
-                    </Pressable>
+                        <View>{renderAddDateView()}</View>
+                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
 
-                    <Pressable
-                        style={styles.modalCancelButton}
-                        onPress={() => {
-                            setIsAddOccurrenceOpen(false);
-                        }}
-                    >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                    </Pressable>
+                        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={() => {
+                                    if (onUniquenessCheck(selectedDate, selectedTime)) {
+                                        onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
+                                        setIsAddOccurrenceOpen(false);
+                                    } else {
+                                        alert('Such date and time have been already taken');
+                                        console.log(`There is already an occurrence at ${selectedDate} - ${selectedTime}`);
+                                    }
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={styles.modalCancelButton}
+                                onPress={() => {
+                                    setIsAddOccurrenceOpen(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                    </View>
                 </View>
             </View>
         );
@@ -204,12 +213,11 @@ const ClassOccurrenceModal = ({
                         <Pressable
                             style={styles.dateContainer}
                             onPress={() => {
-                                setIsAddOccurrenceOpen(!isAddOccurrenceOpen);
+                                setIsAddOccurrenceOpen(true);
                             }}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>+ Add occurrence</Text>
                         </Pressable>
-                        {isAddOccurrenceOpen ? (renderAddOccurrenceView()) : null}
                     </View>
                 </View>
             </View>
@@ -256,7 +264,7 @@ const ClassOccurrenceModal = ({
             onRequestClose={onModalClose}
         >
             <ScrollView contentContainerStyle={styles.modalInfo}>
-                {renderOccurences()}
+                {isAddOccurrenceOpen ? (renderAddOccurrenceView()) : renderOccurences()}
             </ScrollView>
         </Modal>
     );
@@ -292,7 +300,6 @@ const styles = StyleSheet.create({
     modalManyButtonsContainer: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        width: '100%',
     },
     modalConfirmButton: {
         alignItems: 'center',
