@@ -20,7 +20,7 @@ type ClassOccurrenceModalProps = {
 const ClassOccurrenceModal = ({
     isVisible = false,
     onModalClose,
-    onRequestingTimeIntervals: onRequestingTimeSlots,
+    onRequestingTimeIntervals,
     onCreateOccurrence,
     onDeleteOccurrence,
     onUniquenessCheck,
@@ -41,6 +41,18 @@ const ClassOccurrenceModal = ({
     const [selectedDate, setSelectedDate] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
     const [selectedTime, setSelectedTime] = useState<string>('');
+
+    const [intervals, setIntervals] = useState<string[]>([]);
+
+    useEffect(() => {
+        const callIntervals = async() => {
+            const timeIntervals = await onRequestingTimeIntervals(selectedDate, duration);
+            setIntervals(timeIntervals);
+        };
+
+        callIntervals();
+
+    }, [selectedDate]);
 
     const renderAddOccurrenceView = () => {
         return (

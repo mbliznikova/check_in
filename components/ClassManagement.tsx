@@ -686,7 +686,7 @@ const ClassManagement = () => {
         let slots: string[] = [];
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/available_time_slots?day=${dayName}&duration=${classDurationToFit}`)
+            const response = await fetch(`http://127.0.0.1:8000/backend/available_time_slots/?day=${dayName}&duration=${classDurationToFit}`)
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -892,7 +892,6 @@ const ClassManagement = () => {
     };
 
     useEffect(() => {
-        console.log('useEffect triggered');
         fetchClasses();
         fetchSchedules();
         fetchAllClassOccurrences();
@@ -1119,7 +1118,7 @@ const ClassManagement = () => {
                     setCurrentClassOccurrenceMap(new Map());
                     // TODO: have state vars for success and and current class occurrence
                 }}
-                onRequestingTimeIntervals={fetchAvailableTimeSlots}
+                onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
                 onCreateOccurrence={createClassOccurrence}
                 onDeleteOccurrence={deleteClassOccurrence}
                 onUniquenessCheck={checkIfOccurrenceUnique}
