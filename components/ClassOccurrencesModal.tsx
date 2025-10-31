@@ -43,6 +43,7 @@ const ClassOccurrenceModal = ({
     const [selectedTime, setSelectedTime] = useState<string>('');
 
     const [intervals, setIntervals] = useState<string[]>([]);
+    const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
 
     useEffect(() => {
         const callIntervals = async() => {
@@ -53,6 +54,31 @@ const ClassOccurrenceModal = ({
         callIntervals();
 
     }, [selectedDate]);
+
+    useEffect(() => {
+        setIsIntervalsOpen(true);
+    }, [intervals])
+
+    const renderAvailableTimeIntervals = () => {
+        return (
+            <View>
+                <View style={{padding: 20}}>
+                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        Set the start time assuming the intervals below
+                    </Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                    {intervals.map((interval) => (
+                        <View key={interval}>
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>
+                                {`${interval[0]} - ${interval[1]}`}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            </View>
+        );
+    };
 
     const renderAddOccurrenceView = () => {
         return (
@@ -92,6 +118,8 @@ const ClassOccurrenceModal = ({
 
                         <View>{renderAddDateView()}</View>
                         <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
+
+                        <View>{isIntervalsOpen ? renderAvailableTimeIntervals() : null}</View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
