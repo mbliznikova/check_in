@@ -6,7 +6,7 @@ import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Plat
 type ClassOccurrenceModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
+    onRequestingTimeIntervals: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onCreateOccurrence: (className: string, plannedDate: string, plannedTime: string, duration: number, classId?: number, scheduleId?: number, notes?: string) => void;
     onDeleteOccurrence: (occurrenceId: number, className: string, date: string, time: string) => void;
     onUniquenessCheck: (date: string, time: string) => boolean;
@@ -20,7 +20,7 @@ type ClassOccurrenceModalProps = {
 const ClassOccurrenceModal = ({
     isVisible = false,
     onModalClose,
-    onRequestingTimeSlots,
+    onRequestingTimeIntervals: onRequestingTimeSlots,
     onCreateOccurrence,
     onDeleteOccurrence,
     onUniquenessCheck,

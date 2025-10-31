@@ -177,6 +177,15 @@ const ClassManagement = () => {
         );
     };
 
+    const isValidAvailableTimeIntervalsResponse = (responseData: any): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Available time intervals for class occurrence' &&
+            'availableIntervals' in responseData && Array.isArray(responseData.availableIntervals)
+        );
+    };
+
     const removeClass = (targetClassId: number) => {
         const updatedClasses = classes.filter(cls => cls.id != targetClassId);
         setClasses(updatedClasses);
@@ -240,6 +249,7 @@ const ClassManagement = () => {
         console.log(`Added ${name} to class uniqueness`);
     };
 
+    // rename to addOccurrenceToState to keep consistency
     const addClassOccurrenceToState = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
         console.log(`Adding class occurrence with id ${occurrenceId} for: date ${plannedDate}, time ${plannedTime}`);
 
@@ -851,6 +861,36 @@ const ClassManagement = () => {
         }
     };
 
+    const fetchAvailableTimeIntervalsOccurrence = async (date: string, classDurationToFit: number): Promise<string[]> => {
+        if (date === null || classDurationToFit === null) {
+            console.warn("No date or class duration provided");
+            return [];
+        }
+        let intervals: string[] = [];
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/available_occurrence_time/?date=${date}&duration=${classDurationToFit}`);
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidAvailableTimeIntervalsResponse(responseData)) {
+                    console.log(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    intervals = responseData.availableIntervals ?? [];
+                } else {
+                    console.warn(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function fetchAvailableTimeIntervalsOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while fetching available time intervals for class occurrence: ${error}`);
+        }
+
+        return intervals;
+    };
+
     useEffect(() => {
         console.log('useEffect triggered');
         fetchClasses();
@@ -1079,7 +1119,7 @@ const ClassManagement = () => {
                     setCurrentClassOccurrenceMap(new Map());
                     // TODO: have state vars for success and and current class occurrence
                 }}
-                onRequestingTimeSlots={fetchAvailableTimeSlots}
+                onRequestingTimeIntervals={fetchAvailableTimeSlots}
                 onCreateOccurrence={createClassOccurrence}
                 onDeleteOccurrence={deleteClassOccurrence}
                 onUniquenessCheck={checkIfOccurrenceUnique}
