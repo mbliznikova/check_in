@@ -73,11 +73,7 @@ const ClassOccurrenceModal = ({
 
                 <View>{renderAddDateView()}</View>
                 <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
-                <View style={[
-                            styles.modalButtonsContainer,
-                            styles.modalSingleButtonContainer,
-                            {alignSelf: 'center'}
-                        ]}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
                         style={styles.modalConfirmButton}
                         onPress={() => {
@@ -91,6 +87,15 @@ const ClassOccurrenceModal = ({
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
+                    </Pressable>
+
+                    <Pressable
+                        style={styles.modalCancelButton}
+                        onPress={() => {
+                            setIsAddOccurrenceOpen(false);
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                     </Pressable>
                 </View>
             </View>
@@ -284,6 +289,11 @@ const styles = StyleSheet.create({
     modalSingleButtonContainer: {
          justifyContent: 'center',
     },
+    modalManyButtonsContainer: {
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: '100%',
+    },
     modalConfirmButton: {
         alignItems: 'center',
         paddingVertical: 5,
@@ -291,6 +301,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'green',
+    },
+    modalCancelButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'grey',
     },
     itemContainer: {
         padding: 10,
