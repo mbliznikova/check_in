@@ -56,7 +56,7 @@ const ClassManagement = () => {
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
-    const [isOccurrenceSuccessful, setIsOccurrenceSuccessful] = useState(false);
+    const [isCreateOccurrenceSuccessful, setIsCreateOccurrenceSuccessful] = useState(false);
 
     const [isCreateClassError, setIsCreateClassError] = useState(false);
 
@@ -814,7 +814,7 @@ const ClassManagement = () => {
 
                 const occurrenceId = responseData.occurrenceId;
 
-                setIsOccurrenceSuccessful(true);
+                setIsCreateOccurrenceSuccessful(true);
 
                 addClassOccurrenceToState(occurrenceId, plannedDate, plannedTime)
                 addOccurrenceToUniqueness(plannedDate, plannedTime);
@@ -1126,7 +1126,7 @@ const ClassManagement = () => {
                 classId={selectedClassId}
                 className={selectedClassName}
                 classDuration={selectedClassDuration}
-                isCreateOccurrenceSuccess={isOccurrenceSuccessful}
+                isCreateOccurrenceSuccess={isCreateOccurrenceSuccessful}
             />
         );
     };
