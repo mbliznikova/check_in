@@ -33,6 +33,7 @@ const ClassOccurrenceModal = ({
 
     const colorScheme = useColorScheme();
 
+    //TODO: Consistency - create or add for occurrence, not both
     const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
 
     const [duration, setDuration] = useState<number>(classDuration ?? 60);
@@ -44,6 +45,8 @@ const ClassOccurrenceModal = ({
 
     const [intervals, setIntervals] = useState<string[]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
+
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(isCreateOccurrenceSuccess);
 
     useEffect(() => {
         const callIntervals = async() => {
@@ -58,6 +61,10 @@ const ClassOccurrenceModal = ({
     useEffect(() => {
         setIsIntervalsOpen(true);
     }, [intervals])
+
+    useEffect(() => {
+        setIsConfirmationOpen(isCreateOccurrenceSuccess)
+    }, [isCreateOccurrenceSuccess]);
 
     const renderAvailableTimeIntervals = () => {
         return (
@@ -296,6 +303,28 @@ const ClassOccurrenceModal = ({
         );
     };
 
+    const renderSuccessConfirmation = () => {
+        return (
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Class occurrence was created successfully!
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {
+                                setIsConfirmationOpen(false);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+        );
+    };
+
     return (
         <Modal
             visible={isVisible}
@@ -304,6 +333,11 @@ const ClassOccurrenceModal = ({
         >
             <ScrollView contentContainerStyle={styles.modalInfo}>
                 {isAddOccurrenceOpen ? (renderAddOccurrenceView()) : renderOccurences()}
+                {isConfirmationOpen && (
+                    <View style={styles.successOverlay}>
+                        {renderSuccessConfirmation()}
+                    </View>
+                )}
             </ScrollView>
         </Modal>
     );
@@ -424,6 +458,17 @@ const styles = StyleSheet.create({
         opacity: 0,
         width: 0,
         overflow: 'hidden',
+    },
+    successOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 10,
     },
     darkColor: {
         color: 'black',

@@ -1116,7 +1116,7 @@ const ClassManagement = () => {
                 onModalClose={() => {
                     setIsOccurrencesModalVisible(false);
                     setCurrentClassOccurrenceMap(new Map());
-                    // TODO: have state vars for success and and current class occurrence
+                    setIsCreateOccurrenceSuccessful(false);
                 }}
                 onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
                 onCreateOccurrence={createClassOccurrence}
