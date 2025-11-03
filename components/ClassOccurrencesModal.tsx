@@ -91,7 +91,7 @@ const ClassOccurrenceModal = ({
         return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
-                    <View style={styles.modalInfo}></View>
+                    <View style={styles.modalInfo}>
                         <View style={{padding: 20}}>
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                                 Add new occurrence for class {className}
@@ -151,6 +151,7 @@ const ClassOccurrenceModal = ({
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                             </Pressable>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -331,7 +332,7 @@ const ClassOccurrenceModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <ScrollView contentContainerStyle={styles.modalInfo}>
+            <ScrollView contentContainerStyle={[styles.modalInfo, styles.modalContainer]}>
                 {isAddOccurrenceOpen ? (renderAddOccurrenceView()) : renderOccurences()}
                 {isConfirmationOpen && (
                     <View style={styles.successOverlay}>
@@ -365,14 +366,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 20,
         alignItems: 'center',
-        width: '30%',
     },
     modalSingleButtonContainer: {
          justifyContent: 'center',
     },
     modalManyButtonsContainer: {
         justifyContent: 'space-between',
-        flexDirection: 'row',
+        paddingHorizontal: 30,
     },
     modalConfirmButton: {
         alignItems: 'center',
