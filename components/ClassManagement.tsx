@@ -891,6 +891,41 @@ const ClassManagement = () => {
         return intervals;
     };
 
+    const editClassOccurrence = async(
+        occurrenceId: number,
+        actualDate?: string,
+        actualStartTime?: string,
+        actualDuration?: number,
+        isCancelled?: boolean,
+        notes?: string,
+    ) => {
+        if (occurrenceId === null) {
+            console.warn("No occurrence selected");
+            return null;
+        }
+
+        if (actualDate === null && actualStartTime === null && actualDuration === null && isCancelled === null && notes === null) {
+            console.warn("Nothing to edit provided");
+            return null;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/${occurrenceId}/edit/`,
+                {
+                    method: 'PATCH',
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+            } else {
+                console.warn(`Function editClassOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while editing a class occurrence: ${error}`);
+        }
+    };
+
     useEffect(() => {
         fetchClasses();
         fetchSchedules();
