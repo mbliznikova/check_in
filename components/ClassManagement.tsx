@@ -186,6 +186,27 @@ const ClassManagement = () => {
         );
     };
 
+    const isValidEditOccurrenceResponse = (
+        responseData: any,
+        occurrenceId: number,
+        actualDate?: string,
+        actualStartTime?: string,
+        actualDuration?: number,
+        isCancelled?: boolean,
+        notes?: string) => {
+            return (
+                typeof responseData === 'object' &&
+                responseData !== null &&
+                'message' in responseData && responseData.message === 'Class Occurrence was updated successfully' &&
+                'id' in responseData && responseData.id === occurrenceId &&
+                (actualDate === undefined || ('actualDate' in responseData && responseData.actualDate === actualDate)) && 
+                (actualStartTime === undefined || ('actualStartTime' in responseData && responseData.actualStartTime.slice(0,5) === actualStartTime)) &&
+                (actualDuration === undefined || ('actualDuration' in responseData && responseData.actualDuration === actualDuration)) &&
+                (isCancelled === undefined || ('isCancelled' in responseData && responseData.isCancelled === isCancelled)) &&
+                (notes === undefined || ('notes' in responseData && responseData.notes === notes))
+            );
+        };
+
     const removeClass = (targetClassId: number) => {
         const updatedClasses = classes.filter(cls => cls.id != targetClassId);
         setClasses(updatedClasses);
@@ -904,8 +925,16 @@ const ClassManagement = () => {
             return null;
         }
 
-        if (actualDate === null && actualStartTime === null && actualDuration === null && isCancelled === null && notes === null) {
-            console.warn("Nothing to edit provided");
+        const data: any = {}
+
+        if (actualDate !== undefined) data.actualDate = actualDate;
+        if (actualStartTime !== undefined) data.actualStartTime = actualStartTime;
+        if (actualDuration !== undefined) data.actualDuration = actualDuration;
+        if (isCancelled !== undefined) data.isCancelled = isCancelled;
+        if (notes !== undefined) data.notes = notes;
+
+        if (Object.keys(data).length === 0) {
+            console.warn("Function editClassOccurrence. Nothing to edit provided");
             return null;
         }
 
@@ -913,11 +942,22 @@ const ClassManagement = () => {
             const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/${occurrenceId}/edit/`,
                 {
                     method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
                 }
             );
 
             if (response.ok) {
                 const responseData = await response.json();
+
+                if (isValidEditOccurrenceResponse(responseData, occurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes)) {
+                    console.log(`Function editClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                } else {
+                    console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
             } else {
                 console.warn(`Function editClassOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
             }
