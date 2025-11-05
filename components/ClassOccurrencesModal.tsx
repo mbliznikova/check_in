@@ -256,9 +256,6 @@ const ClassOccurrenceModal = ({
                                         setIsEditDeleteOpen(true)
                                     }}
                                 >
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
-                                        x
-                                    </Text>
                                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
                                         {time.slice(0,5)}
                                     </Text>
@@ -545,9 +542,9 @@ const styles = StyleSheet.create({
         paddingRight: 5, color: 'red',
     },
     timeText: {
-        paddingHorizontal: 10,
-        paddingBottom: 10,
+        padding: 10,
         textDecorationLine: 'underline',
+        textAlign: 'center',
     },
     dropdown: {
         position: 'absolute',
