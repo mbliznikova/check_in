@@ -54,6 +54,10 @@ const ClassOccurrenceModal = ({
     const [intervals, setIntervals] = useState<string[]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
 
+    const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<number | null>(null);
+    const [selectedOccurrenceDate, setSelectedOccurrenceDate] = useState<string | null>(null);
+    const [selectedOccurrenceTime, setSelectedOccurrenceTime] = useState<string | null>(null);
+
     const [isEditDeleteOpen, setIsEditDeleteOpen] = useState(false);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isCreateOccurrenceSuccess);
 
@@ -248,11 +252,10 @@ const ClassOccurrenceModal = ({
                             >
                                 <Pressable
                                     style={styles.timeButton}
-                                    // onPress={() => {
-                                    //     // TODO: have a functionality to edit the occurrence - cancel class and keep it, rescchedule, etc
-                                    //     onDeleteOccurrence(occurrenceId, className ?? "No name class", date, time);
-                                    // }}
                                     onPress={() => {
+                                        setSelectedOccurrenceId(occurrenceId);
+                                        setSelectedOccurrenceDate(date);
+                                        setSelectedOccurrenceTime(time);
                                         setIsEditDeleteOpen(true)
                                     }}
                                 >
