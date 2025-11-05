@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Platform, ScrollView} from 'react-native';
 
+import Checkbox from './Checkbox';
+
 
 type ClassOccurrenceModalProps = {
     isVisible: boolean;
@@ -42,6 +44,12 @@ const ClassOccurrenceModal = ({
     const [selectedDate, setSelectedDate] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
     const [selectedTime, setSelectedTime] = useState<string>('');
+
+    const [selectedActualDate, setSelectedActualDate] = useState<string>(() =>
+        new Date().toISOString().slice(0, 10));
+    const [selectedActualTime, setSelectedActualTime] = useState<string>('');
+    const [actualDuration, setActualDuration] = useState<number>(classDuration ?? 60);
+    const [isCancelled, setIsCancelled] = useState(false);
 
     const [intervals, setIntervals] = useState<string[]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
@@ -336,11 +344,70 @@ const ClassOccurrenceModal = ({
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
 
-                        <View style={{padding: 20}}>
+                        <View style={{alignItems: 'center', padding: 20}}>
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                                 Edit occurrence
                             </Text>
                         </View>
+
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Change date:
+                            </Text>
+                            {renderAddDateView(selectedActualDate, setSelectedActualDate)}
+                        </View>
+
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Change time:
+                            </Text>
+                            {renderAddTimeView(selectedActualTime, setSelectedActualTime)}
+                        </View>
+
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Change duration:
+                            </Text>
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
+                                value={actualDuration.toString()}
+                                onChangeText={(durationStr) => {setActualDuration(Number(durationStr))}}
+                            />
+                        </View>
+
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Is cancelled?
+                            </Text>
+                            <Checkbox
+                                label=''
+                                checked={isCancelled}
+                                onChange={() => {setIsCancelled(!isCancelled)}}
+                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                            />
+                        </View>
+
+                        <View style={[styles.itemContainer, styles.itemRow]}>
+                            <Text
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            >
+                                Notes:
+                            </Text>
+                            <TextInput
+                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
+                                value={notes}
+                                onChangeText={(noteStr) => {setNotes(noteStr)}}
+                            />
+                        </View>
+
                         <Pressable
                                 style={styles.modalCancelButton}
                                 onPress={() => {
