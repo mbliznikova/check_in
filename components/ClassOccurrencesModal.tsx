@@ -547,6 +547,7 @@ const styles = StyleSheet.create({
     timeText: {
         paddingHorizontal: 10,
         paddingBottom: 10,
+        textDecorationLine: 'underline',
     },
     dropdown: {
         position: 'absolute',
