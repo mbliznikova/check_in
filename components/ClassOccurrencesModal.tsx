@@ -124,9 +124,9 @@ const ClassOccurrenceModal = ({
                             />
                         </View>
 
-                        <View>{renderAddDateView()}</View>
+                        <View>{renderAddDateView(selectedDate, setSelectedDate)}</View>
                         <View>{isIntervalsOpen ? renderAvailableTimeIntervals() : null}</View>
-                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView()}</View>
+                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView(selectedTime, setSelectedTime)}</View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
@@ -159,17 +159,17 @@ const ClassOccurrenceModal = ({
         );
     };
 
-    const renderAddDateView = () => {
+    const renderAddDateView = (dateVar: string, setDateVarFunction: (date: string) => void) => {
         if (Platform.OS === 'web') {
             return (
                 <View style={{padding: 10}}>
                     {/* @ts-ignore using react-native-web for web date picker */}
                     <input
                         type="date"
-                        value={selectedDate}
+                        value={dateVar}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             const date = e.target.value;
-                            setSelectedDate(date);
+                            setDateVarFunction(dateVar);
                             console.log(`Picked date (web) is: ${date}`);
                         }}
                         style={{
@@ -190,17 +190,17 @@ const ClassOccurrenceModal = ({
         );
     };
 
-    const renderAddTimeView = () => {
+    const renderAddTimeView = (timeVar: string, setTimeVar: (time: string) => void) => {
         if (Platform.OS === 'web') {
             return (
                 <View style={{padding: 10}}>
                     {/* @ts-ignore using react-native-web for web btime picker */}
                     <input
                         type="time"
-                        value={selectedTime}
+                        value={timeVar}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             const time = e.target.value;
-                            setSelectedTime(time);
+                            setTimeVar(timeVar);
                             console.log(`Picked time (web) is: ${time}`);
                         }}
                         style={{
