@@ -409,13 +409,22 @@ const ClassOccurrenceModal = ({
                         </View>
 
                         <Pressable
-                                style={styles.modalCancelButton}
-                                onPress={() => {
-                                    setIsEditDeleteOpen(false);
-                                }}
-                            >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                            </Pressable>
+                            style={styles.modalCancelButton}
+                            onPress={() => {
+                                setIsEditDeleteOpen(false);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+
+                        <Pressable
+                            style={styles.deleteButton}
+                            onPress={() => {
+                               // delete occurrence here
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete occurrence</Text>
+                        </Pressable>
 
                     </View>
                 </View>
@@ -488,6 +497,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
+    },
+    deleteButton: {
+        alignItems: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        borderRadius: 15,
+        backgroundColor: 'red',
     },
     itemContainer: {
         padding: 10,
