@@ -26,11 +26,16 @@ type ScheduleType = {
 
 type ClassOccurrenceType = {
     id: number;
-    classId: number;
+    classId: number | null;
     fallbackClassName: string;
+    scheduleId: number | null;
     plannedDate: string;
+    actualDate: string;
     plannedStartTime: string;
+    actualStartTime: string;
     plannedDuration: string;
+    actualDuration: number;
+    isCancelled: boolean;
     notes: string;
 };
 
