@@ -55,8 +55,6 @@ const ClassOccurrenceModal = ({
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
 
     const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<number | null>(null);
-    const [selectedOccurrenceDate, setSelectedOccurrenceDate] = useState<string | null>(null);
-    const [selectedOccurrenceTime, setSelectedOccurrenceTime] = useState<string | null>(null);
 
     const [isEditDeleteOpen, setIsEditDeleteOpen] = useState(false);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isCreateOccurrenceSuccess);
@@ -180,9 +178,9 @@ const ClassOccurrenceModal = ({
                         type="date"
                         value={dateVar}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const date = e.target.value;
-                            setDateVarFunction(dateVar);
-                            console.log(`Picked date (web) is: ${date}`);
+                            const tmpDate = e.target.value;
+                            setDateVarFunction(tmpDate);
+                            console.log(`Picked date (web) is: ${tmpDate}`);
                         }}
                         style={{
                             padding: 8,
@@ -211,9 +209,9 @@ const ClassOccurrenceModal = ({
                         type="time"
                         value={timeVar}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const time = e.target.value;
-                            setTimeVar(timeVar);
-                            console.log(`Picked time (web) is: ${time}`);
+                            const tmpTime = e.target.value;
+                            setTimeVar(tmpTime);
+                            console.log(`Picked time (web) is: ${tmpTime}`);
                         }}
                         style={{
                             padding: 8,
@@ -254,8 +252,10 @@ const ClassOccurrenceModal = ({
                                     style={styles.timeButton}
                                     onPress={() => {
                                         setSelectedOccurrenceId(occurrenceId);
-                                        setSelectedOccurrenceDate(date);
-                                        setSelectedOccurrenceTime(time);
+
+                                        setSelectedActualDate(date);
+                                        setSelectedActualTime(time);
+
                                         setIsEditDeleteOpen(true)
                                     }}
                                 >
@@ -339,6 +339,8 @@ const ClassOccurrenceModal = ({
     };
 
     const renderEditDeleteView = () => {
+        if (!selectedOccurrenceId || !selectedActualDate || !selectedActualTime) return null;
+
         return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
