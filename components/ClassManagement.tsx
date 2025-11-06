@@ -1205,7 +1205,8 @@ const ClassManagement = () => {
                 onCreateOccurrence={createClassOccurrence}
                 onDeleteOccurrence={deleteClassOccurrence}
                 onUniquenessCheck={checkIfOccurrenceUnique}
-                occurrenceData={currentClassOccurrenceMap}
+                occurrenceIdTimebyDate={currentClassOccurrenceMap}
+                allOccurrenceDataById={allOccurrencesMap}
                 classId={selectedClassId}
                 className={selectedClassName}
                 classDuration={selectedClassDuration}

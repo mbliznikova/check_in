@@ -4,6 +4,21 @@ import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Plat
 
 import Checkbox from './Checkbox';
 
+type ClassOccurrenceType = {
+    id: number;
+    classId: number | null;
+    fallbackClassName: string;
+    scheduleId: number | null;
+    plannedDate: string;
+    actualDate: string;
+    plannedStartTime: string;
+    actualStartTime: string;
+    plannedDuration: string;
+    actualDuration: number;
+    isCancelled: boolean;
+    notes: string;
+};
+
 
 type ClassOccurrenceModalProps = {
     isVisible: boolean;
@@ -12,7 +27,8 @@ type ClassOccurrenceModalProps = {
     onCreateOccurrence: (className: string, plannedDate: string, plannedTime: string, duration: number, classId?: number, scheduleId?: number, notes?: string) => void;
     onDeleteOccurrence: (occurrenceId: number, className: string, date: string, time: string) => void;
     onUniquenessCheck: (date: string, time: string) => boolean;
-    occurrenceData: Map<string, [number, string][]>;
+    occurrenceIdTimebyDate: Map<string, [number, string][]>;
+    allOccurrenceDataById: Map<number, ClassOccurrenceType>;
     classId: number | null;
     className: string | null;
     classDuration: number | null;
@@ -26,7 +42,8 @@ const ClassOccurrenceModal = ({
     onCreateOccurrence,
     onDeleteOccurrence,
     onUniquenessCheck,
-    occurrenceData = new Map(),
+    occurrenceIdTimebyDate: occurrenceData = new Map(),
+    allOccurrenceDataById = new Map(),
     classId,
     className,
     classDuration,
