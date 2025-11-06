@@ -73,7 +73,7 @@ const ClassManagement = () => {
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
 
-    const [allOccurrencesList, setAllOccurrencesList] = useState<ClassOccurrenceType[]>([]);
+    const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
 
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
@@ -744,8 +744,12 @@ const ClassManagement = () => {
                 if (isValidArrayResponse(responseData, 'response')) {
                     console.log(`Function fetchAllClassOccurrences. The response from backend is valid: ${JSON.stringify(responseData)}`);
 
-                    const classOccurences = responseData.response;
-                    setAllOccurrencesList(classOccurences);
+                    const classOccurrences: ClassOccurrenceType[] = responseData.response;
+                    const occurrencesMap = new Map<number, ClassOccurrenceType>();
+                    classOccurrences.forEach((occ) => {
+                        occurrencesMap.set(occ.id, occ);
+                    });
+                    setAllOccurrencesMap(occurrencesMap);
                 }
             } else {
                 console.warn(`Function fetchAllClassOccurrences. Request was unsuccessful: ${response.status, response.statusText}`);
@@ -1006,15 +1010,14 @@ const ClassManagement = () => {
     useEffect(() => {
         const occurrencesSetTemp: Set<string> = new Set();
 
-        allOccurrencesList.forEach((occurrence) => {
+        allOccurrencesMap.forEach((occurrence) => {
             occurrencesSetTemp.add(`${occurrence.plannedDate}-${occurrence.plannedStartTime.slice(0, 5)}`);
-            // TODO: take actualStartDate into account later?
             // also think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
         });
 
         setOccurrencesSet(occurrencesSetTemp);
     },
-    [allOccurrencesList]);
+    [allOccurrencesMap]);
 
     const renderHeaderRow = () => {
         return (
