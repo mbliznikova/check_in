@@ -369,6 +369,32 @@ const ClassOccurrenceModal = ({
         );
     };
 
+    const getUpdatedOccurrenceData = (): Partial<ClassOccurrenceType>  => {
+        const updatedOccurrenceData: Partial<ClassOccurrenceType> = {};
+
+        if (actualDateToEdit !== originalOccurrence?.actualDate) {
+            updatedOccurrenceData.actualDate = actualDateToEdit;
+        }
+
+        if (actualTimeToEdit !== originalOccurrence?.actualStartTime) {
+            updatedOccurrenceData.actualStartTime = actualTimeToEdit;
+        }
+
+        if (actualDurationToEdit !== originalOccurrence?.actualDuration) {
+            updatedOccurrenceData.actualDuration = actualDurationToEdit;
+        }
+
+        if (isCancelledToEdit !== originalOccurrence?.isCancelled) {
+            updatedOccurrenceData.isCancelled = isCancelledToEdit;
+        }
+
+        if (notesToEdit !== originalOccurrence?.notes) {
+            updatedOccurrenceData.notes = notesToEdit;
+        }
+
+        return updatedOccurrenceData
+    };
+
     const renderEditDeleteView = () => {
         if (!originalOccurrence) return null;
 
