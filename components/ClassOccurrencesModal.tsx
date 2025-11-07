@@ -101,9 +101,8 @@ const ClassOccurrenceModal = ({
     };
 
     useEffect(() => {
-        callIntervals(dateToCreate, plannedClassDuration); // TODO: take the actual duration (if changed) into account
-
-    }, [dateToCreate]);
+        callIntervals(dateToCreate, plannedClassDuration);
+    }, [dateToCreate, plannedClassDuration]);
 
     useEffect(() => {
         callIntervals(actualDateToEdit, actualDurationToEdit);
