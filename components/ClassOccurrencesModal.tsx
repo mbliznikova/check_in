@@ -370,10 +370,7 @@ const ClassOccurrenceModal = ({
     };
 
     const renderEditDeleteView = () => {
-        if (!selectedOccurrenceId || !actualDateToEdit || !actualTimeToEdit) return null;
-
-        // const currentOccurrence = allOccurrenceDataById.get(selectedOccurrenceId);
-        // if (currentOccurrence === undefined) return null; // TODO: is it ok?
+        if (!originalOccurrence) return null;
 
         return (
             <View style={styles.modalContainer}>
@@ -444,14 +441,22 @@ const ClassOccurrenceModal = ({
                             />
                         </View>
 
-                        <Pressable
-                            style={styles.modalCancelButton}
-                            onPress={() => {
-                                setIsEditDeleteOpen(false);
-                            }}
-                        >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
-                        </Pressable>
+                        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                            <Pressable
+                                style={styles.modalConfirmButton}
+                                onPress={() => {}}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Save</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.modalCancelButton}
+                                onPress={() => {
+                                    setIsEditDeleteOpen(false);
+                                }}
+                            >
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            </Pressable>
+                        </View>
 
                         <Pressable
                             style={styles.deleteButton}
