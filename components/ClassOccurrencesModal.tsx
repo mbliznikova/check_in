@@ -55,18 +55,21 @@ const ClassOccurrenceModal = ({
     //TODO: Consistency - create or add for occurrence, not both
     const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
 
-    const [duration, setDuration] = useState<number>(classDuration ?? 60);
+    const [plannedClassDuration, setPlannedClassDuration] = useState<number>(classDuration ?? 60);
     const [notes, setNotes] = useState<string>('');
 
-    const [selectedDate, setSelectedDate] = useState<string>(() =>
+    const [dateToCreate, setDateToCreate] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
-    const [selectedTime, setSelectedTime] = useState<string>('');
+    const [timeToCreate, setTimeToCreate] = useState<string>('');
 
-    const [selectedActualDate, setSelectedActualDate] = useState<string>(() =>
+    const [originalOccurrence, setOriginalOccurrence] = useState<ClassOccurrenceType | null>(null);
+
+    const [actualDateToEdit, setActualDateToEdit] = useState<string>(() =>
         new Date().toISOString().slice(0, 10));
-    const [selectedActualTime, setSelectedActualTime] = useState<string>('');
-    const [actualDuration, setActualDuration] = useState<number>(classDuration ?? 60);
-    const [isCancelled, setIsCancelled] = useState(false);
+    const [actualTimeToEdit, setActualTimeToEdit] = useState<string>('');
+    const [actualDurationToEdit, setActualDurationToEdit] = useState<number>(0);
+    const [isCancelledToEdit, setIsCancelledToEdit] = useState(false);
+    const [notesToEdit, setNotesToEdit] = useState('');
 
     const [intervals, setIntervals] = useState<string[]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
@@ -78,13 +81,13 @@ const ClassOccurrenceModal = ({
 
     useEffect(() => {
         const callIntervals = async() => {
-            const timeIntervals = await onRequestingTimeIntervals(selectedDate, duration);
+            const timeIntervals = await onRequestingTimeIntervals(dateToCreate, plannedClassDuration);
             setIntervals(timeIntervals);
         };
 
         callIntervals();
 
-    }, [selectedDate]);
+    }, [dateToCreate]);
 
     useEffect(() => {
         setIsIntervalsOpen(true);
@@ -99,7 +102,7 @@ const ClassOccurrenceModal = ({
             <View>
                 <View style={{padding: 20}}>
                     <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                        {`Set any time from available intervals (for duration ${duration} mins):`}
+                        {`Set any time from available intervals (for duration ${plannedClassDuration} mins):`}
                     </Text>
                 </View>
                 <View style={{alignItems: 'center', padding: 20}}>
@@ -133,8 +136,8 @@ const ClassOccurrenceModal = ({
                             </Text>
                             <TextInput
                                 style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
-                                value={duration.toString()}
-                                onChangeText={(durationStr) => {setDuration(Number(durationStr))}}
+                                value={plannedClassDuration.toString()}
+                                onChangeText={(durationStr) => {setPlannedClassDuration(Number(durationStr))}}
                             />
                         </View>
 
@@ -151,20 +154,20 @@ const ClassOccurrenceModal = ({
                             />
                         </View>
 
-                        <View>{renderAddDateView(selectedDate, setSelectedDate)}</View>
+                        <View>{renderAddDateView(dateToCreate, setDateToCreate)}</View>
                         <View>{isIntervalsOpen ? renderAvailableTimeIntervals() : null}</View>
-                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView(selectedTime, setSelectedTime)}</View>
+                        <View style={[{borderColor: 'grey'}]}>{renderAddTimeView(timeToCreate, setTimeToCreate)}</View>
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
                                 style={styles.modalConfirmButton}
                                 onPress={() => {
-                                    if (onUniquenessCheck(selectedDate, selectedTime)) {
-                                        onCreateOccurrence(className ?? 'No name class', selectedDate, selectedTime, duration, classId ?? undefined, undefined, notes);
+                                    if (onUniquenessCheck(dateToCreate, timeToCreate)) {
+                                        onCreateOccurrence(className ?? 'No name class', dateToCreate, timeToCreate, plannedClassDuration, classId ?? undefined, undefined, notes);
                                         setIsAddOccurrenceOpen(false);
                                     } else {
                                         alert('Such date and time have been already taken');
-                                        console.log(`There is already an occurrence at ${selectedDate} - ${selectedTime}`);
+                                        console.log(`There is already an occurrence at ${dateToCreate} - ${timeToCreate}`);
                                     }
                                 }}
                             >
@@ -270,8 +273,19 @@ const ClassOccurrenceModal = ({
                                     onPress={() => {
                                         setSelectedOccurrenceId(occurrenceId);
 
-                                        setSelectedActualDate(date);
-                                        setSelectedActualTime(time);
+                                        const currentOccurrence = allOccurrenceDataById.get(occurrenceId);
+                                        if (!currentOccurrence) { // TODO: handle in UI to let user know?
+                                            console.warn(`No occurrence with id ${occurrenceId}`);
+                                            return;
+                                        };
+
+                                        setOriginalOccurrence(currentOccurrence);
+
+                                        setActualDateToEdit(date);
+                                        setActualTimeToEdit(time);
+                                        setActualDurationToEdit(currentOccurrence.actualDuration);
+                                        setIsCancelledToEdit(currentOccurrence.isCancelled);
+                                        setNotesToEdit(currentOccurrence.notes);
 
                                         setIsEditDeleteOpen(true)
                                     }}
@@ -356,7 +370,10 @@ const ClassOccurrenceModal = ({
     };
 
     const renderEditDeleteView = () => {
-        if (!selectedOccurrenceId || !selectedActualDate || !selectedActualTime) return null;
+        if (!selectedOccurrenceId || !actualDateToEdit || !actualTimeToEdit) return null;
+
+        // const currentOccurrence = allOccurrenceDataById.get(selectedOccurrenceId);
+        // if (currentOccurrence === undefined) return null; // TODO: is it ok?
 
         return (
             <View style={styles.modalContainer}>
@@ -375,7 +392,7 @@ const ClassOccurrenceModal = ({
                             >
                                 Change date:
                             </Text>
-                            {renderAddDateView(selectedActualDate, setSelectedActualDate)}
+                            {renderAddDateView(actualDateToEdit, setActualDateToEdit)}
                         </View>
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
@@ -384,7 +401,7 @@ const ClassOccurrenceModal = ({
                             >
                                 Change time:
                             </Text>
-                            {renderAddTimeView(selectedActualTime, setSelectedActualTime)}
+                            {renderAddTimeView(actualTimeToEdit, setActualTimeToEdit)}
                         </View>
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
@@ -395,8 +412,8 @@ const ClassOccurrenceModal = ({
                             </Text>
                             <TextInput
                                 style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
-                                value={actualDuration.toString()}
-                                onChangeText={(durationStr) => {setActualDuration(Number(durationStr))}}
+                                value={actualDurationToEdit.toString()}
+                                onChangeText={(durationStr) => {setActualDurationToEdit(Number(durationStr))}}
                             />
                         </View>
 
@@ -408,8 +425,8 @@ const ClassOccurrenceModal = ({
                             </Text>
                             <Checkbox
                                 label=''
-                                checked={isCancelled}
-                                onChange={() => {setIsCancelled(!isCancelled)}}
+                                checked={isCancelledToEdit}
+                                onChange={() => {setIsCancelledToEdit(!isCancelledToEdit)}}
                                 labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                             />
                         </View>
@@ -422,8 +439,8 @@ const ClassOccurrenceModal = ({
                             </Text>
                             <TextInput
                                 style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
-                                value={notes}
-                                onChangeText={(noteStr) => {setNotes(noteStr)}}
+                                value={notesToEdit}
+                                onChangeText={(noteStr) => {setNotesToEdit(noteStr)}}
                             />
                         </View>
 
