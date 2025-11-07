@@ -470,7 +470,13 @@ const ClassOccurrenceModal = ({
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={() => {}}
+                                onPress={() => {
+                                    const updatedData = getUpdatedOccurrenceData();
+
+                                    if (Object.keys(updatedData).length === 0) {
+                                        alert('No changes detected in the occurrence');
+                                    }
+                                }}
                             >
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Save</Text>
                             </Pressable>
