@@ -94,15 +94,20 @@ const ClassOccurrenceModal = ({
     const [isEditDeleteOpen, setIsEditDeleteOpen] = useState(false);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isCreateOccurrenceSuccess);
 
-    useEffect(() => {
-        const callIntervals = async() => {
-            const timeIntervals = await onRequestingTimeIntervals(dateToCreate, plannedClassDuration);
-            setIntervals(timeIntervals);
-        };
 
-        callIntervals();
+    const callIntervals = async(date: string, duration: number) => {
+        const timeIntervals = await onRequestingTimeIntervals(date, duration);
+        setIntervals(timeIntervals);
+    };
+
+    useEffect(() => {
+        callIntervals(dateToCreate, plannedClassDuration); // TODO: take the actual duration (if changed) into account
 
     }, [dateToCreate]);
+
+    useEffect(() => {
+        callIntervals(actualDateToEdit, actualDurationToEdit);
+    }, [actualDateToEdit, actualDurationToEdit]) // TODO: think about how to avoid calls to BE with duration=0?
 
     useEffect(() => {
         setIsIntervalsOpen(true);
@@ -432,6 +437,8 @@ const ClassOccurrenceModal = ({
                             </Text>
                             {renderAddDateView(actualDateToEdit, setActualDateToEdit)}
                         </View>
+
+                        <View>{isIntervalsOpen ? renderAvailableTimeIntervals() : null}</View>
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
