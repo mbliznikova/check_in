@@ -501,6 +501,7 @@ const ClassOccurrenceModal = ({
 
                                         // TODO: add uniqueness check or move it to date/time picking?
                                         onEditOccurrence(selectedOccurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes);
+                                        setIsEditDeleteOpen(false);
                                     }
                                 }}
                             >
