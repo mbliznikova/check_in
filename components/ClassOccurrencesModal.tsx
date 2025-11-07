@@ -499,9 +499,13 @@ const ClassOccurrenceModal = ({
                                             notes,
                                         } = updatedData;
 
-                                        // TODO: add uniqueness check or move it to date/time picking?
-                                        onEditOccurrence(selectedOccurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes);
-                                        setIsEditDeleteOpen(false);
+                                        if (onUniquenessCheck(actualDateToEdit, actualTimeToEdit)) {
+                                            onEditOccurrence(selectedOccurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes);
+                                            setIsEditDeleteOpen(false);
+                                        } else {
+                                            alert('Such date and time have been already taken');
+                                            console.log(`There is already an occurrence at ${actualDateToEdit} - ${actualTimeToEdit}`);
+                                        }
                                     }
                                 }}
                             >
