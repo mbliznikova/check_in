@@ -411,7 +411,7 @@ const ClassOccurrenceModal = ({
     };
 
     const renderEditDeleteView = () => {
-        if (!originalOccurrence) return null;
+        if (!originalOccurrence || !selectedOccurrenceId) return null;
 
         return (
             <View style={styles.modalContainer}>
@@ -490,6 +490,17 @@ const ClassOccurrenceModal = ({
 
                                     if (Object.keys(updatedData).length === 0) {
                                         alert('No changes detected in the occurrence');
+                                    } else {
+                                        const {
+                                            actualDate,
+                                            actualStartTime,
+                                            actualDuration,
+                                            isCancelled,
+                                            notes,
+                                        } = updatedData;
+
+                                        // TODO: add uniqueness check or move it to date/time picking?
+                                        onEditOccurrence(selectedOccurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes);
                                     }
                                 }}
                             >
