@@ -24,7 +24,21 @@ type ClassOccurrenceModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
     onRequestingTimeIntervals: (dayName: string, classDurationToFit: number) => Promise<string[]>;
-    onCreateOccurrence: (className: string, plannedDate: string, plannedTime: string, duration: number, classId?: number, scheduleId?: number, notes?: string) => void;
+    onCreateOccurrence: (
+        className: string,
+        plannedDate: string,
+        plannedTime: string,
+        duration: number,
+        classId?: number,
+        scheduleId?: number,
+        notes?: string) => void;
+    onEditOccurrence: (
+        occurrenceId: number,
+        actualDate?: string,
+        actualStartTime?: string,
+        actualDuration?: number,
+        isCancelled?: boolean,
+        notes?: string) => void;
     onDeleteOccurrence: (occurrenceId: number, className: string, date: string, time: string) => void;
     onUniquenessCheck: (date: string, time: string) => boolean;
     occurrenceIdTimebyDate: Map<string, [number, string][]>;
@@ -40,6 +54,7 @@ const ClassOccurrenceModal = ({
     onModalClose,
     onRequestingTimeIntervals,
     onCreateOccurrence,
+    onEditOccurrence,
     onDeleteOccurrence,
     onUniquenessCheck,
     occurrenceIdTimebyDate: occurrenceData = new Map(),

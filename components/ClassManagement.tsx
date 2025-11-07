@@ -1203,6 +1203,7 @@ const ClassManagement = () => {
                 }}
                 onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
                 onCreateOccurrence={createClassOccurrence}
+                onEditOccurrence={editClassOccurrence}
                 onDeleteOccurrence={deleteClassOccurrence}
                 onUniquenessCheck={checkIfOccurrenceUnique}
                 occurrenceIdTimebyDate={currentClassOccurrenceMap}
