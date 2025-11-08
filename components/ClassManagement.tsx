@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
@@ -62,6 +62,7 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
     const [isCreateOccurrenceSuccessful, setIsCreateOccurrenceSuccessful] = useState(false);
+    const [isEditOccurrenceSuccessful, setIsEditOccurrenceSuccessful] = useState(false);
 
     const [isCreateClassError, setIsCreateClassError] = useState(false);
 
@@ -293,6 +294,39 @@ const ClassManagement = () => {
         console.log(`Occurrence data with added occurrence: ${updatedOccurences}`);
 
         setCurrentClassOccurrenceMap(updatedOccurences);
+    };
+
+    const editOccurrenceInState = (
+        occurrenceId: number,
+        actualDate?: string,
+        actualStartTime?: string,
+        actualDuration?: number,
+        isCancelled?: boolean,
+        notes?: string,
+    ) => {
+        console.log(`Editing class occurrence with id ${occurrenceId} in state`);
+
+        const targetOccurrence = allOccurrencesMap.get(occurrenceId);
+
+        if (!targetOccurrence) {
+            console.warn(`No occurrence with id ${occurrenceId} was found`);
+            return;
+        }
+
+        const updates: Partial<ClassOccurrenceType> = {};
+        if (actualDate !== undefined) updates.actualDate = actualDate;
+        if (actualStartTime !== undefined) updates.actualStartTime = actualStartTime;
+        if (actualDuration !== undefined) updates.actualDuration = actualDuration;
+        if (isCancelled !== undefined) updates.isCancelled = isCancelled;
+        if (notes !== undefined) updates.notes = notes;
+        const updatedOccurrenceData = {...targetOccurrence, ...updates}
+
+        const tmpMap = new Map(allOccurrencesMap);
+        tmpMap.set(occurrenceId, updatedOccurrenceData);
+        setAllOccurrencesMap(tmpMap);
+        // currentClassOccurrenceMap is date: [occurrenceID, time]
+
+        // remove and add to uniqueness
     };
 
     const removeOccurrenceFromState = (targetOccurrenceId: number, plannedDate: string) => {
@@ -964,6 +998,8 @@ const ClassManagement = () => {
 
                 if (isValidEditOccurrenceResponse(responseData, occurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes)) {
                     console.log(`Function editClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+
+                    setIsEditOccurrenceSuccessful(true);
                 } else {
                     console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -1200,6 +1236,7 @@ const ClassManagement = () => {
                     setIsOccurrencesModalVisible(false);
                     setCurrentClassOccurrenceMap(new Map());
                     setIsCreateOccurrenceSuccessful(false);
+                    setIsEditOccurrenceSuccessful(false);
                 }}
                 onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
                 onCreateOccurrence={createClassOccurrence}
