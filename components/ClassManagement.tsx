@@ -1,4 +1,4 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
 import ScreenTitle from "./ScreenTitle";
@@ -296,6 +296,56 @@ const ClassManagement = () => {
         setCurrentClassOccurrenceMap(updatedOccurences);
     };
 
+    const editCurrentClassOccurrenceMap = (
+        occurrenceId: number,
+        oldDate: string,
+        oldStartTime: string,
+        newDate: string,
+        newStartTime: string,
+    ) => {
+
+        if (oldDate === newDate && oldStartTime === newStartTime) {
+            console.log(`No date and time to edit: no changes for class occurrence ${occurrenceId}`);
+            return;
+        }
+
+        console.log(`Editing class occurrence with id ${occurrenceId}, at date ${newDate} and time ${newStartTime}`);
+
+        const oldDateArray = currentClassOccurrenceMap.get(oldDate);
+        if (!oldDateArray) {
+            console.log(`No data in currentClassOccurrenceMap for date ${oldDate}`);
+            return null;
+        }
+
+        const tmpMap = new Map(currentClassOccurrenceMap);
+
+        const filteredOldDateArray = oldDateArray.filter(([id, t]) => !(id === occurrenceId && t === oldStartTime));
+        if (oldDate === newDate) filteredOldDateArray.push([occurrenceId, newStartTime]); // Assuming that oldStartTime !== newStartTime here
+        tmpMap.set(oldDate, filteredOldDateArray);
+
+        if (filteredOldDateArray.length === 0) {
+            tmpMap.delete(oldDate);
+        }
+
+        if (oldDate !== newDate) {
+            const newDateArray = tmpMap.get(newDate) ?? [];
+
+            if (oldStartTime !== newStartTime) { // different time for another date
+                if (!newDateArray.some(([id, time]) => id === occurrenceId && time === newStartTime)) { // avoid duplications
+                    newDateArray.push([occurrenceId, newStartTime]);
+                }
+            } else { // same time for another date
+                if (!newDateArray.some(([id, time]) => id === occurrenceId && time === oldStartTime)) {
+                    newDateArray.push([occurrenceId, oldStartTime]);
+                }
+            }
+
+            tmpMap.set(newDate, newDateArray)
+        }
+
+        setCurrentClassOccurrenceMap(tmpMap);
+    };
+
     const editOccurrenceInState = (
         occurrenceId: number,
         actualDate?: string,
@@ -313,6 +363,13 @@ const ClassManagement = () => {
             return;
         }
 
+        const oldActualDate = targetOccurrence.actualDate;
+        const oldActualStartTime = targetOccurrence.actualStartTime;
+
+        // TODO: revisit when decide what use app-wise: planned or actual (this) date and time
+        const oldPlannedDate = targetOccurrence.plannedDate;
+        const oldPlannedStartTime = targetOccurrence.plannedStartTime;
+
         const updates: Partial<ClassOccurrenceType> = {};
         if (actualDate !== undefined) updates.actualDate = actualDate;
         if (actualStartTime !== undefined) updates.actualStartTime = actualStartTime;
@@ -324,9 +381,12 @@ const ClassManagement = () => {
         const tmpMap = new Map(allOccurrencesMap);
         tmpMap.set(occurrenceId, updatedOccurrenceData);
         setAllOccurrencesMap(tmpMap);
+
         // currentClassOccurrenceMap is date: [occurrenceID, time]
 
-        // remove and add to uniqueness
+        // if (oldActualDate !== actualDate || oldActualStartTime !== actualStartTime) {
+        //     removeOccurrenceFromUniqueness(oldActualDate, oldActualStartTime);
+        // }
     };
 
     const removeOccurrenceFromState = (targetOccurrenceId: number, plannedDate: string) => {
@@ -1046,6 +1106,7 @@ const ClassManagement = () => {
     useEffect(() => {
         const occurrencesSetTemp: Set<string> = new Set();
 
+        // TODO: use actual time?
         allOccurrencesMap.forEach((occurrence) => {
             occurrencesSetTemp.add(`${occurrence.plannedDate}-${occurrence.plannedStartTime.slice(0, 5)}`);
             // also think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
