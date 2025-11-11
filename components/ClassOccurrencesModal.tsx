@@ -285,7 +285,7 @@ const ClassOccurrenceModal = ({
                         </View>
                         {times.map(([occurrenceId, time]) => (
                             <View
-                                key={occurrenceId}
+                                key={`${occurrenceId} - ${date} - ${time}`}
                             >
                                 <Pressable
                                     style={styles.timeButton}
