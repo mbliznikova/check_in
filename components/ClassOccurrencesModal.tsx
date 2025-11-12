@@ -182,6 +182,7 @@ const ClassOccurrenceModal = ({
                                 style={styles.modalConfirmButton}
                                 onPress={() => {
                                     if (onUniquenessCheck(dateToCreate, timeToCreate)) {
+                                        // TODO: revisit
                                         onCreateOccurrence(className ?? 'No name class', dateToCreate, timeToCreate, plannedClassDuration, classId ?? undefined, undefined, notes);
                                         setIsAddOccurrenceOpen(false);
                                     } else {

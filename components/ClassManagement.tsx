@@ -33,7 +33,7 @@ type ClassOccurrenceType = {
     actualDate: string;
     plannedStartTime: string;
     actualStartTime: string;
-    plannedDuration: string;
+    plannedDuration: string; // TODO: make number
     actualDuration: number;
     isCancelled: boolean;
     notes: string;
@@ -277,7 +277,7 @@ const ClassManagement = () => {
     };
 
     // rename to addOccurrenceToState to keep consistency
-    const addClassOccurrenceToState = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
+    const addOccurrenceToCurrentClassOccurrenceMap = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
         console.log(`Adding class occurrence with id ${occurrenceId} for: date ${plannedDate}, time ${plannedTime}`);
 
         const dayOccurrences = currentClassOccurrenceMap.get(plannedDate);
@@ -294,6 +294,61 @@ const ClassManagement = () => {
         console.log(`Occurrence data with added occurrence: ${updatedOccurences}`);
 
         setCurrentClassOccurrenceMap(updatedOccurences);
+    };
+
+    const addOccurrencetoAllOccurrenceMap = (
+        occurrenceId: number,
+        className: string,
+        plannedDate: string,
+        plannedTime: string,
+        duration: number = 60,
+        classId?: number,
+        scheduleId?: number,
+        notes?: string,
+    ) => {
+        console.log(`Adding occurrence ${occurrenceId} to allOccurrencesMap`);
+
+        const newOccurrence: ClassOccurrenceType = {
+            id: occurrenceId,
+            classId: classId ?? null,
+            fallbackClassName: className,
+            scheduleId: scheduleId ?? null,
+            plannedDate: plannedDate,
+            plannedStartTime: plannedTime,
+            actualDate: plannedDate,
+            actualStartTime: plannedTime,
+            plannedDuration: duration.toString(),
+            actualDuration: duration,
+            isCancelled: false,
+            notes: notes ?? '',
+        };
+
+        const tmpMap = new Map(allOccurrencesMap);
+        tmpMap.set(occurrenceId, newOccurrence);
+        setAllOccurrencesMap(tmpMap);
+    };
+
+    const addOccurrenceToState = (
+        occurrenceId: number,
+        className: string,
+        plannedDate: string,
+        plannedTime: string,
+        duration: number = 60,
+        classId?: number,
+        scheduleId?: number,
+        notes?: string,
+    ) => {
+        addOccurrenceToCurrentClassOccurrenceMap(occurrenceId, plannedDate, plannedTime);
+        addOccurrencetoAllOccurrenceMap(
+            occurrenceId,
+            className,
+            plannedDate,
+            plannedTime,
+            duration,
+            classId,
+            scheduleId,
+            notes,
+        );
     };
 
     const editCurrentClassOccurrenceMap = (
@@ -946,7 +1001,17 @@ const ClassManagement = () => {
 
                 setIsCreateOccurrenceSuccessful(true);
 
-                addClassOccurrenceToState(occurrenceId, plannedDate, plannedTime)
+                addOccurrenceToState(
+                    occurrenceId,
+                    className,
+                    plannedDate,
+                    plannedTime,
+                    duration,
+                    classId,
+                    scheduleId,
+                    notes,
+                );
+
                 addOccurrenceToUniqueness(plannedDate, plannedTime);
 
                 setSelectedClassId(null);
