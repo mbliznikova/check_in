@@ -333,11 +333,21 @@ const ClassManagement = () => {
             if (oldStartTime !== newStartTime) { // different time for another date
                 if (!newDateArray.some(([id, time]) => id === occurrenceId && time === newStartTime)) { // avoid duplications
                     newDateArray.push([occurrenceId, newStartTime]);
+                    console.log(`oldDate !== newDate AND oldStartTime !== newStartTime:`);
                 }
+                newDateArray.forEach((arr) => {
+                    console.log(arr);
+                });
+                console.log(`------`);
             } else { // same time for another date
                 if (!newDateArray.some(([id, time]) => id === occurrenceId && time === oldStartTime)) {
                     newDateArray.push([occurrenceId, oldStartTime]);
+                    console.log(`oldDate !== newDate AND Same time, another date:`);
                 }
+                newDateArray.forEach((arr) => {
+                    console.log(arr);
+                });
+                console.log(`------`);
             }
 
             tmpMap.set(newDate, newDateArray)
@@ -384,9 +394,19 @@ const ClassManagement = () => {
 
         // currentClassOccurrenceMap is date: [occurrenceID, time]
 
-        // if (oldActualDate !== actualDate || oldActualStartTime !== actualStartTime) {
-        //     removeOccurrenceFromUniqueness(oldActualDate, oldActualStartTime);
-        // }
+        if (actualDate || actualStartTime) {
+            editCurrentClassOccurrenceMap(
+                occurrenceId,
+                oldActualDate,
+                oldActualStartTime,
+                actualDate ?? oldActualDate,
+                actualStartTime?? oldActualStartTime);
+        }
+
+        if (oldActualDate!== actualDate || oldActualStartTime !== actualStartTime) {
+            removeOccurrenceFromUniqueness(oldActualDate, oldActualStartTime);
+            addOccurrenceToUniqueness(actualDate ?? oldActualDate, actualStartTime ?? oldActualStartTime);
+        }
     };
 
     const removeOccurrenceFromState = (targetOccurrenceId: number, plannedDate: string) => {
@@ -867,10 +887,10 @@ const ClassManagement = () => {
                     const occurrencesMap: Map<string, [number, string][]> = new Map();
 
                     occurrences.forEach((element: ClassOccurrenceType) => {
-                        if (occurrencesMap.has(element.plannedDate)) {
-                            occurrencesMap.get(element.plannedDate)?.push([element.id, element.plannedStartTime])
+                        if (occurrencesMap.has(element.actualDate)) {
+                            occurrencesMap.get(element.actualDate)?.push([element.id, element.actualStartTime])
                         } else {
-                            occurrencesMap.set(element.plannedDate, [[element.id, element.plannedStartTime]])
+                            occurrencesMap.set(element.actualDate, [[element.id, element.actualStartTime]])
                         }
                     });
 
@@ -1059,6 +1079,15 @@ const ClassManagement = () => {
                 if (isValidEditOccurrenceResponse(responseData, occurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes)) {
                     console.log(`Function editClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
 
+                    editOccurrenceInState(
+                        occurrenceId,
+                        actualDate ?? undefined,
+                        actualStartTime ?? undefined,
+                        actualDuration ?? undefined,
+                        isCancelled ?? undefined,
+                        notes ?? undefined,
+                    );
+
                     setIsEditOccurrenceSuccessful(true);
                 } else {
                     console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -1108,7 +1137,7 @@ const ClassManagement = () => {
 
         // TODO: use actual time?
         allOccurrencesMap.forEach((occurrence) => {
-            occurrencesSetTemp.add(`${occurrence.plannedDate}-${occurrence.plannedStartTime.slice(0, 5)}`);
+            occurrencesSetTemp.add(`${occurrence.actualDate}-${occurrence.actualStartTime.slice(0, 5)}`);
             // also think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
         });
 
