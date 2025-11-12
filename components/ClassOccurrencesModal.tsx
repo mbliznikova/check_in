@@ -530,7 +530,12 @@ const ClassOccurrenceModal = ({
                         <Pressable
                             style={styles.deleteButton}
                             onPress={() => {
-                               // delete occurrence here
+                               onDeleteOccurrence(
+                                    selectedOccurrenceId,
+                                    className ?? 'No name class',
+                                    originalOccurrence.actualDate,
+                                    originalOccurrence.actualStartTime
+                                );
                             }}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete occurrence</Text>
