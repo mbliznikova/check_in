@@ -333,21 +333,11 @@ const ClassManagement = () => {
             if (oldStartTime !== newStartTime) { // different time for another date
                 if (!newDateArray.some(([id, time]) => id === occurrenceId && time === newStartTime)) { // avoid duplications
                     newDateArray.push([occurrenceId, newStartTime]);
-                    console.log(`oldDate !== newDate AND oldStartTime !== newStartTime:`);
                 }
-                newDateArray.forEach((arr) => {
-                    console.log(arr);
-                });
-                console.log(`------`);
             } else { // same time for another date
                 if (!newDateArray.some(([id, time]) => id === occurrenceId && time === oldStartTime)) {
                     newDateArray.push([occurrenceId, oldStartTime]);
-                    console.log(`oldDate !== newDate AND Same time, another date:`);
                 }
-                newDateArray.forEach((arr) => {
-                    console.log(arr);
-                });
-                console.log(`------`);
             }
 
             tmpMap.set(newDate, newDateArray)
@@ -375,10 +365,6 @@ const ClassManagement = () => {
 
         const oldActualDate = targetOccurrence.actualDate;
         const oldActualStartTime = targetOccurrence.actualStartTime;
-
-        // TODO: revisit when decide what use app-wise: planned or actual (this) date and time
-        const oldPlannedDate = targetOccurrence.plannedDate;
-        const oldPlannedStartTime = targetOccurrence.plannedStartTime;
 
         const updates: Partial<ClassOccurrenceType> = {};
         if (actualDate !== undefined) updates.actualDate = actualDate;
