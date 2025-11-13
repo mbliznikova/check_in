@@ -419,13 +419,14 @@ const ClassOccurrenceModal = ({
 
     const renderDeleteChoice = (id: number, className: string, date: string, time: string) => {
         return (
+            <View style={styles.successOverlay}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                             Do you want to delete class occurrence?
                         </Text>
                     </View>
-                    <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                    <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, { width: '50%' }]}>
                         <Pressable
                             style={styles.modalConfirmButton}
                             onPress={() => {
@@ -447,6 +448,7 @@ const ClassOccurrenceModal = ({
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                         </Pressable>
                     </View>
+                </View>
                 </View>
         );
     };
@@ -569,6 +571,7 @@ const ClassOccurrenceModal = ({
                             onPress={() => {
                                 setIsDeleteConfirmationOpen(true);
                                 setIsEditDeleteOpen(false);
+                                setIsAddOccurrenceOpen(false);
                             }}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete occurrence</Text>
@@ -588,7 +591,7 @@ const ClassOccurrenceModal = ({
         >
             <ScrollView contentContainerStyle={[styles.modalInfo, styles.modalContainer]}>
                 {isAddOccurrenceOpen && renderAddOccurrenceView()}
-                {!isAddOccurrenceOpen && !isEditDeleteOpen && renderOccurences()}
+                {!isAddOccurrenceOpen && !isEditDeleteOpen && !isDeleteConfirmationOpen && renderOccurences()}
                 {isEditDeleteOpen && renderEditDeleteView()}
                 {isConfirmationOpen && (
                     <View style={styles.successOverlay}>
