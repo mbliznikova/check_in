@@ -94,6 +94,8 @@ const ClassOccurrenceModal = ({
     const [isEditDeleteOpen, setIsEditDeleteOpen] = useState(false);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(isCreateOccurrenceSuccess);
 
+    const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+
 
     const callIntervals = async(date: string, duration: number) => {
         const timeIntervals = await onRequestingTimeIntervals(date, duration);
@@ -415,6 +417,40 @@ const ClassOccurrenceModal = ({
         return updatedOccurrenceData
     };
 
+    const renderDeleteChoice = (id: number, className: string, date: string, time: string) => {
+        return (
+                <View style={styles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            Do you want to delete class occurrence?
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {
+                                onDeleteOccurrence(id, className, date, time);
+                                setIsDeleteConfirmationOpen(false);
+                                // setIsEditDeleteOpen(false);
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
+                        </Pressable>
+                        <Pressable
+                            style={styles.modalCancelButton}
+                            onPress={() => {
+                                setIsDeleteConfirmationOpen(false);
+                                setIsEditDeleteOpen(true);
+
+                            }}
+                        >
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+        );
+    };
+
     const renderEditDeleteView = () => {
         if (!originalOccurrence || !selectedOccurrenceId) return null;
 
@@ -531,12 +567,8 @@ const ClassOccurrenceModal = ({
                         <Pressable
                             style={styles.deleteButton}
                             onPress={() => {
-                               onDeleteOccurrence(
-                                    selectedOccurrenceId,
-                                    className ?? 'No name class',
-                                    originalOccurrence.actualDate,
-                                    originalOccurrence.actualStartTime
-                                );
+                                setIsDeleteConfirmationOpen(true);
+                                setIsEditDeleteOpen(false);
                             }}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete occurrence</Text>
@@ -563,6 +595,13 @@ const ClassOccurrenceModal = ({
                         {renderSuccessConfirmation()}
                     </View>
                 )}
+                {isDeleteConfirmationOpen &&
+                selectedOccurrenceId !== null &&
+                originalOccurrence && renderDeleteChoice(
+                    selectedOccurrenceId,
+                    className ?? 'No name class',
+                    originalOccurrence?.actualDate,
+                    originalOccurrence?.actualStartTime)}
             </ScrollView>
         </Modal>
     );
