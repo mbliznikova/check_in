@@ -419,7 +419,6 @@ const ClassOccurrenceModal = ({
 
     const renderDeleteChoice = (id: number, className: string, date: string, time: string) => {
         return (
-            <View style={styles.successOverlay}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
@@ -432,7 +431,6 @@ const ClassOccurrenceModal = ({
                             onPress={() => {
                                 onDeleteOccurrence(id, className, date, time);
                                 setIsDeleteConfirmationOpen(false);
-                                // setIsEditDeleteOpen(false);
                             }}
                         >
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
@@ -448,7 +446,6 @@ const ClassOccurrenceModal = ({
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                         </Pressable>
                     </View>
-                </View>
                 </View>
         );
     };
@@ -600,11 +597,15 @@ const ClassOccurrenceModal = ({
                 )}
                 {isDeleteConfirmationOpen &&
                 selectedOccurrenceId !== null &&
-                originalOccurrence && renderDeleteChoice(
-                    selectedOccurrenceId,
-                    className ?? 'No name class',
-                    originalOccurrence?.actualDate,
-                    originalOccurrence?.actualStartTime)}
+                originalOccurrence &&
+                    (<View style={styles.successOverlay}>
+                        {renderDeleteChoice(
+                            selectedOccurrenceId,
+                            className ?? 'No name class',
+                            originalOccurrence?.actualDate,
+                            originalOccurrence?.actualStartTime)}
+                    </View>)
+                }
             </ScrollView>
         </Modal>
     );
