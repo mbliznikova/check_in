@@ -7,7 +7,6 @@ import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
 import ClassOccurrenceModal from "./ClassOccurrencesModal";
-import ClassName from "./ClassName";
 
 
 type ClassType = {
@@ -62,7 +61,7 @@ const ClassManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
     const [isCreateOccurrenceSuccessful, setIsCreateOccurrenceSuccessful] = useState(false);
-    const [isEditOccurrenceSuccessful, setIsEditOccurrenceSuccessful] = useState(false);
+    const [isEditOccurrenceSuccessful, setIsEditOccurrenceSuccessful] = useState(false); // TODO: pass it to the appropriate modal and handle there
 
     const [isCreateClassError, setIsCreateClassError] = useState(false);
 
@@ -132,6 +131,17 @@ const ClassManagement = () => {
             'plannedDuration' in responseData && responseData.plannedDuration === plannedDuration &&
             (classId === undefined || ('classId' in responseData && responseData.classId === classId)) &&
             ((responseData.notes || '') === (notes || ''))
+        );
+    };
+
+    const isValidCreatePriceResponse = (responseData: any, classId: number, amount: number) => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Price was created successfull' &&
+            'priceId' in responseData &&
+            'classId' in responseData && responseData.classId === classId &&
+            'amount' in responseData && responseData.amount === amount
         );
     };
 
@@ -613,6 +623,49 @@ const ClassManagement = () => {
         }
     };
 
+    const createClassPrice = async (classId: number, amount: number) => {
+        if (!classId || !amount) {
+            console.warn("No class id or no amount");
+            return null;
+        };
+
+        const data = {
+            "classId": classId,
+            "amount": amount,
+        };
+
+        try {
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/prices/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                const errorMessage = `Function createClassPrice. Request was unsuccessful: ${response.status}, ${response.statusText}`;
+                throw Error(errorMessage);
+            } else {
+                console.log('Price was created successfully!');
+
+                const responseData = await response.json();
+
+                if (isValidCreatePriceResponse(responseData, classId, amount)) {
+                    console.log(`Function createClassPrice. The response from backend is valid. ${JSON.stringify(responseData)}`);
+                } else {
+                    console.log(`Function createClassPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
+                }
+            }
+        } catch (error) {
+            console.error(`Error while sending the data to the server when creating price: ${error}`);
+        }
+    };
+
     const createClass = async (className: string, classDuration: number = 60, isRecurring: boolean = true) => {
         // TODO: sanitize input
         const data = {
@@ -653,6 +706,8 @@ const ClassManagement = () => {
                     setCreatedClassId(responseData.id);
                     setClasses(prevClasses => [...prevClasses, newClass]);
                     addClassToUniqueness(className);
+
+                    // TODO: call the function to create a Price after it
 
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
