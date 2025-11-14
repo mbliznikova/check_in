@@ -9,7 +9,7 @@ import Checkbox from './Checkbox';
 type ClassCreationModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onCreateClass: (className: string, newClassDuration?: number, isRecurring?: boolean) => void;
+    onCreateClass: (className: string, price: number, newClassDuration?: number, isRecurring?: boolean) => void;
     onClassUniquenessCheck: (name: string) => boolean;
     onRequestingTimeSlots: (dayName: string, classDurationToFit: number) => Promise<string[]>;
     onScheduleClass: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
@@ -334,9 +334,9 @@ const CreateScheduleClass = ({
                         onPress={() => {
                             if (newClassDuration !== defaultClassDuration) {
                                 console.log(`isRecurring is ${isRecurring}`)
-                                onClassUniquenessCheck(className) ? onCreateClass(className, newClassDuration, isRecurring) : alert('Class with such name already exists');
+                                onClassUniquenessCheck(className) ? onCreateClass(className, classPrice, newClassDuration, isRecurring) : alert('Class with such name already exists');
                             } else {
-                                onClassUniquenessCheck(className) ? onCreateClass(className, undefined, isRecurring) : alert('Class with such name already exists');
+                                onClassUniquenessCheck(className) ? onCreateClass(className, classPrice, undefined, isRecurring) : alert('Class with such name already exists');
                             }
                             setClassName("");
                         }}

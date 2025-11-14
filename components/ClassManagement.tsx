@@ -138,7 +138,7 @@ const ClassManagement = () => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
-            'message' in responseData && responseData.message === 'Price was created successfull' &&
+            'message' in responseData && responseData.message === 'Price was created successfully' &&
             'priceId' in responseData &&
             'classId' in responseData && responseData.classId === classId &&
             'amount' in responseData && responseData.amount === amount
@@ -666,7 +666,7 @@ const ClassManagement = () => {
         }
     };
 
-    const createClass = async (className: string, classDuration: number = 60, isRecurring: boolean = true) => {
+    const createClass = async (className: string, price: number, classDuration: number = 60, isRecurring: boolean = true) => {
         // TODO: sanitize input
         const data = {
             "name": className,
@@ -707,7 +707,7 @@ const ClassManagement = () => {
                     setClasses(prevClasses => [...prevClasses, newClass]);
                     addClassToUniqueness(className);
 
-                    // TODO: call the function to create a Price after it
+                    createClassPrice(responseData.id, price);
 
                 } else {
                     console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
