@@ -44,6 +44,7 @@ const CreateScheduleClass = ({
     const [className, setClassName] = useState("");
     const [newClassDuration, setNewClassDuration] = useState(defaultClassDuration);
     const [isRecurring, setIsRecurring] = useState(false);
+    const [classPrice, setClassPrice] = useState(0);
 
     const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
     const [selectedDayName, setSelectedDayName] = useState("");
@@ -311,6 +312,21 @@ const CreateScheduleClass = ({
                         onChange={() => {setIsRecurring(!isRecurring)}}
                         labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
                     />
+                </View>
+
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                    >
+                        Price:
+                    </Text>
+                    <TextInput
+                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        value={(classPrice.toString())}
+                        onChangeText={(classPriceAmount) => {
+                            setClassPrice(Number(classPriceAmount))
+                        }}
+                    ></TextInput>
                 </View>
 
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
