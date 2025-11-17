@@ -14,12 +14,16 @@ type StudentType = {
 
 type RawPriceType = {
     [classId: string]: {
-        [className: string]: number
-    },
+        className: string;
+        amount: number;
+        priceId: number;
+    };
 };
 
 type PriceType = Map<number, {
-    [className: string]: number
+    className: string;
+    amount: number;
+    priceId: number;
 }>;
 
 type ClassPaymentType = Map<number, {
@@ -153,7 +157,7 @@ const Payments = () => {
             const paymentData: ClassPaymentType = new Map();
 
             prices.forEach((classInfo, classId) => {
-                const className = Object.keys(classInfo)[0];
+                const className = classInfo.className;
                 const key = `${student.id}-${classId}`;
                 const amount = aggregatedPayments.has(key) ? aggregatedPayments.get(key)!.reduce((acc, curr) => acc + curr, 0) : 0.0;
                 const paid = aggregatedPayments.has(key) ? true : false;
@@ -188,12 +192,13 @@ const Payments = () => {
 
                     const pricesObj: PriceType = new Map(
                         Object.entries(rawPricesObj)
-                            .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
-                            .sort((a, b) => {
-                                    const nameA = Object.keys(a[1])[0].toLowerCase();
-                                    const nameB = Object.keys(b[1])[0].toLowerCase();
-                                    return nameA.localeCompare(nameB);
-                                })
+                            .map(
+                                ([key, value]): [number, { className: string; amount: number; priceId: number }] =>
+                                    [Number(key), value]
+                            )
+                            .sort((a, b) =>
+                                a[1].className.toLowerCase().localeCompare(b[1].className.toLowerCase())
+                            )
                     );
 
                     setPrices(pricesObj);
@@ -381,7 +386,7 @@ const Payments = () => {
             <View style={[styles.headerRow, styles.whiteBorderLine]}>
                 <Text style={{paddingRight: 150}}></Text>
                 {priceArray.map(([classId, classInfo]) => {
-                    const className = Object.keys(classInfo)[0];
+                    const className = classInfo.className;
                     return (
                         <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                             {className}
@@ -415,8 +420,8 @@ const Payments = () => {
                             const isPaid: boolean = classInfo.paid ?? false;
 
                             const classPrice = prices.get(Number(classId));
-                            const className = classPrice ? Object.keys(classPrice)[0] : "Undefined";
-                            const price = classPrice && className ? classPrice[className] : 0.0;
+                            const className = classPrice ? classPrice.className : "Undefined";
+                            const price = classPrice ? classPrice.amount : 0.0;
 
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
