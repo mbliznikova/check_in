@@ -16,6 +16,14 @@ type ClassType = {
     isRecurring: boolean;
 };
 
+type PriceItem = {
+    className: string;
+    amount: number;
+    priceId: number;
+};
+
+type PriceMap = Map<number, PriceItem>;
+
 type ScheduleType = {
     id: number,
     classTime: string,
@@ -49,6 +57,7 @@ const ClassManagement = () => {
     const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
     const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
     const [selectedClassRecurrence, setSelectedClassRecurrence] = useState<boolean>(true);
+    const [selectedClassPrice, setSelectedClassPrice] = useState<number | null>(null);
 
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -75,6 +84,8 @@ const ClassManagement = () => {
 
     const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
+
+    const [prices, setPrices] = useState<PriceMap>(new Map());
 
     const isValidArrayResponse = (responseData: any, key: string): boolean => {
         return (
@@ -133,6 +144,14 @@ const ClassManagement = () => {
             ((responseData.notes || '') === (notes || ''))
         );
     };
+
+    const isValidPriceResponse = (responseData: any) => { // TODO: have a "general" response?
+        return (
+            typeof responseData === "object" &&
+            responseData !== null &&
+            'response' in responseData
+        )
+    }
 
     const isValidCreatePriceResponse = (responseData: any, classId: number, amount: number) => {
         return (
@@ -622,6 +641,32 @@ const ClassManagement = () => {
             console.error(`Error while deleting the class: ${error}`);
         }
     };
+
+    const fetchPrices = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidPriceResponse(responseData)) {
+                    console.log("Function fetchPrices at ClassManagement.tsx. The response from backend is valid." + JSON.stringify(responseData))
+
+                    const priceData: PriceMap = new Map(
+                        Object.entries(responseData.response).map(
+                            ([classIdStr, value]) =>
+                                [Number(classIdStr), value] as [number, PriceItem]
+                        )
+                    );
+
+                    setPrices(priceData);
+                }
+            } else {
+                console.log("Function fetchPrices at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch (err) {
+            console.error("Error while fetching the list of prices: ", err);
+        }
+    }
 
     const createClassPrice = async (classId: number, amount: number) => {
         if (!classId || !amount) {
@@ -1207,6 +1252,7 @@ const ClassManagement = () => {
     };
 
     useEffect(() => {
+        fetchPrices();
         fetchClasses();
         fetchSchedules();
         fetchAllClassOccurrences();
@@ -1285,7 +1331,7 @@ const ClassManagement = () => {
                                 setSelectedClassDuration(cls.durationMinutes);
                                 fetchClassSchedules(cls.id);
                                 setIsScheduleModalVisible(true);
-                                }}>
+                            }}>
                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
@@ -1306,6 +1352,8 @@ const ClassManagement = () => {
                                     setSelectedClassName(cls.name);
                                     setSelectedClassRecurrence(cls.isRecurring);
                                     setSelectedClassDuration(cls.durationMinutes);
+                                    const currentPrice = prices.get(cls.id)?.amount ?? 0;
+                                    setSelectedClassPrice(currentPrice);
                                     setIsEditModalVisible(true);
                                 }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Edit</Text>
@@ -1385,12 +1433,14 @@ const ClassManagement = () => {
                     setIsEditModalVisible(false);
                     setIsEditSuccessful(false);
                     setSelectedClassDuration(null);
+                    setSelectedClassPrice(null);
                 }}
                 onEditClass={editClass}
                 onClassUniquenessCheck={checkIfClassUnique}
                 oldClassName={selectedClassName ?? ""}
                 oldClassDuration={selectedClassDuration}
                 oldClassRecurrence={selectedClassRecurrence}
+                oldClassPrice={selectedClassPrice ?? 0}
                 isSuccess={isEditSuccessful}
             />
         );
