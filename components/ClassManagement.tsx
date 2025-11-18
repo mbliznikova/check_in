@@ -153,6 +153,16 @@ const ClassManagement = () => {
         )
     }
 
+    const isValidaEditPriceResponse = (responseData: any, priceId: number, newAmount: number) => {
+        return (
+            typeof responseData === "object" &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === 'Price was updated successfully' &&
+            'id' in responseData && responseData.id === priceId &&
+            'amount' in responseData && responseData.amount == newAmount
+        );
+    };
+
     const isValidCreatePriceResponse = (responseData: any, classId: number, amount: number) => {
         return (
             typeof responseData === 'object' &&
@@ -863,6 +873,56 @@ const ClassManagement = () => {
 
         } catch(error) {
             console.error(`Error while sending the data to the server when editing class: ${error}`)
+        }
+    };
+
+    const editPrice = async (priceId: number, newAmount: number, classId: number) => {
+        if (priceId === null || newAmount === null) {
+            console.warn("No price id or no amount to edit");
+            return null;
+        }
+
+        const data = {
+            "amount": newAmount
+        };
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/backend/prices/${priceId}/`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (isValidaEditPriceResponse(responseData, priceId, newAmount)) {
+                    console.log(`Successfully edited price ${priceId}: changed amount to ${newAmount} for class ${classId}`);
+                } else {
+                    console.warn(`Function editPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+                setSelectedClassPrice(newAmount);
+
+                const newMap = new Map(prices);
+                const newItem = newMap.get(classId);
+
+                if (newItem) {
+                    const updatedItem = {...newItem, newAmount}
+                    newMap.set(classId, updatedItem);
+
+                    setPrices(newMap);
+                }
+
+            } else {
+                console.warn(`Function editPrice. Request was unsuccessful: ${response.status, response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while editing a price: ${error}`);
         }
     };
 
