@@ -643,8 +643,6 @@ const ClassManagement = () => {
 
                 removeClass(selectedClassId);
 
-                setSelectedClassId(null);
-                setSelectedClassName("");
             } else {
                 console.warn(`Function deleteClass. Request was unsuccessful: ${response.status, response.statusText}`);
             }
@@ -818,8 +816,6 @@ const ClassManagement = () => {
                 addScheduleToState(scheduleId, dayId, time);
                 addScheduleToUniqueness(dayId, time);
 
-                setSelectedClassId(null);
-                setSelectedClassName("");
             }
         } catch(error) {
             console.error(`Error while sending the data to the server when scheduling class: ${error}`);
@@ -1175,8 +1171,6 @@ const ClassManagement = () => {
 
                 addOccurrenceToUniqueness(plannedDate, plannedTime);
 
-                setSelectedClassId(null);
-                setSelectedClassName("");
             }
         } catch(error) {
             console.error(`Error while sending the data to the server when creating class occurrence: ${error}`);
@@ -1456,6 +1450,8 @@ const ClassManagement = () => {
                         setCreatedClassId(null);
                         setIsScheduleSuccessful(false);
                         setCurrentClassScheduleMap(new Map());
+                        setSelectedClassId(null);
+                        setSelectedClassName("");
                     }}
                     defaultClassDuration={60} // TODO: have as a variable
                     isCreateSuccess={isCreateSuccessful}
@@ -1477,6 +1473,8 @@ const ClassManagement = () => {
                 onModalClose={() => {
                     setIsDeleteModalVisible(false);
                     setIsDeleteSuccessful(false);
+                    setSelectedClassId(null);
+                    setSelectedClassName("");
                 }}
                 onDeleteClass={deleteClass}
                 className={selectedClassName ?? ""}
@@ -1506,6 +1504,8 @@ const ClassManagement = () => {
                     setSelectedClassDuration(null);
                     setSelectedClassPrice(null);
                     setSelectedPriceId(null);
+                    setSelectedClassId(null);
+                    setSelectedClassName("");
                 }}
                 onEditClass={editClass}
                 onEditPrice={editPrice}
@@ -1532,6 +1532,8 @@ const ClassManagement = () => {
                     setIsScheduleModalVisible(false);
                     setIsScheduleSuccessful(false);
                     setCurrentClassScheduleMap(new Map());
+                    setSelectedClassId(null);
+                    setSelectedClassName("");
                 }}
                 onRequestingTimeSlots={fetchAvailableTimeSlots}
                 onScheduleDelete={deleteClassSchedule}
@@ -1558,6 +1560,8 @@ const ClassManagement = () => {
                     setCurrentClassOccurrenceMap(new Map());
                     setIsCreateOccurrenceSuccessful(false);
                     setIsEditOccurrenceSuccessful(false);
+                    setSelectedClassId(null);
+                    setSelectedClassName("");
                 }}
                 onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
                 onCreateOccurrence={createClassOccurrence}
