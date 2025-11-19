@@ -58,6 +58,7 @@ const ClassManagement = () => {
     const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
     const [selectedClassRecurrence, setSelectedClassRecurrence] = useState<boolean>(true);
     const [selectedClassPrice, setSelectedClassPrice] = useState<number | null>(null);
+    const [selectedPriceId, setSelectedPriceId] = useState<number | null>(null);
 
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -902,17 +903,18 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidaEditPriceResponse(responseData, priceId, newAmount)) {
-                    console.log(`Successfully edited price ${priceId}: changed amount to ${newAmount} for class ${classId}`);
+                    console.log(`Function editPrice. The response from backend is valid. ${JSON.stringify(responseData)}`);
                 } else {
                     console.warn(`Function editPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
+
                 setSelectedClassPrice(newAmount);
 
                 const newMap = new Map(prices);
                 const newItem = newMap.get(classId);
 
                 if (newItem) {
-                    const updatedItem = {...newItem, newAmount}
+                    const updatedItem = {...newItem, amount: newAmount}
                     newMap.set(classId, updatedItem);
 
                     setPrices(newMap);
@@ -1414,6 +1416,8 @@ const ClassManagement = () => {
                                     setSelectedClassDuration(cls.durationMinutes);
                                     const currentPrice = prices.get(cls.id)?.amount ?? 0;
                                     setSelectedClassPrice(currentPrice);
+                                    const currentPriceId = prices.get(cls.id)?.priceId ?? null;
+                                    setSelectedPriceId(currentPriceId);
                                     setIsEditModalVisible(true);
                                 }}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Edit</Text>
@@ -1486,6 +1490,14 @@ const ClassManagement = () => {
         if (!isEditModalVisible) {
             return null;
         }
+
+        if (
+            selectedClassId === null ||
+            selectedPriceId === null
+        ) {
+                return null;
+        }
+
         return (
             <EditClassModal
                 isVisible={isEditModalVisible}
@@ -1494,13 +1506,17 @@ const ClassManagement = () => {
                     setIsEditSuccessful(false);
                     setSelectedClassDuration(null);
                     setSelectedClassPrice(null);
+                    setSelectedPriceId(null);
                 }}
                 onEditClass={editClass}
+                onEditPrice={editPrice}
                 onClassUniquenessCheck={checkIfClassUnique}
+                classId={selectedClassId}
                 oldClassName={selectedClassName ?? ""}
-                oldClassDuration={selectedClassDuration}
+                oldClassDuration={selectedClassDuration ?? 60}
                 oldClassRecurrence={selectedClassRecurrence}
                 oldClassPrice={selectedClassPrice ?? 0}
+                priceId={selectedPriceId}
                 isSuccess={isEditSuccessful}
             />
         );

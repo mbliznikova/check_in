@@ -7,22 +7,30 @@ import React from 'react';
 
 type EditClassModalProps = {
     isVisible: boolean;
+    classId: number,
     oldClassName: string;
-    oldClassDuration: number | null;
+    oldClassDuration: number;
     oldClassRecurrence: boolean;
+    oldClassPrice: number;
+    priceId: number;
     onModalClose: () => void;
     onEditClass: (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => void;
+    onEditPrice: (priceId: number, newAmount: number, classId: number) => void;
     onClassUniquenessCheck: (name: string) => boolean;
     isSuccess: boolean;
 };
 
 const EditClassModal = ({
     isVisible = false,
+    classId,
     oldClassName,
     oldClassDuration,
     oldClassRecurrence,
+    oldClassPrice,
+    priceId,
     onModalClose,
     onEditClass,
+    onEditPrice,
     onClassUniquenessCheck,
     isSuccess = false,
 }: EditClassModalProps) => {
@@ -32,14 +40,7 @@ const EditClassModal = ({
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
     const [newClassRecurrence, setNewClassRecurrence] = useState(oldClassRecurrence);
-
-    const ifNoChanges = (): boolean => {
-        return (
-            oldClassName === newClassName &&
-            oldClassDuration === newClassDuration &&
-            oldClassRecurrence === newClassRecurrence
-        );
-    };
+    const [newClassPrice, setNewClassPrice] = useState(oldClassPrice);
 
     const renderSuccessConfirmation = () => {
         return (
@@ -169,17 +170,48 @@ const EditClassModal = ({
                         />
                     </View>
 
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <Text
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        >
+                            Edit class price:
+                        </Text>
+                        <TextInput
+                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            value={newClassPrice?.toString()}
+                            onChangeText={(updatedClassPrice) => {
+                                setNewClassPrice(Number(updatedClassPrice)) // TODO: better handling and type conversion & validation. Number picker?
+                            }}
+                        ></TextInput>
+                    </View>
+
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             onPress={() => {
-                                if (ifNoChanges()) {
+                                const classChanged = (
+                                    newClassName!== oldClassName||
+                                    newClassDuration !== oldClassDuration ||
+                                    newClassRecurrence !== oldClassRecurrence
+                                );
+
+                                const priceChanged = oldClassPrice !== newClassPrice;
+
+                                if (!classChanged && !priceChanged) {
                                     console.log('No changes made');
                                     return;
-                                } else if (newClassDuration !== null && (newClassName!== oldClassName || newClassDuration !== oldClassDuration || newClassRecurrence !== oldClassRecurrence)) {
-                                    // TODO: add ability to edit only duration or recurrence
-                                    onClassUniquenessCheck(newClassName) ? onEditClass(newClassName, newClassDuration, newClassRecurrence) : alert('Class with such name already exists');
                                 }
-                                setNewClassName("");
+
+                                if (classChanged) {
+                                    // TODO: add ability to edit only duration or recurrence
+                                    onClassUniquenessCheck(newClassName) ? onEditClass(
+                                        newClassName, newClassDuration, newClassRecurrence
+                                    ) : alert('Class with such name already exists');
+                                    // set the newcClassName to the oldClassName if not unique
+                                }
+                                if (priceChanged) {
+                                    onEditPrice(priceId, newClassPrice, classId);
+                                }
+                                // setNewClassName("");
                             }}
                             style={styles.modalConfirmButton}
                         >
