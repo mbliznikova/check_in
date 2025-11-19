@@ -863,9 +863,6 @@ const ClassManagement = () => {
             setSelectedClassRecurrence(newClassRecurrence);
             addClassToUniqueness(newClassName);
 
-            // TODO: have state vars reset at modal close?
-            setSelectedClassId(null);
-            setSelectedClassName("");
             // setSelectedClassRecurrence(true); // TODO: how to handle better?
 
         } else {
@@ -907,6 +904,8 @@ const ClassManagement = () => {
                 } else {
                     console.warn(`Function editPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
+
+                setIsEditSuccessful(true);
 
                 setSelectedClassPrice(newAmount);
 
