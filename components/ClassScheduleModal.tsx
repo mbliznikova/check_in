@@ -58,6 +58,12 @@ const ClassScheduleModal = ({
         "Sunday"
     ];
 
+    const [pendingDelete, setPendingDelete] = useState<{
+        scheduleId: number;
+        day: number;
+        time: string;
+    } | null>(null);
+
     useEffect(() => {
         setIsConfirmationOpen(isSheduleSuccess)
     }, [isSheduleSuccess]);
@@ -208,7 +214,7 @@ const ClassScheduleModal = ({
                                     <Pressable
                                         style={styles.timeButton}
                                         onPress={() => {
-                                            onScheduleDelete(scheduleId, day, time);
+                                            setPendingDelete({scheduleId, day, time});
                                         }}
                                     >
                                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
@@ -248,6 +254,42 @@ const ClassScheduleModal = ({
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
                     </View>
+                </View>
+            </View>
+        );
+    };
+
+
+    const renderDeleteChoice = () => {
+        if (!pendingDelete) return null;
+
+        const { scheduleId, day, time } = pendingDelete;
+
+        return (
+            <View style={styles.modalView}>
+                <View style={styles.modalInfo}>
+                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        Do you want to delete this schedule?
+                    </Text>
+                </View>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, { width: '50%' }]}>
+                    <Pressable
+                        style={styles.modalConfirmButton}
+                        onPress={() => {
+                            onScheduleDelete(scheduleId, day, time);
+                            setPendingDelete(null);
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
+                    </Pressable>
+                    <Pressable
+                        style={styles.cancelButton}
+                        onPress={() => {
+                            setPendingDelete(null);
+                        }}
+                    >
+                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                    </Pressable>
                 </View>
             </View>
         );
@@ -311,10 +353,17 @@ const ClassScheduleModal = ({
         >
             <View style={{flex: 1}}>
                 {isConfirmationOpen && (
-                    <View style={styles.successOverlay}>
+                    <View style={styles.confirmationOverlay}>
                         {renderSuccessConfirmation()}
                     </View>
                 )}
+
+                {pendingDelete && (
+                    <View style={styles.confirmationOverlay}>
+                        {renderDeleteChoice()}
+                    </View>
+                )}
+
                 {renderSchedule()}
             </View>
         </Modal>
@@ -466,7 +515,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         backgroundColor: 'grey',
     },
-    successOverlay: {
+    confirmationOverlay: {
         position: 'absolute',
         top: 0,
         left: 0,
