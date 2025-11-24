@@ -603,7 +603,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClasses. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchClasses. The response from backend is valid.`);
 
                     const fetchedClasses: ClassType[] = responseData.response;
                     setClasses(fetchedClasses);
@@ -658,7 +658,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidPriceResponse(responseData)) {
-                    console.log("Function fetchPrices at ClassManagement.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchPrices at ClassManagement.tsx. The response from backend is valid.")
 
                     const priceData: PriceMap = new Map(
                         Object.entries(responseData.response).map(
@@ -931,7 +931,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchSchedules. The response from backend is valid.`);
                     const schedules = responseData.response;
 
                     setAllSchedulesList(schedules);
@@ -956,7 +956,7 @@ const ClassManagement = () => {
 
                 // TODO: validation for elements of the array?
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClassSchedules. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchClassSchedules. The response from backend is valid.`);
                     const schedules = responseData.response;
                     const scheduleMap: Map<number, [number, string][]> = new Map();
 
@@ -1054,7 +1054,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchAllClassOccurrences. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchAllClassOccurrences. The response from backend is valid.`);
 
                     const classOccurrences: ClassOccurrenceType[] = responseData.response;
                     const occurrencesMap = new Map<number, ClassOccurrenceType>();
@@ -1080,7 +1080,7 @@ const ClassManagement = () => {
 
                 // TODO: validation for elements of the array?
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClassOccurrences. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchClassOccurrences. The response from backend is valid.`);
                     const occurrences = responseData.response;
                     const occurrencesMap: Map<string, [number, string][]> = new Map();
 
