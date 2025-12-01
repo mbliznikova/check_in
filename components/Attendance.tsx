@@ -128,7 +128,7 @@ const Attendance = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, 'response')) {
-                    console.log('AttendancePaymentsReport. Function fetchAttendances. The response from backend is valid.' + JSON.stringify(responseData))
+                    console.log('AttendancePaymentsReport. Function fetchAttendances. The response from backend is valid.')
 
                     const dataAttendanceList: AttendanceType[] = responseData.response;
                     const fetchedAttendances = dataAttendanceList.map(att => ({
@@ -137,7 +137,6 @@ const Attendance = () => {
                     }));
 
                     setAttendances(fetchedAttendances);
-                    console.log("AttendancePaymentsReport. Fetched attendances: ", fetchedAttendances);
                 }
             } else {
                 console.log("Function fetchAttendances. Response was unsuccessful: ", response.status, response.statusText)
@@ -155,17 +154,17 @@ const Attendance = () => {
                if (response.ok) {
                    const responseData = await response.json();
                    if (isValidArrayResponse(responseData, "response")) {
-                       console.log("Function fetchPayments at Attendance.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                       console.log('Function fetchPayments at Attendance.tsx. The response from backend is valid.')
 
                        const paymentList: PaymentType[] = responseData.response;
 
                        setPayments(paymentList);
                    }
                } else {
-                   console.log("Function fetchPayments at Attendance.tsx. Request was unsuccessful: ", response.status, response.statusText)
+                   console.log('Function fetchPayments at Attendance.tsx. Request was unsuccessful: ', response.status, response.statusText)
                }
            } catch (err) {
-               console.error("Error while fetching the list of payments: ", err);
+               console.error('Error while fetching the list of payments: ', err);
            }
        }
 
