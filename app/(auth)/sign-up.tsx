@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet } from 'react-native'
 import { useSignUp } from '@clerk/clerk-expo'
 import { Link, useRouter } from 'expo-router'
 
@@ -11,6 +11,8 @@ export default function SignUpScreen() {
   const [password, setPassword] = React.useState('')
   const [pendingVerification, setPendingVerification] = React.useState(false)
   const [code, setCode] = React.useState('')
+
+  const colorScheme = useColorScheme();
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
@@ -80,31 +82,101 @@ export default function SignUpScreen() {
   }
 
   return (
-    <View>
-      <>
-        <Text>Sign up</Text>
+    <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }]}>
+      <View style={[styles.itemContainer]}>
+
+        <View style={styles.titleTextContainer}>
+          <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.titleText]}>Sign up</Text>
+        </View>
         <TextInput
           autoCapitalize="none"
           value={emailAddress}
           placeholder="Enter email"
+          placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
           onChangeText={(email) => setEmailAddress(email)}
+          style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
         />
         <TextInput
           value={password}
           placeholder="Enter password"
+          placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
           secureTextEntry={true}
           onChangeText={(password) => setPassword(password)}
+          style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
         />
-        <TouchableOpacity onPress={onSignUpPress}>
-          <Text>Continue</Text>
-        </TouchableOpacity>
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-          <Text>Already have an account?</Text>
-          <Link href="/sign-in">
-            <Text>Sign in</Text>
-          </Link>
+      </View>
+
+      <View>
+        <View style={styles.itemContainer}>
+          <TouchableOpacity
+            onPress={onSignUpPress}
+            style={[styles.button]}
+          >
+            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Continue</Text>
+          </TouchableOpacity>
         </View>
-      </>
+        <View style={styles.itemContainer}>
+          <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
+            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.regularText]}>Already have an account? </Text>
+            <Link href="/sign-in">
+              <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.signInText, styles.regularText]}>Sign in</Text>
+            </Link>
+          </View>
+        </View>
+
+      </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  itemContainer: {
+      padding: 10,
+      alignItems: 'center',
+  },
+  itemRow: {
+      flexDirection: 'row'
+  },
+  darkColor: {
+      color: 'black',
+  },
+  lightColor: {
+      color: 'white',
+  },
+  inputFeld: {
+      height: 30,
+      width: 200,
+      borderWidth: 1,
+      borderColor: 'gray',
+      padding: 10,
+      borderRadius: 15,
+      margin: 10,
+  },
+  titleTextContainer: {
+    margin: 10,
+    paddingBottom: 10,
+  },
+  titleText: {
+    fontSize: 25,
+    fontWeight: 'heavy',
+  },
+  regularText: {
+    fontSize: 18,
+  },
+  signInText: {
+    color: 'blue',
+  },
+  button: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    elevation: 3,
+    backgroundColor: 'blue',
+    borderRadius: 8,
+},
+});
