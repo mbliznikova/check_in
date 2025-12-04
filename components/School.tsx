@@ -21,7 +21,7 @@ type ClassType = {
 
 type ClassOccurrenceType = {
     id: number;
-    classId: number | null;
+    classModel: number | null;
     fallbackClassName: string;
     schedule: string;
     plannedDate: string;
@@ -77,7 +77,7 @@ const School = () => {
                         const dataClassOccurrencesList: ClassOccurrenceType[] = responseData.response;
                         const fetchedClassOccurrences = dataClassOccurrencesList.map(cls => ({
                             id: cls.id,
-                            classId: cls.classId,
+                            classModel: cls.classModel,
                             fallbackClassName: cls.fallbackClassName,
                             schedule: cls.schedule,
                             plannedDate: cls.plannedDate,
