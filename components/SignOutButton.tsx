@@ -1,10 +1,15 @@
 import { useClerk } from '@clerk/clerk-expo'
 import * as Linking from 'expo-linking'
-import { Text, TouchableOpacity } from 'react-native'
+import { Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
 
 export const SignOutButton = () => {
   // Use `useClerk()` to access the `signOut()` function
   const { signOut } = useClerk()
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const textColor = isDark ? styles.lightColor : styles.darkColor;
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -17,8 +22,27 @@ export const SignOutButton = () => {
     }
   }
   return (
-    <TouchableOpacity onPress={handleSignOut}>
-      <Text>Sign out</Text>
+    <TouchableOpacity
+      onPress={handleSignOut}
+      style={styles.button}
+    >
+      <Text style={textColor}>Sign out</Text>
     </TouchableOpacity>
-  )
-}
+  );
+};
+
+const styles = StyleSheet.create({
+  darkColor: {
+      color: 'black',
+  },
+  lightColor: {
+      color: 'white',
+  },
+  button: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    elevation: 3,
+    backgroundColor: 'blue',
+    borderRadius: 8,
+  },
+});
