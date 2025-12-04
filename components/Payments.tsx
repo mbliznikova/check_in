@@ -2,9 +2,8 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
-// import { URLSearchParams } from 'node:url'
-
 import ScreenTitle from './ScreenTitle';
+import { Header } from './Header';
 
 type StudentType = {
     id: number;
@@ -552,6 +551,7 @@ const Payments = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Header/>
             <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}

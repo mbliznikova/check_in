@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
 import ConfirmationDetails from './ConfirmationDetails';
+import { Header } from './Header';
 
 // {"date": "2025-04-03", 
 //  "classes": 
@@ -93,11 +94,12 @@ const ConfirmationList = () => {
 
     return (
         <SafeAreaView style={styles.appContainer}>
-                <FlatList
-                    data={attendances}
-                    keyExtractor={att => att.date.toString()}
-                    renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
-                />
+            <Header/>
+            <FlatList
+                data={attendances}
+                keyExtractor={att => att.date.toString()}
+                renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
+            />
         </SafeAreaView>
     );
 };

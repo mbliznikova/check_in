@@ -5,6 +5,7 @@ import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
 import EditStudentModal from "./EditStudentModal";
+import { Header } from "./Header";
 
 type StudentType = {
     id: number,
@@ -496,6 +497,7 @@ const StudentManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <Header/>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}

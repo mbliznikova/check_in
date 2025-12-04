@@ -7,6 +7,7 @@ import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
 import ClassOccurrenceModal from "./ClassOccurrencesModal";
+import { Header } from "./Header";
 
 
 type ClassType = {
@@ -1580,6 +1581,7 @@ const ClassManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <Header/>
             <ScreenTitle titleText={'Class management'}/>
             {renderHeaderRow()}
             {renderClassList()}

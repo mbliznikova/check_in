@@ -5,6 +5,7 @@ import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressabl
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
+import { Header } from './Header';
 
 type AttendanceStudentType = {
     firstName: string;
@@ -333,6 +334,7 @@ const Attendance = () => {
     // TODO: refactor teh components: extract functions to separate places. DRY.
     return (
          <SafeAreaView style={styles.container}>
+            <Header/>
             <View style={[styles.container]}>
                 <FlatList
                     ListHeaderComponent={renderHeader}
