@@ -13,12 +13,12 @@ export default function SignUpScreen() {
   const [code, setCode] = React.useState('')
 
   const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const textColor = isDark ? styles.lightColor : styles.darkColor;
 
-  // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return
 
-    // Start sign-up process using email and password provided
     try {
       await signUp.create({
         emailAddress,
@@ -28,8 +28,6 @@ export default function SignUpScreen() {
       // Send user an email with verification code
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
 
-      // Set 'pendingVerification' to true to display second form
-      // and capture OTP code
       setPendingVerification(true)
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
@@ -38,7 +36,6 @@ export default function SignUpScreen() {
     }
   }
 
-  // Handle submission of verification form
   const onVerifyPress = async () => {
     if (!isLoaded) return
 
@@ -48,14 +45,10 @@ export default function SignUpScreen() {
         code,
       })
 
-      // If verification was completed, set the session to active
-      // and redirect the user
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
         router.replace('/')
       } else {
-        // If the status is not complete, check why. User may need to
-        // complete further steps.
         console.error(JSON.stringify(signUpAttempt, null, 2))
       }
     } catch (err) {
@@ -67,42 +60,59 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <>
-        <Text>Verify your email</Text>
-        <TextInput
-          value={code}
-          placeholder="Enter your verification code"
-          onChangeText={(code) => setCode(code)}
-        />
-        <TouchableOpacity onPress={onVerifyPress}>
-          <Text>Verify</Text>
-        </TouchableOpacity>
-      </>
+      <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+
+        <View style={styles.titleTextContainer}>
+          <Text>Verify your email</Text>
+        </View>
+
+        <View style={[styles.itemContainer]}>
+          <TextInput
+            value={code}
+            placeholder='Enter your verification code'
+            placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
+            onChangeText={(code) => setCode(code)}
+            style={[textColor, styles.inputFeld]}
+          />
+      </View>
+
+        <View>
+          <View style={styles.itemContainer}>
+            <TouchableOpacity
+              onPress={onVerifyPress}
+              style={[styles.button]}
+            >
+              <Text style={textColor}>Verify</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </View>
     )
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
       <View style={[styles.itemContainer]}>
 
         <View style={styles.titleTextContainer}>
-          <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.titleText]}>Sign up</Text>
+          <Text style={[textColor, styles.titleText]}>Sign up</Text>
         </View>
         <TextInput
-          autoCapitalize="none"
+          autoCapitalize='none'
           value={emailAddress}
-          placeholder="Enter email"
+          placeholder='Enter email'
           placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
           onChangeText={(email) => setEmailAddress(email)}
-          style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+          style={[textColor, styles.inputFeld]}
         />
         <TextInput
           value={password}
-          placeholder="Enter password"
+          placeholder='Enter password'
           placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
           secureTextEntry={true}
           onChangeText={(password) => setPassword(password)}
-          style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+          style={[textColor, styles.inputFeld]}
         />
       </View>
 
@@ -112,14 +122,14 @@ export default function SignUpScreen() {
             onPress={onSignUpPress}
             style={[styles.button]}
           >
-            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Continue</Text>
+            <Text style={textColor}>Continue</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.itemContainer}>
           <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.regularText]}>Already have an account? </Text>
+            <Text style={[textColor, styles.regularText]}>Already have an account? </Text>
             <Link href="/sign-in">
-              <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.signInText, styles.regularText]}>Sign in</Text>
+              <Text style={[textColor, styles.signInText, styles.regularText]}>Sign in</Text>
             </Link>
           </View>
         </View>
