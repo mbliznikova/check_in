@@ -82,12 +82,12 @@ export default function Page() {
     }
   }
 
-  if (pendingVerification) {
+  function renderVerifyForm() {
     return (
-      <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+      <View>
 
         <View style={styles.titleTextContainer}>
-          <Text>Verify your email</Text>
+          <Text style={[textColor, styles.titleText]}>Verify your email</Text>
         </View>
 
         <View style={[styles.itemContainer]}>
@@ -98,52 +98,51 @@ export default function Page() {
             onChangeText={(code) => setCode(code)}
             style={[textColor, styles.inputFeld]}
           />
-      </View>
+        </View>
 
-        <View>
-          <View style={styles.itemContainer}>
-            <TouchableOpacity
-              onPress={onVerifyPress}
-              style={[styles.button]}
-            >
-              <Text style={textColor}>Verify</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.itemContainer}>
+          <TouchableOpacity
+            onPress={onVerifyPress}
+            style={[styles.button]}
+          >
+            <Text style={textColor}>Verify</Text>
+          </TouchableOpacity>
         </View>
 
       </View>
     );
-  }
+  };
 
-  return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-      <View style={[styles.itemContainer]}>
+  function renderSignInForm() {
+    return (
+      <View>
 
         <View style={styles.titleTextContainer}>
           <Text style={[textColor, styles.titleText]}>Sign in to CHECK_IN</Text>
         </View>
-        <TextInput
-          autoCapitalize='none'
-          value={emailAddress}
-          placeholder='Enter email'
-          placeholderTextColor={isDark ? '#999' : '#666'}
-          onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
-          style={[textColor, styles.inputFeld]}
-        />
-        <TextInput
-          value={password}
-          placeholder='Enter password'
-          placeholderTextColor={isDark ? '#999' : '#666'}
-          secureTextEntry={true}
-          onChangeText={(password) => setPassword(password)}
-          style={[textColor, styles.inputFeld]}
-        />
-        {errorMsg.length > 0 && (
-          <Text style={[styles.errorText]}>{errorMsg}</Text>
-        )}
-      </View>
 
-      <View>
+        <View style={[styles.itemContainer]}>
+          <TextInput
+            autoCapitalize='none'
+            value={emailAddress}
+            placeholder='Enter email'
+            placeholderTextColor={isDark ? '#999' : '#666'}
+            onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
+            style={[textColor, styles.inputFeld]}
+          />
+          <TextInput
+            value={password}
+            placeholder='Enter password'
+            placeholderTextColor={isDark ? '#999' : '#666'}
+            secureTextEntry={true}
+            onChangeText={(password) => setPassword(password)}
+            style={[textColor, styles.inputFeld]}
+          />
+          {errorMsg.length > 0 && (
+            <Text style={[styles.errorText]}>{errorMsg}</Text>
+          )}
+        </View>
+
         <View style={styles.itemContainer}>
           <TouchableOpacity
             onPress={onSignInPress}
@@ -163,6 +162,12 @@ export default function Page() {
         </View>
 
       </View>
+    );
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        {pendingVerification ? renderVerifyForm() : renderSignInForm()}
     </View>
   );
 };
@@ -197,6 +202,7 @@ const styles = StyleSheet.create({
       margin: 10,
   },
   titleTextContainer: {
+    alignItems: 'center',
     margin: 10,
     paddingBottom: 10,
   },
