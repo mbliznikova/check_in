@@ -634,7 +634,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidDeleteClassResponse(responseData, selectedClassId, selectedClassName)) {
-                    console.log(`Function deleteClass. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function deleteClass. The response from backend is valid.`);
                 } else {
                     console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -710,7 +710,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidCreatePriceResponse(responseData, classId, amount)) {
-                    console.log(`Function createClassPrice. The response from backend is valid. ${JSON.stringify(responseData)}`);
+                    console.log(`Function createClassPrice. The response from backend is valid.`);
                 } else {
                     console.log(`Function createClassPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
@@ -752,7 +752,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidCreateResponse(responseData, className, classDuration, isRecurring)) {
-                    console.log(`Function createClass. The response from backend is valid. ${JSON.stringify(responseData)}`);
+                    console.log(`Function createClass. The response from backend is valid.`);
 
                     const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes, isRecurring: responseData.isRecurring};
 
@@ -804,7 +804,7 @@ const ClassManagement = () => {
 
                 if (isValidScheduleResponse(responseData, Number(classToScheduleId), classToScheduleName, dayName)
                 ) {
-                    console.log(`Function scheduleClass. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                    console.log(`Function scheduleClass. The response from backend is valid.`)
                 } else {
                     console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
@@ -896,7 +896,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidaEditPriceResponse(responseData, priceId, newAmount)) {
-                    console.log(`Function editPrice. The response from backend is valid. ${JSON.stringify(responseData)}`);
+                    console.log(`Function editPrice. The response from backend is valid.`);
                 } else {
                     console.warn(`Function editPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -999,7 +999,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidDeleteScheduleResponse(responseData, scheduleId)) {
-                    console.log(`Function deleteClassSchedule. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function deleteClassSchedule. The response from backend is valid.`);
 
                     removeScheduleFromState(scheduleId, day);
                     removeScheduleFromUniqueness(day, time);
@@ -1030,7 +1030,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidAvailableTimeSlotsResponse(responseData)) {
-                    console.log(`Function fetchAvailableTimeSlots. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchAvailableTimeSlots. The response from backend is valid.`);
 
                     slots = responseData.availableSlots ?? [];
                 } else {
@@ -1149,7 +1149,7 @@ const ClassManagement = () => {
 
                 if (isValidCreateOccurrenceResponse(responseData, className, plannedDate, plannedTime, duration, classId, notes)
                 ) {
-                    console.log(`Function createClassOccurrence. The response from backend is valid. ${JSON.stringify(responseData)}`)
+                    console.log(`Function createClassOccurrence. The response from backend is valid.`)
                 } else {
                     console.log(`Function createClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
                 }
@@ -1194,7 +1194,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidDeleteOccurrenceResponse(responseData, occurrenceId, className, date, time)) {
-                    console.log(`Function deleteClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function deleteClassOccurrence. The response from backend is valid.`);
 
                     removeOccurrenceFromState(occurrenceId, date)
                     removeOccurrenceFromUniqueness(date, time);
@@ -1225,7 +1225,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidAvailableTimeIntervalsResponse(responseData)) {
-                    console.log(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is valid.`);
 
                     intervals = responseData.availableIntervals ?? [];
                 } else {
@@ -1283,7 +1283,7 @@ const ClassManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidEditOccurrenceResponse(responseData, occurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes)) {
-                    console.log(`Function editClassOccurrence. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log(`Function editClassOccurrence. The response from backend is valid.`);
 
                     editOccurrenceInState(
                         occurrenceId,
