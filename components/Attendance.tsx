@@ -145,7 +145,6 @@ const Attendance = () => {
                     }));
 
                     setAttendances(fetchedAttendances);
-                    console.log("AttendancePaymentsReport. Fetched attendances: ", fetchedAttendances);
                 }
             } else {
                 console.log("Function fetchAttendances. Response was unsuccessful: ", response.status, response.statusText)
@@ -176,7 +175,7 @@ const Attendance = () => {
                 console.log("Function fetchPayments at Attendance.tsx. Request was unsuccessful: ", response.status, response.statusText)
                 }
            } catch (err) {
-               console.error("Error while fetching the list of payments: ", err);
+               console.error('Error while fetching the list of payments: ', err);
            }
        }
 

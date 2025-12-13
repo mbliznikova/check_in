@@ -7,6 +7,7 @@ type StudentType = {
     lastName: string;
     id: number;
     classes?: Set<number>;
+    occurrences?: Set<number>;
 };
 
 type StudentListProps = {
@@ -43,6 +44,7 @@ const StudentList = ({
                 </Pressable>
             </View>
         )
+
         return (
             <View style={styles.container}>
                 <FlatList

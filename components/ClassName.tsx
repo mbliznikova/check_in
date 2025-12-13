@@ -1,13 +1,6 @@
 import * as React from 'react';  
 import {View, Text, StyleSheet, useColorScheme} from 'react-native';
 
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number
-    classes?: Set<number>;
-};
-
 type ClassNameProps = {
     id: number;
     name: string;
