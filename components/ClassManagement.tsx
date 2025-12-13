@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import { useAuth } from '@clerk/clerk-expo';
 
+import { useApi } from "@/api/client";
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
 import ClassOccurrenceModal from "./ClassOccurrencesModal";
+import { Header } from "./Header";
 
 
 type ClassType = {
@@ -47,6 +50,8 @@ type ClassOccurrenceType = {
 };
 
 const ClassManagement = () => {
+    const { apiFetch } = useApi();
+
     const colorScheme = useColorScheme();
 
     const [classes, setClasses] = useState<ClassType[]>([]);
@@ -598,7 +603,10 @@ const ClassManagement = () => {
 
     const fetchClasses = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/classes/');
+            const response = await apiFetch("/classes/",
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
 
@@ -624,10 +632,8 @@ const ClassManagement = () => {
             return null;
         }
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/delete/`,
-                {
-                    method: 'DELETE',
-                }
+            const response = await apiFetch(`/classes/${selectedClassId}/delete/`,
+                { method: "DELETE" }
             );
 
             if (response.ok) {
@@ -653,7 +659,10 @@ const ClassManagement = () => {
 
     const fetchPrices = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
+            const response = await apiFetch("/prices/",
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
 
@@ -689,17 +698,13 @@ const ClassManagement = () => {
         };
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/prices/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/prices/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function createClassPrice. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -729,17 +734,13 @@ const ClassManagement = () => {
         };
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/classes/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/classes/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             // TODO: refactor component and make function to follow the commom structure
             if (!response.ok) {
@@ -782,17 +783,13 @@ const ClassManagement = () => {
         }
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/schedules/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/schedules/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function scheduleClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -832,16 +829,13 @@ const ClassManagement = () => {
         const data = getChangesFromClassEdit(newClassName, newClassDuration, newClassRecurrence);
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/classes/${selectedClassId}/edit/`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch(`/classes/${selectedClassId}/edit/`, {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
         if (response.ok) {
             const responseData = await response.json();
@@ -881,16 +875,13 @@ const ClassManagement = () => {
         };
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/prices/${priceId}/`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch(`/prices/${priceId}/`, {
+                method: "PATCH",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -925,7 +916,9 @@ const ClassManagement = () => {
 
     const fetchSchedules = async() => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/`)
+            const response = await apiFetch("/schedules/",
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -949,7 +942,9 @@ const ClassManagement = () => {
 
     const fetchClassSchedules = async (classId: number) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/?class_id=${classId}`)
+            const response = await apiFetch(`/schedules/?class_id=${classId}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -989,11 +984,9 @@ const ClassManagement = () => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/schedules/${scheduleId}/delete/`,
-                {
-                    method: 'DELETE',
-                }
-            );
+            const response = await apiFetch(`/schedules/${scheduleId}/delete/`, {
+                method: "DELETE",
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1024,7 +1017,9 @@ const ClassManagement = () => {
         let slots: string[] = [];
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/available_time_slots/?day=${dayName}&duration=${classDurationToFit}`)
+            const response = await apiFetch(`/available_time_slots/?day=${dayName}&duration=${classDurationToFit}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1048,7 +1043,9 @@ const ClassManagement = () => {
 
     const fetchAllClassOccurrences = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/class_occurrences/');
+            const response = await apiFetch("/class_occurrences/",
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1073,7 +1070,9 @@ const ClassManagement = () => {
 
     const fetchClassOccurrences = async (classId: number) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/?class_id=${classId}`)
+            const response = await apiFetch(`/class_occurrences/?class_id=${classId}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1127,17 +1126,13 @@ const ClassManagement = () => {
             };
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/class_occurrences/',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/class_occurrences/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function createClassOccurrence. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -1184,11 +1179,9 @@ const ClassManagement = () => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/${occurrenceId}/delete/`,
-                {
-                    method: 'DELETE',
-                }
-            );
+            const response = await apiFetch(`/class_occurrences/${occurrenceId}/delete/`, {
+                method: "DELETE",
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1219,7 +1212,9 @@ const ClassManagement = () => {
         let intervals: string[] = [];
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/available_occurrence_time/?date=${date}&duration=${classDurationToFit}`);
+            const response = await apiFetch(`/available_occurrence_time/?date=${date}&duration=${classDurationToFit}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1268,16 +1263,13 @@ const ClassManagement = () => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/class_occurrences/${occurrenceId}/edit/`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch(`/class_occurrences/${occurrenceId}/edit/`, {
+                method: "PATCH",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -1580,6 +1572,7 @@ const ClassManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <Header/>
             <ScreenTitle titleText={'Class management'}/>
             {renderHeaderRow()}
             {renderClassList()}

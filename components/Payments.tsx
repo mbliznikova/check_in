@@ -2,9 +2,9 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
-// import { URLSearchParams } from 'node:url'
-
+import { useApi } from "@/api/client";
 import ScreenTitle from './ScreenTitle';
+import { Header } from './Header';
 
 type StudentType = {
     id: number;
@@ -48,6 +48,7 @@ type PaymentMapType = Map<number, {
   }>;
 
 const Payments = () => {
+    const { apiFetch } = useApi();
 
     const colorScheme = useColorScheme();
 
@@ -182,11 +183,14 @@ const Payments = () => {
 
     const fetchPrices = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
+            const response = await apiFetch("/prices/",
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
-                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid.")
 
                     const rawPricesObj: RawPriceType = responseData.response;
 
@@ -213,11 +217,14 @@ const Payments = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/students/');
+            const response = await apiFetch("/students/",
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid.")
 
                     const studentList: StudentType[] = responseData.response;
                     studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
@@ -237,12 +244,14 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await fetch(`http://127.0.0.1:8000/backend/payments/?${params}`);
+            const response = await apiFetch(`/payments/?${params}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid.")
 
                     const paymentList: PaymentType[] = responseData.response;
 
@@ -261,12 +270,15 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await fetch(`http://127.0.0.1:8000/backend/payment_summary/?${params}`);
+
+            const response = await apiFetch(`/payment_summary/?${params}`,
+                { method: "GET" }
+            );
 
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
-                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid.")
 
                     const summary: number = responseData.response.summary ?? 0.0;
 
@@ -307,16 +319,13 @@ const Payments = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/payments/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/payments/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function submitPayment. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -345,7 +354,7 @@ const Payments = () => {
                 'paymentMonth' in responseData && 'paymentYear' in responseData &&
                 responseData.paymentMonth === todayMonth && responseData.paymentYear === todayYear
             ) {
-                console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
+                console.log('Function submitPayment. The response from backend is valid.');
             } else {
                 console.warn('Function submitPayment. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
@@ -552,6 +561,7 @@ const Payments = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Header/>
             <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}

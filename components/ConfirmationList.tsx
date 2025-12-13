@@ -2,7 +2,9 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
+import { useApi } from "@/api/client";
 import ConfirmationDetails from './ConfirmationDetails';
+import { Header } from './Header';
 
 // {"date": "2025-04-03", 
 //  "classes": 
@@ -46,6 +48,8 @@ type AttendanceType = {
 }
 
 const ConfirmationList = () => {
+    const { apiFetch } = useApi();
+
     const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
@@ -64,7 +68,10 @@ const ConfirmationList = () => {
     useEffect(() => {
         const fetchAttendances = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/attendances/');
+                const response = await apiFetch("/attendances/",
+                    { method: "GET" }
+                );
+
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, 'response')) {
@@ -93,11 +100,12 @@ const ConfirmationList = () => {
 
     return (
         <SafeAreaView style={styles.appContainer}>
-                <FlatList
-                    data={attendances}
-                    keyExtractor={att => att.date.toString()}
-                    renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
-                />
+            <Header/>
+            <FlatList
+                data={attendances}
+                keyExtractor={att => att.date.toString()}
+                renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
+            />
         </SafeAreaView>
     );
 };

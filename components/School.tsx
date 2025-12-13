@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 
+import { useApi } from "@/api/client";
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
@@ -38,6 +39,8 @@ const screenWidth = Dimensions.get('window').width;
 
 
 const School = () => {
+    const { apiFetch } = useApi();
+
     const [classOccurrenceList, setClassOccurrenceList] = useState<ClassOccurrenceType[]>([]);
 
     const [students, setStudents] = useState<StudentType[]>([]);
@@ -66,7 +69,10 @@ const School = () => {
     useEffect(() => {
         const fetchClassOccurrences = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_class_occurrences/');
+                const response = await apiFetch("/today_class_occurrences/",
+                    { method: "GET" }
+                );
+
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -105,7 +111,10 @@ const School = () => {
 
         const fetchStudents = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/students/');
+                const response = await apiFetch("/students/",
+                    { method: "GET" }
+                );
+
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -137,7 +146,10 @@ const School = () => {
 
         const fetchAttendedStudents = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
+                const response = await apiFetch("/attended_sudents/",
+                    { method: "GET" }
+                );
+
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -247,16 +259,13 @@ const School = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/check_in/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/check_in/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function submitCheckInRequest. Request was unsuccessful: ${response.status}, ${response.statusText}`;

@@ -2,9 +2,11 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
 
+import { useApi } from "@/api/client";
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
+import { Header } from './Header';
 
 type AttendanceStudentType = {
     firstName: string;
@@ -57,6 +59,8 @@ type PaymentType = {
 };
 
 const Attendance = () => {
+    const { apiFetch } = useApi();
+
     const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
@@ -124,7 +128,11 @@ const Attendance = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await fetch(`http://127.0.0.1:8000/backend/attendances/?${params}`);
+
+            const response = await apiFetch(`/attendances/?${params}`,
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, 'response')) {
@@ -150,19 +158,22 @@ const Attendance = () => {
         const fetchPayments = async () => {
             // Assume for now that the query returns the payment data only for the current month
            try {
-               const response = await fetch('http://127.0.0.1:8000/backend/payments/');
-               if (response.ok) {
-                   const responseData = await response.json();
-                   if (isValidArrayResponse(responseData, "response")) {
-                       console.log('Function fetchPayments at Attendance.tsx. The response from backend is valid.')
+            const response = await apiFetch("/payments/",
+                { method: "GET" }
+                );
 
-                       const paymentList: PaymentType[] = responseData.response;
+                if (response.ok) {
+                    const responseData = await response.json();
+                    if (isValidArrayResponse(responseData, "response")) {
+                        console.log("Function fetchPayments at Attendance.tsx. The response from backend is valid.")
 
-                       setPayments(paymentList);
-                   }
-               } else {
-                   console.log('Function fetchPayments at Attendance.tsx. Request was unsuccessful: ', response.status, response.statusText)
-               }
+                        const paymentList: PaymentType[] = responseData.response;
+
+                        setPayments(paymentList);
+                    }
+                } else {
+                console.log("Function fetchPayments at Attendance.tsx. Request was unsuccessful: ", response.status, response.statusText)
+                }
            } catch (err) {
                console.error('Error while fetching the list of payments: ', err);
            }
@@ -332,6 +343,7 @@ const Attendance = () => {
     // TODO: refactor teh components: extract functions to separate places. DRY.
     return (
          <SafeAreaView style={styles.container}>
+            <Header/>
             <View style={[styles.container]}>
                 <FlatList
                     ListHeaderComponent={renderHeader}

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
+import { useApi } from "@/api/client";
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
@@ -40,6 +41,8 @@ const ConfirmationDetails = ({
     date,
     occurrences,
 }: AttendanceType) => {
+    const { apiFetch } = useApi();
+
     const colorScheme = useColorScheme();
 
     const [confirmation, setConfirmation] = useState<ConfirmationMap>(new Map());
@@ -121,16 +124,13 @@ const ConfirmationDetails = ({
         console.log('Data is ' + JSON.stringify(data));
 
         try {
-           const response = await fetch(
-            'http://127.0.0.1:8000/backend/confirm/', {
-                method: 'PUT',
+            const response = await apiFetch("/confirm/", {
+                method: "PUT",
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
+                    Accept: "application/json",
                 },
-                body: JSON.stringify(data)
-            }
-           );
+                body: JSON.stringify(data),
+            });
 
            if (!response.ok) {
                const errorMessage = `sendConfirmation function. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -146,7 +146,7 @@ const ConfirmationDetails = ({
                'message' in responseData &&
                responseData.message === 'Attendance confirmed successfully'
            ) {
-               console.log('Function sendConfirmation. The response from backend is valid. ' + JSON.stringify(responseData));
+               console.log('Function sendConfirmation. The response from backend is valid.');
            } else {
                console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
            }

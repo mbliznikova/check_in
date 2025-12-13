@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
+import { useApi } from "@/api/client";
 import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
 import EditStudentModal from "./EditStudentModal";
+import { Header } from "./Header";
 
 type StudentType = {
     id: number,
@@ -15,6 +17,8 @@ type StudentType = {
 };
 
 const StudentManagement = () => {
+    const { apiFetch } = useApi();
+
     const colorScheme = useColorScheme();
 
     const [students, setStudents] = useState<StudentType[]>([]);
@@ -204,7 +208,10 @@ const StudentManagement = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/students/');
+            const response = await apiFetch("/students/",
+                { method: "GET" }
+            );
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
@@ -234,16 +241,13 @@ const StudentManagement = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/students/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch("/students/", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function createStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -286,16 +290,13 @@ const StudentManagement = () => {
         const data = getChangesFromEdit(newFirstName, newLastName, isLiabilityChecked, contacts);
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/edit/`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch(`/students/${studentId}/edit/`, {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -330,11 +331,9 @@ const StudentManagement = () => {
             return null;
         }
         try {
-            const response = await fetch(`http://127.0.0.1:8000/backend/students/${studentId}/delete/`,
-                {
-                    method: 'DELETE',
-                }
-            );
+            const response = await apiFetch(`/students/${studentId}/delete/`, {
+                method: "DELETE",
+            });
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -496,6 +495,7 @@ const StudentManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <Header/>
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}
