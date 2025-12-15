@@ -75,7 +75,7 @@ const ConfirmationList = () => {
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, 'response')) {
-                        console.log('Function fetchAttendances. The response from backend is valid.' + JSON.stringify(responseData))
+                        console.log('Function fetchAttendances. The response from backend is valid.')
 
                         const dataAttendanceList: AttendanceType[] = responseData.response;
                         const fetchedAttendances = dataAttendanceList.map(att => ({
