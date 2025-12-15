@@ -215,7 +215,7 @@ const StudentManagement = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchStudents at StudentManagement.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log('Function fetchStudents at StudentManagement.tsx. The response from backend is valid.')
 
                     const studentList: StudentType[] = responseData.response;
                     studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
@@ -259,7 +259,7 @@ const StudentManagement = () => {
 
                 if ( isValidCreateStudentResponse(responseData, firstName, lastName, isLiabilityChecked, contacts)
                 ) {
-                    console.log(`Function createStudent. The response from backend is valid. ${JSON.stringify(responseData)}`);
+                    console.log('Function createStudent. The response from backend is valid.');
 
                     setIsCreateSuccessful(true);
 
@@ -302,7 +302,7 @@ const StudentManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidEditStudentResponse(responseData, studentId, newFirstName, newLastName, isLiabilityChecked, contacts)) {
-                    console.log(`Function editStudent. The response from backend is valid! ${JSON.stringify(responseData)}`);
+                    console.log('Function editStudent. The response from backend is valid.');
                 } else {
                     console.warn(`Function editStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -339,7 +339,7 @@ const StudentManagement = () => {
                 const responseData = await response.json();
 
                 if (isValidDeleteStudentResponse(responseData, studentId)) {
-                    console.log(`Function deleteStudent. The response from backend is valid: ${JSON.stringify(responseData)}`);
+                    console.log('Function deleteStudent. The response from backend is valid.');
                 } else {
                     console.warn(`Function deleteStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
