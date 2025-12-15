@@ -78,7 +78,7 @@ const School = () => {
                     if (
                         isValidArrayResponse(responseData, 'response')
                     ) {
-                        console.log('Function fetchClassOccurrences. The response from backend is valid.' + JSON.stringify(responseData))
+                        console.log('Function fetchClassOccurrences. The response from backend is valid.')
 
                         const dataClassOccurrencesList: ClassOccurrenceType[] = responseData.response;
                         const fetchedClassOccurrences = dataClassOccurrencesList.map(cls => ({
@@ -120,7 +120,7 @@ const School = () => {
                     if (
                         isValidArrayResponse(responseData, 'response')
                     ) {
-                        console.log('Function fetchStudents. The response from backend is valid.' + JSON.stringify(responseData))
+                        console.log('Function fetchStudents. The response from backend is valid.')
 
                         const dataStudentsList: StudentType[] = responseData.response;
                         const fetchedStudents = dataStudentsList.map(std => ({
@@ -155,7 +155,7 @@ const School = () => {
                     if (
                         isValidArrayResponse(responseData, 'confirmedAttendance')
                     ) {
-                        console.log('Function fetchAttendedStudents. The response from backend is valid.' + JSON.stringify(responseData))
+                        console.log('Function fetchAttendedStudents. The response from backend is valid.')
 
                         const attendanceList: StudentType[] = responseData.confirmedAttendance;
 
@@ -287,7 +287,7 @@ const School = () => {
                 ifOneListsContainsAnother(responseData.checkedIn, occurrenceIds) &&
                 Array.isArray(responseData.checkedOut)
             ) {
-                console.log('Function submitCheckInRequest. The response from backend is valid. ' + JSON.stringify(responseData));
+                console.log('Function submitCheckInRequest. The response from backend is valid. ');
             } else {
                 console.warn('Function submitCheckInRequest. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
