@@ -66,6 +66,41 @@ const School = () => {
         );
     }
 
+    const isValidCurrentUserResponse = (responseData: any): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'role' in responseData
+        );
+    }
+
+    const fetchCurrentUser = async () => {
+        try {
+            const response = await apiFetch("/me/",
+                { method: "GET" }
+            );
+
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (
+                    isValidCurrentUserResponse(responseData)
+                ) {
+                    console.log('Function fetchCurrentUser. The response from backend is valid.')
+
+                    const userRole: string = responseData.response.role;
+                    console.log("Fetched user role: ", userRole);
+                } else {
+                    console.warn('Function fetchCurrentUser. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                }
+            } else {
+                console.log("Function fetchCurrentUser. Response was unsuccessful: ", response.status, response.statusText)
+            }
+        } catch(err) {
+            console.error("Error while fetching the current user: ", err)
+        }
+    }
+
     useEffect(() => {
         const fetchClassOccurrences = async () => {
             try {
@@ -186,6 +221,7 @@ const School = () => {
             }
         }
 
+        fetchCurrentUser();
         fetchClassOccurrences();
         fetchStudents();
         fetchAttendedStudents();
