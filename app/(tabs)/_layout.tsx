@@ -48,65 +48,59 @@ export default function TabLayout() {
           }),
         }}>
 
-        {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="check-in"
-            options={{
-              title: 'Check-in',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="check-in"
+          options={{
+            title: 'Check-in',
+            href: show(["kiosk", "teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          }}
+        />
 
-        {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="confirm"
-            options={{
-              title: 'Confirm',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="confirm"
+          options={{
+            title: 'Confirm',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          }}
+        />
 
-        {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="attendance"
-            options={{
-              title: 'Attendance',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="attendance"
+          options={{
+            title: 'Attendance',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+          }}
+        />
 
-        {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="payments"
-            options={{
-              title: 'Payments',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="payments"
+          options={{
+            title: 'Payments',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+          }}
+        />
 
-        {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="createStudent"
-            options={{
-              title: 'Add student',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="studentManagement"
+          options={{
+            title: 'Students',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+          }}
+        />
 
-      {show(["teacher", "admin", "owner"]) && (
-          <Tabs.Screen
-            name="classes"
-            options={{
-              title: 'Classes',
-              tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
-            }}
-          />
-        )}
+        <Tabs.Screen
+          name="classManagement"
+          options={{
+            title: 'Classes',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+          }}
+        />
 
       </Tabs>
       </SignedIn>
