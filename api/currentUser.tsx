@@ -15,7 +15,7 @@ export const fetchCurrentUser = async (apiFetch: any) => {
         if (response.ok) {
             const responseData = await response.json();
             if (isValidCurrentUserResponse(responseData)) {
-                const userRole: string = responseData.response.role;
+                const userRole: string = responseData.role;
                 return userRole;
             }
 
