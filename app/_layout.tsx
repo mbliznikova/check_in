@@ -8,6 +8,7 @@ import { tokenCache } from '@clerk/clerk-expo/token-cache'
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { UserProvider } from '@/context/UserContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,9 +31,11 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider tokenCache={tokenCache}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Slot />
-      </ThemeProvider>
+      <UserProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Slot />
+        </ThemeProvider>
+      </UserProvider>
     </ClerkProvider>
   );
 }

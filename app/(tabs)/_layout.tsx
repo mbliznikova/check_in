@@ -1,6 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, ActivityIndicator, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -10,8 +10,21 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { SignedIn, SignedOut } from '@clerk/clerk-expo';
 
+import { useUserRole } from '@/context/UserContext';
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const {role, isLoading} = useUserRole();
+
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <ActivityIndicator/>
+      </View>
+    );
+  }
+
+  const show = (roles: string[]) => role !== null && roles.includes(role);
 
   return (
     <>
@@ -34,48 +47,61 @@ export default function TabLayout() {
             default: {},
           }),
         }}>
+
         <Tabs.Screen
           name="check-in"
           options={{
             title: 'Check-in',
+            href: show(["kiosk", "teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
           }}
         />
+
         <Tabs.Screen
           name="confirm"
           options={{
             title: 'Confirm',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
           }}
         />
+
         <Tabs.Screen
           name="attendance"
           options={{
             title: 'Attendance',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
           }}
         />
+
         <Tabs.Screen
           name="payments"
           options={{
             title: 'Payments',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
           }}
         />
+
         <Tabs.Screen
-          name="createStudent"
+          name="studentManagement"
           options={{
-            title: 'Add student',
+            title: 'Students',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
           }}
         />
+
         <Tabs.Screen
-          name="classes"
+          name="classManagement"
           options={{
             title: 'Classes',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
           }}
         />
+
       </Tabs>
       </SignedIn>
     </>
