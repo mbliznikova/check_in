@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Platform, ScrollView} from 'react-native';
 
 import Checkbox from './Checkbox';
+import ScreenTitle from './ScreenTitle';
 
 type ClassOccurrenceType = {
     id: number;
@@ -341,13 +342,13 @@ const ClassOccurrenceModal = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <View style={{padding: 10}}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                                {`Occurrences for the class ${className}`}
-                            </Text>
+                        <View style={{padding: 10, marginBottom: 10}}>
+                            <ScreenTitle titleText={`Occurrences for the class ${className}`}/>
                         </View>
 
-                        {renderClassOccurrences(occurrenceData)}
+                        <ScrollView style={{ maxHeight: 250 }}>
+                            {renderClassOccurrences(occurrenceData)}
+                        </ScrollView>
 
                         <View style={[
                                 styles.modalButtonsContainer,
@@ -586,7 +587,7 @@ const ClassOccurrenceModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <ScrollView contentContainerStyle={[styles.modalInfo, styles.modalContainer]}>
+            <View style={styles.modalContainer}>
                 {isAddOccurrenceOpen && renderAddOccurrenceView()}
                 {!isAddOccurrenceOpen && !isEditDeleteOpen && !isDeleteConfirmationOpen && renderOccurences()}
                 {isEditDeleteOpen && renderEditDeleteView()}
@@ -606,7 +607,7 @@ const ClassOccurrenceModal = ({
                             originalOccurrence?.actualStartTime)}
                     </View>)
                 }
-            </ScrollView>
+                </View>
         </Modal>
     );
 };
