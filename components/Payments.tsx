@@ -436,9 +436,12 @@ const Payments = () => {
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
                                         <Text style={[isPaid? styles.paidText : styles.unpaidText, { fontWeight: "bold" }]}>
-                                            {isPaid ? amount + " - Paid" : price}
+                                            {`Price: $${price}`}
                                         </Text>
                                         <View style={styles.paymentButtonContainer}>
+                                            <Pressable style={{paddingRight: 10}}>
+                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>-</Text>
+                                            </Pressable>
                                             <Pressable
                                                 style={[styles.paymentButton, isPaid? styles.paidBorder : styles.unpaidBorder]}
                                                 onPress={() => {
@@ -449,7 +452,19 @@ const Payments = () => {
                                                     setSelectedPrice(price);
                                                     setIsModalVisible(true);
                                                 }}>
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? "Pay more?" : "Pay"}</Text>
+                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? `$${amount - price}` : `-$${price}`}</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                style={{paddingLeft: 10}}
+                                                onPress={() => {
+                                                    setSelectedStudentId(student.id);
+                                                    setSelectedClassId(classId);
+                                                    setSelectedStudentName(studentData.studentName);
+                                                    setSelectedClassName(className);
+                                                    setSelectedPrice(price);
+                                                    setIsModalVisible(true);
+                                                }}>
+                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>+</Text>
                                             </Pressable>
                                         </View>
                                     </View>
@@ -611,10 +626,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     paymentButtonContainer: {
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
     paymentButton: {
+        width: 55,
+        alignItems: 'center',
         paddingVertical: 7,
         paddingHorizontal: 5,
         marginVertical: 10,
