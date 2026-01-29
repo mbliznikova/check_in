@@ -90,7 +90,7 @@ const StudentManagement = () => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
-            'message' in responseData && responseData.message === `Student ${studentId} was delete successfully` &&
+            'message' in responseData && responseData.message === `Student ${studentId} was deleted successfully` &&
             'studentId' in responseData && responseData.studentId === studentId
         );
     };
