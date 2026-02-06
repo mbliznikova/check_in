@@ -4,7 +4,11 @@ const isValidCurrentUserResponse = (responseData: any): boolean => {
     return (
         typeof responseData === 'object' &&
         responseData !== null &&
-        'role' in responseData
+        Array.isArray(responseData.memberships) &&
+        responseData.memberships.length > 0 &&
+        // TODO: handle case when there are more than 1 membership
+        typeof responseData.memberships[0].schoolId === "number" &&
+        typeof responseData.memberships[0].role === "string"
     );
 }
 
@@ -14,9 +18,12 @@ export const fetchCurrentUser = async (apiFetch: any) => {
 
         if (response.ok) {
             const responseData = await response.json();
+
             if (isValidCurrentUserResponse(responseData)) {
-                const userRole: string = responseData.role;
-                return userRole;
+                return {
+                    role: responseData.memberships[0].role,
+                    schoolId: responseData.memberships[0].schoolId,
+                }
             }
 
             console.warn(
