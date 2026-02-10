@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from '@clerk/clerk-expo';
 import { useApi } from '@/api/client';
 import { fetchCurrentUser } from '@/api/currentUser';
+import { setHeaderSchoolId } from '@/api/client';
 
 type UserContextType = {
     role: string | null;
@@ -13,23 +14,29 @@ const UserContext = createContext<UserContextType | null>(null)
 export function UserProvider({children}: {children: ReactNode}) {
     const [role, setRole] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+
     const {isSignedIn} = useAuth();
     const {apiFetch} = useApi();
 
     useEffect(() => {
         if (!isSignedIn) {
             setRole(null);
+            setHeaderSchoolId(null);
             setIsLoading(false);
             return;
         }
 
-        const loadRole = async () => {
-            const userRole = await fetchCurrentUser(apiFetch);
-            setRole(userRole);
+        const loadUserInfo = async () => {
+            const userInfo = await fetchCurrentUser(apiFetch);
+
+            if (userInfo){
+                setRole(userInfo.role);
+                setHeaderSchoolId(userInfo.schoolId)
+            }
             setIsLoading(false);
         };
 
-        loadRole();
+        loadUserInfo();
     },
         [isSignedIn, apiFetch]);
 
