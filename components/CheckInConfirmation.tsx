@@ -10,6 +10,8 @@ import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
 
+const UNKNOWN_NAME = 'N/A';
+
 type ClassType = {
     id: number;
     name: string;
@@ -291,7 +293,7 @@ const CheckInConfirmation = () => {
                                 <FlatList
                                     data={studentsAtClass}
                                     renderItem={({ item: student }) => {
-                                        const name = student.firstName + ' ' + student.lastName
+                                        const name = (student.firstName ?? UNKNOWN_NAME) + ' ' + (student.lastName ?? UNKNOWN_NAME)
                                         return (
                                         <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                             <Checkbox

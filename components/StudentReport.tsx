@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, useColorScheme, Modal} from 'react-na
 
 import ScreenTitle from './ScreenTitle';
 
+const UNKNOWN_NAME = 'N/A';
+
 type StudentAttendanceDetailsType = {
     firstName: string;
     lastName: string;
@@ -19,7 +21,7 @@ const StudentReport = ({
 
     return (
         <View style={styles.container}>
-            <ScreenTitle titleText={firstName + ` ` + lastName} />
+            <ScreenTitle titleText={(firstName ?? UNKNOWN_NAME) + ` ` + (lastName ?? UNKNOWN_NAME)} />
             <View style={styles.separator} />
 
             <ScreenTitle titleText='Attendance'></ScreenTitle>

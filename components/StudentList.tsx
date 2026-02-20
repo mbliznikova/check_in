@@ -1,6 +1,7 @@
-import * as React from 'react';  
+import * as React from 'react';
 import {Pressable, View, Text, StyleSheet, FlatList, useColorScheme, StyleProp, ViewStyle} from 'react-native';
 
+const UNKNOWN_NAME = 'N/A';
 
 type StudentType = {
     firstName: string;
@@ -30,7 +31,7 @@ const StudentList = ({
             <View style={style}>
                 <Pressable
                     onPress={() => onStudentPress(item)}>
-                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName} {item.lastName}</Text>
+                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName ?? UNKNOWN_NAME} {item.lastName ?? UNKNOWN_NAME}</Text>
                 </Pressable>
                 <Pressable
                     style={({ pressed }) => [

@@ -1,5 +1,7 @@
-import * as React from 'react';  
+import * as React from 'react';
 import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+
+const UNKNOWN_NAME = 'N/A';
 
 type StudentType = {
     firstName: string;
@@ -18,7 +20,7 @@ const Student = ({
 
     return (
         <View style={styles.container}>
-            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{firstName} {lastName}</Text>
+            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{firstName ?? UNKNOWN_NAME} {lastName ?? UNKNOWN_NAME}</Text>
         </View>
     );
 };

@@ -7,6 +7,8 @@ import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
 
+const UNKNOWN_NAME = 'N/A';
+
 type AttendanceStudentType = {
     firstName: string;
     lastName: string;
@@ -198,7 +200,7 @@ const ConfirmationDetails = ({
                                     keyExtractor={([studentId, _studentInfo]) => studentId.toString()}
                                     renderItem={({ item }) => {
                                         const [studentId, studentInfo] = item;
-                                        const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
+                                        const studentName = (studentInfo.firstName ?? UNKNOWN_NAME) + ' ' + (studentInfo.lastName ?? UNKNOWN_NAME);
                                         return (
                                             <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                                 <Checkbox
