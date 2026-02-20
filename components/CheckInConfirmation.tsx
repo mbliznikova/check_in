@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
+import { useApi } from "@/api/client";
+
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
@@ -35,6 +37,7 @@ type ClassOccurrenceType = {
 };
 
 const CheckInConfirmation = () => {
+    const { apiFetch } = useApi();
     const colorScheme = useColorScheme();
 
     const [students, setStudents] = useState<StudentAttendanceType[]>([]);
@@ -63,7 +66,7 @@ const CheckInConfirmation = () => {
     useEffect(() => {
         const fetchClasses = async () => { // OLD
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_classes_list/');
+                const response = await apiFetch('/today_classes_list/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, 'response')) {
@@ -87,7 +90,7 @@ const CheckInConfirmation = () => {
 
         const fetchClassOccurrences = async () => { // NEW
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_class_occurrences/');
+                const response = await apiFetch('/today_class_occurrences/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -125,7 +128,7 @@ const CheckInConfirmation = () => {
 
         const fetchAttendedStudents = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
+                const response = await apiFetch('/attended_students/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -167,7 +170,7 @@ const CheckInConfirmation = () => {
         if (students.length === 0) return;
 
         setIfStudentsToConfirm(true);
-        setConfirmedClasses(setConfirmation());
+        setConfirmedClasses(() => setConfirmation());
 
     }, [students]);
 
@@ -230,16 +233,14 @@ const CheckInConfirmation = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/confirm/', {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch('/confirm/', {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Request was unsuccessful: ${response.status}, ${response.statusText}`;

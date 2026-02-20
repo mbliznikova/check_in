@@ -146,7 +146,7 @@ const School = () => {
 
         const fetchAttendedStudents = async () => {
             try {
-                const response = await apiFetch("/attended_sudents/",
+                const response = await apiFetch("/attended_students/",
                     { method: "GET" }
                 );
 

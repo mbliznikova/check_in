@@ -184,7 +184,7 @@ const ClassManagement = () => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
-            'message' in responseData && responseData.message === `Class ${classId} - ${className} was delete successfully` &&
+            'message' in responseData && responseData.message === `Class ${classId} - ${className} was deleted successfully` &&
             'classId' in responseData && responseData.classId === classId &&
             'className' in responseData && responseData.className === className
         );
@@ -194,7 +194,7 @@ const ClassManagement = () => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
-            'message' in responseData && responseData.message === `Schedule ${scheduleId} was delete successfully` &&
+            'message' in responseData && responseData.message === `Schedule ${scheduleId} was deleted successfully` &&
             'scheduleId' in responseData && responseData.scheduleId === scheduleId
         );
     };
@@ -203,7 +203,7 @@ const ClassManagement = () => {
         return (
             typeof responseData === 'object' &&
             responseData !== null &&
-            'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time} was delete successfully` &&
+            'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time} was deleted successfully` &&
             'occurrenceId' in responseData && responseData.occurrenceId === occurrenceId
         );
     };
