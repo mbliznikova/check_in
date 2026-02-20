@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 import ConfirmationDetails from './ConfirmationDetails';
 import { Header } from './Header';
 
@@ -55,15 +56,6 @@ const ConfirmationList = () => {
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
     const [loading, setLoading] = useState(true);
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
 
     useEffect(() => {
         const fetchAttendances = async () => {

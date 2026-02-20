@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
@@ -112,15 +113,6 @@ const Attendance = () => {
             console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
         }
         setYearInput(yearString);
-    };
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
     };
 
     const fetchAttendances = async () => {

@@ -3,6 +3,7 @@ import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressab
 import { useAuth } from '@clerk/clerk-expo';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
@@ -92,15 +93,6 @@ const ClassManagement = () => {
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
 
     const [prices, setPrices] = useState<PriceMap>(new Map());
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    };
 
     const isValidCreateResponse = (responseData: any, className: string, classDuration: number, isRecurring: boolean): boolean => {
         return (

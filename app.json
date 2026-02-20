@@ -47,7 +47,8 @@
       },
       "eas": {
         "projectId": "f89f431f-652f-4622-89f6-117e5d19bd5e"
-      }
+      },
+      "EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.230:8000/backend"
     }
   }
 }

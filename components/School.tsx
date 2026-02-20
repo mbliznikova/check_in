@@ -1,8 +1,9 @@
-import * as React from 'react';  
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
@@ -56,15 +57,6 @@ const School = () => {
     const [loading, setLoading] = useState(true);
 
     const [studentsUpdated, setStudentsUpdated] = useState(false);
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
 
     useEffect(() => {
         const fetchClassOccurrences = async () => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from "@/api/validators";
 import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
@@ -38,15 +39,6 @@ const StudentManagement = () => {
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
 
     const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    };
 
     const isValidCreateStudentResponse = (
         responseData: any,

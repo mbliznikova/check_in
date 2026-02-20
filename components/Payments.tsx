@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 import ScreenTitle from './ScreenTitle';
 import { Header } from './Header';
 
@@ -119,15 +120,6 @@ const Payments = () => {
             console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
         }
         setYearInput(yearString);
-    };
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
     };
 
     const isGeneralValidResponse = (responseData: any, key: string): boolean => {

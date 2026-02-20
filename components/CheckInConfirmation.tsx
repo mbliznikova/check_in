@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
@@ -53,15 +54,6 @@ const CheckInConfirmation = () => {
     const [loading, setLoading] = useState(true);
 
     const [ifStudentsToConfirm, setIfStudentsToConfirm] = useState(false);
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
 
     useEffect(() => {
         const fetchClasses = async () => { // OLD
