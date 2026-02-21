@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
-import { isValidArrayResponse } from '@/api/validators';
+import { isValidArrayResponse, isSuccessMessageResponse } from '@/api/validators';
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
@@ -244,12 +244,7 @@ const CheckInConfirmation = () => {
             console.log('Confirmation was sent successfully!');
 
             const responseData = await response.json();
-            if (
-                typeof responseData === 'object' &&
-                responseData !== null &&
-                'message' in responseData &&
-                responseData.message === 'Attendance confirmed successfully'
-            ) {
+            if (isSuccessMessageResponse(responseData, 'Attendance confirmed successfully')) {
                 console.log('Function sendConfirmation. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
                 console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
