@@ -74,7 +74,7 @@ const DeleteClassModal = ({
         <Modal
             visible={isVisible}
             transparent={true}
-            onRequestClose={() => {onModalClose}}
+            onRequestClose={onModalClose}
         >
             {isSuccess ? renderSuccessConfirmation() : renderModalDelete()}
         </Modal>

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {View, Text, StyleSheet, useColorScheme} from 'react-native';
-
-const UNKNOWN_NAME = 'N/A';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentType = {
     firstName: string;

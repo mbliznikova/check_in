@@ -208,21 +208,21 @@ const School = () => {
 
     function assignStudentsToOccurrences() {
         // Add students who attends a certain class to the class map: [class_id, [student1, student2]]
-        const studentOccuurenceMap = new Map<number, StudentType[]>();
+        const studentOccurrenceMap = new Map<number, StudentType[]>();
 
         classOccurrenceList.forEach(cls => {
-            studentOccuurenceMap.set(cls.id, [])
+            studentOccurrenceMap.set(cls.id, [])
         })
 
         students.forEach(student => {
             Array.from(student.occurrences ?? []).forEach(occId => {
-                if (studentOccuurenceMap.has(occId)) {
-                    studentOccuurenceMap.get(occId)?.push(student);
+                if (studentOccurrenceMap.has(occId)) {
+                    studentOccurrenceMap.get(occId)?.push(student);
                 }
             });
         });
 
-        return studentOccuurenceMap;
+        return studentOccurrenceMap;
     }
 
     function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): boolean {

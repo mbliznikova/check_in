@@ -2,8 +2,7 @@ import * as React from 'react';
 import { View, Text, FlatList, StyleSheet, useColorScheme, Modal} from 'react-native';
 
 import ScreenTitle from './ScreenTitle';
-
-const UNKNOWN_NAME = 'N/A';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentAttendanceDetailsType = {
     firstName: string;

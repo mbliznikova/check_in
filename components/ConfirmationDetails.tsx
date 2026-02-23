@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { isSuccessMessageResponse } from '@/api/validators';
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
-
-const UNKNOWN_NAME = 'N/A';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type AttendanceStudentType = {
     firstName: string;

@@ -9,8 +9,7 @@ import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
-
-const UNKNOWN_NAME = 'N/A';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type ClassType = {
     id: number;

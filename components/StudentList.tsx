@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {Pressable, View, Text, StyleSheet, FlatList, useColorScheme, StyleProp, ViewStyle} from 'react-native';
-
-const UNKNOWN_NAME = 'N/A';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentType = {
     firstName: string;
