@@ -19,6 +19,8 @@ export function setHeaderSchoolId(schoolId: number | null) {
     }
 }
 
+export type ApiFetch = (endpoint: string, options?: RequestInit) => Promise<Response>;
+
 export function useApi() {
     const { getToken } = useAuth();
 
