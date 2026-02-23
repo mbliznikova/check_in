@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, Sc
 
 import ScreenTitle from './ScreenTitle';
 import Checkbox from './Checkbox';
+import { DAY_NAMES } from '@/constants/scheduling';
 
 
 type ClassCreationModalProps = {
@@ -59,16 +60,6 @@ const CreateScheduleClass = ({
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
 
-    const dayNames = [
-        "",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-    ];
 
     useEffect(() => {
         setIsConfirmationOpen(isSheduleSuccess)
@@ -82,19 +73,19 @@ const CreateScheduleClass = ({
                         key={dayIndex}
                         style={styles.dayContainer}
                         onPress={async () => {
-                            console.log(`Selected ${dayNames[dayIndex]}`);
+                            console.log(`Selected ${DAY_NAMES[dayIndex]}`);
                             setSelectedDayId(dayIndex);
-                            setSelectedDayName(dayNames[dayIndex]);
+                            setSelectedDayName(DAY_NAMES[dayIndex]);
                             setIsAddDayOpen(false);
                             setIsAddTimeOpen(true);
-                            if (dayNames[dayIndex] !== null && newClassDuration !== null) {
-                                const slots = onRequestingTimeSlots(dayNames[dayIndex], newClassDuration);
+                            if (DAY_NAMES[dayIndex] !== null && newClassDuration !== null) {
+                                const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], newClassDuration);
                                 setTimeSlots(await slots);
                             }
                         }}
                     >
                         <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
-                            {dayNames[dayIndex]}
+                            {DAY_NAMES[dayIndex]}
                         </Text>
                     </Pressable>
                 ))}
@@ -104,7 +95,7 @@ const CreateScheduleClass = ({
 
     const getRemainedDays = (): number[] => {
         const remainedDays: number[] = [];
-        for (let i = 1; i < dayNames.length; i++) {
+        for (let i = 1; i < DAY_NAMES.length; i++) {
             if (!scheduleData.has(i)){
                 remainedDays.push(i);
             }
@@ -215,7 +206,7 @@ const CreateScheduleClass = ({
                         style={styles.scheduleRow}>
                             <View style={styles.dayContainer}>
                                 <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
-                                    {dayNames[day]}
+                                    {DAY_NAMES[day]}
                                 </Text>
                             </View>
                             {times.map(([scheduleId, time]) => (
@@ -239,8 +230,8 @@ const CreateScheduleClass = ({
                             <Pressable
                                 onPress={async () => {
                                     setSelectedDayId(day); // TODO: something more reliable in case when the state var has not set yet?
-                                    if (dayNames[day] !== null && newClassDuration !== null) {
-                                        const slots = onRequestingTimeSlots(dayNames[day], newClassDuration);
+                                    if (DAY_NAMES[day] !== null && newClassDuration !== null) {
+                                        const slots = onRequestingTimeSlots(DAY_NAMES[day], newClassDuration);
                                         setTimeSlots(await slots);
                                     }
                                     setIsAddTimeOpen(true);
