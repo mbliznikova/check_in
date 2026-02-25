@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse, isSuccessMessageResponse } from '@/api/validators';
@@ -40,7 +41,7 @@ type ClassOccurrenceType = {
 
 const CheckInConfirmation = () => {
     const { apiFetch } = useApi();
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [students, setStudents] = useState<StudentAttendanceType[]>([]);
 
@@ -277,10 +278,10 @@ const CheckInConfirmation = () => {
                                     name={cls.name}
                                 />
                                 <View style={styles.spaceBetweenRow}>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Student
                                     </Text>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Did actually show up?
                                     </Text>
                                 </View>
@@ -294,13 +295,13 @@ const CheckInConfirmation = () => {
                                                 label={name}
                                                 checked={confirmedClasses.get(student.id)?.has(cls.id) ?? false}
                                                 onChange={() => {toggleConfirmation(student.id, cls.id)}}
-                                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                labelStyle={textStyle}
                                             />
                                             <Checkbox
                                                 label={''}
                                                 checked={showUpStatus.get(student.id)?.get(cls.id) ?? true}
                                                 onChange={() => {toggleShowUpConfirmation(student.id, cls.id)}}
-                                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                labelStyle={textStyle}
                                             />
                                         </View>
                                         )
@@ -364,12 +365,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'blue',
-      },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
       },
     separator: {
         height: 1,

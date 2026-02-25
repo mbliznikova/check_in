@@ -1,4 +1,5 @@
-import { Modal, View, Text, StyleSheet, useColorScheme, Pressable } from "react-native";
+import { Modal, View, Text, StyleSheet, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 type DeleteClassModalProps = {
     isVisible: boolean;
@@ -16,14 +17,14 @@ const DeleteClassModal = ({
     isSuccess = false,
 }: DeleteClassModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const renderModalDelete = () => {
         return (
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Do you want to delete {className} class?
                         </Text>
                     </View>
@@ -34,13 +35,13 @@ const DeleteClassModal = ({
                                 onDeleteClass();
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
+                            <Text style={[textStyle]}>Delete</Text>
                         </Pressable>
                         <Pressable
                             style={styles.modalCancelButton}
                             onPress={onModalClose}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -53,7 +54,7 @@ const DeleteClassModal = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class {className} was deleted successfully
                         </Text>
                     </View>
@@ -62,7 +63,7 @@ const DeleteClassModal = ({
                             style={styles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                             <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                             <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -126,12 +127,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'grey',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

@@ -1,5 +1,5 @@
 import * as React from 'react';  
-import {View, StyleSheet, Pressable, Text, useColorScheme, StyleProp, TextStyle} from 'react-native';
+import {View, StyleSheet, Pressable, Text, StyleProp, TextStyle} from 'react-native';
 
 type CheckboxProps = {
     label: string;
@@ -14,7 +14,6 @@ const Checkbox = ({
     onChange,
     labelStyle,
 }: CheckboxProps) => {
-    const colorScheme = useColorScheme();
     return (
         <Pressable
             style={styles.checkboxContainer}

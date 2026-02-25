@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentType = {
@@ -15,11 +16,11 @@ const Student = ({
     id,
     classes,
 }: StudentType) => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     return (
         <View style={styles.container}>
-            <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{firstName ?? UNKNOWN_NAME} {lastName ?? UNKNOWN_NAME}</Text>
+            <Text style={textStyle}>{firstName ?? UNKNOWN_NAME} {lastName ?? UNKNOWN_NAME}</Text>
         </View>
     );
 };
@@ -29,12 +30,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingVertical: 15,
     },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
-      },
 })
 
 export default Student;

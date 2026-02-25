@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet } from 'react-native'
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useSignUp } from '@clerk/clerk-expo'
 import { Link, useRouter } from 'expo-router'
 
@@ -14,7 +15,7 @@ export default function SignUpScreen() {
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const textColor = isDark ? styles.lightColor : styles.darkColor;
+  const textStyle = useThemeTextStyle();
 
   const onSignUpPress = async () => {
     if (!isLoaded) return
@@ -63,7 +64,7 @@ export default function SignUpScreen() {
       <View>
 
         <View style={styles.titleTextContainer}>
-          <Text style={[textColor, styles.titleText]}>Verify your email</Text>
+          <Text style={[textStyle, styles.titleText]}>Verify your email</Text>
         </View>
 
         <View style={[styles.itemContainer]}>
@@ -72,7 +73,7 @@ export default function SignUpScreen() {
             placeholder='Enter your verification code'
             placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
             onChangeText={(code) => setCode(code)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
         </View>
 
@@ -82,7 +83,7 @@ export default function SignUpScreen() {
               onPress={onVerifyPress}
               style={[styles.button]}
             >
-              <Text style={textColor}>Verify</Text>
+              <Text style={textStyle}>Verify</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -96,7 +97,7 @@ export default function SignUpScreen() {
       <View>
 
         <View style={styles.titleTextContainer}>
-          <Text style={[textColor, styles.titleText]}>Sign up to CHECK_IN</Text>
+          <Text style={[textStyle, styles.titleText]}>Sign up to CHECK_IN</Text>
         </View>
 
         <View style={[styles.itemContainer]}>
@@ -106,7 +107,7 @@ export default function SignUpScreen() {
             placeholder='Enter email'
             placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
             onChangeText={(email) => setEmailAddress(email)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
           <TextInput
             value={password}
@@ -114,7 +115,7 @@ export default function SignUpScreen() {
             placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
             secureTextEntry={true}
             onChangeText={(password) => setPassword(password)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
         </View>
 
@@ -123,14 +124,14 @@ export default function SignUpScreen() {
             onPress={onSignUpPress}
             style={[styles.button]}
           >
-            <Text style={textColor}>Continue</Text>
+            <Text style={textStyle}>Continue</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.itemContainer}>
           <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-            <Text style={[textColor, styles.regularText]}>Already have an account? </Text>
+            <Text style={[textStyle, styles.regularText]}>Already have an account? </Text>
             <Link href="/sign-in">
-              <Text style={[textColor, styles.signInText, styles.regularText]}>Sign in</Text>
+              <Text style={[textStyle, styles.signInText, styles.regularText]}>Sign in</Text>
             </Link>
           </View>
         </View>
@@ -160,12 +161,6 @@ const styles = StyleSheet.create({
   },
   itemRow: {
       flexDirection: 'row'
-  },
-  darkColor: {
-      color: 'black',
-  },
-  lightColor: {
-      color: 'white',
   },
   inputFeld: {
       height: 30,

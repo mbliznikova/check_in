@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from "./ScreenTitle";
 import Checkbox from './Checkbox';
@@ -29,7 +30,7 @@ const EditStudentModal = ({
     isSuccess = false,
 }: EditStudentModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [newFirstName, setNewFirstName] = useState(oldFirstName);
     const [newLastName, setNewLastName] = useState(oldLastName);
@@ -51,7 +52,7 @@ const EditStudentModal = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Student was updated successfully!
                         </Text>
                     </View>
@@ -60,7 +61,7 @@ const EditStudentModal = ({
                             style={styles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -75,12 +76,12 @@ const EditStudentModal = ({
                 <View style={styles.modalView}>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit first name:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, styles.inputFeld]}
                             value={newFirstName}
                             onChangeText={(newFirstName) => {
                                 setNewFirstName(newFirstName)
@@ -90,12 +91,12 @@ const EditStudentModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit last name:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, styles.inputFeld]}
                             value={newLastName}
                             onChangeText={(newLastName) => {
                                 setNewLastName(newLastName)
@@ -105,7 +106,7 @@ const EditStudentModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Did submit liability form?
                         </Text>
@@ -113,18 +114,18 @@ const EditStudentModal = ({
                             label=''
                             checked={isLiabilityFormChecked}
                             onChange={() => {setIsLiabilityFormChecked(!isLiabilityFormChecked)}}
-                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                            labelStyle={textStyle}
                         />
                     </View>
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, styles.inputFeld]}
                             value={newEmergencyContact}
                             onChangeText={(newContact) => {
                                 setNewEmergencyContact(newContact)
@@ -150,13 +151,13 @@ const EditStudentModal = ({
                             }}
                             style={styles.modalConfirmButton}
                         >
-                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
+                            <Text style={textStyle}>Save</Text>
                         </Pressable>
                         <Pressable
                             style={styles.modalCancelButton}
                             onPress={onModalClose}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -241,12 +242,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

@@ -1,4 +1,5 @@
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable, ScrollView } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from "./ScreenTitle";
 import { useEffect, useRef, useState } from "react";
@@ -32,7 +33,7 @@ const ClassScheduleModal = ({
     isSheduleSuccess = false,
 }: ClassScheduleModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
@@ -88,7 +89,7 @@ const ClassScheduleModal = ({
                             }
                         }}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                        <Text style={[textStyle, styles.dayText]}>
                             {DAY_NAMES[dayIndex]}
                         </Text>
                     </Pressable>
@@ -103,7 +104,7 @@ const ClassScheduleModal = ({
                 <ScrollView style={{maxHeight: 200}}>
                     <View>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             {`Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`}
                         </Text>
@@ -120,7 +121,7 @@ const ClassScheduleModal = ({
                                     >
                                         <Text
                                             style={[
-                                                colorScheme === 'dark'? styles.lightColor : styles.darkColor,
+                                                textStyle,
                                                 styles.timeSlot,
                                                 selectedSlotIndex === index ? styles.selectedTimeSlotBorders : styles.notSelectedTimeSlotBorders
                                             ]}
@@ -133,7 +134,7 @@ const ClassScheduleModal = ({
 
                             <View style={{paddingTop: 20}}>
                                 <TextInput
-                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                    style={[textStyle, styles.inputFeld]}
                                     value={timeToSchedule}
                                     onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
                                 />
@@ -171,13 +172,13 @@ const ClassScheduleModal = ({
                                         }
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                                <Text style={[textStyle]}>Schedule</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.cancelButton}
                                 onPress={() => {setIsAddTimeOpen(false)}}
                                 >
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                    <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -195,7 +196,7 @@ const ClassScheduleModal = ({
                         key={day}
                         style={styles.scheduleRow}>
                             <View style={styles.dayContainer}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                                <Text style={[textStyle, styles.dayText]}>
                                     {DAY_NAMES[day]}
                                 </Text>
                             </View>
@@ -208,10 +209,10 @@ const ClassScheduleModal = ({
                                             setPendingDelete({scheduleId, day, time});
                                         }}
                                     >
-                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>
                                         x
                                         </Text>
-                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                        <Text style={[textStyle, styles.timeText]}>
                                             {time.slice(0,5)}
                                         </Text>
                                     </Pressable>
@@ -228,7 +229,7 @@ const ClassScheduleModal = ({
                                 }}
                                 style={styles.addTimeButton}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+</Text>
+                                <Text style={[textStyle]}>+</Text>
                             </Pressable>
                     </View>
                 ))}
@@ -240,7 +241,7 @@ const ClassScheduleModal = ({
                                 setIsAddDayOpen(!isAddDayOpen);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
+                            <Text style={[textStyle, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
@@ -259,7 +260,7 @@ const ClassScheduleModal = ({
         return (
             <View style={styles.modalView}>
                 <View style={styles.modalInfo}>
-                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                    <Text style={[textStyle, {fontWeight: "bold"}]}>
                         Do you want to delete this schedule?
                     </Text>
                 </View>
@@ -271,7 +272,7 @@ const ClassScheduleModal = ({
                             setPendingDelete(null);
                         }}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
+                        <Text style={[textStyle]}>Delete</Text>
                     </Pressable>
                     <Pressable
                         style={styles.cancelButton}
@@ -279,7 +280,7 @@ const ClassScheduleModal = ({
                             setPendingDelete(null);
                         }}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                        <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
                 </View>
             </View>
@@ -291,7 +292,7 @@ const ClassScheduleModal = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             {`Schedule for the class ${className}`}
                         </Text>
                     </View>
@@ -304,7 +305,7 @@ const ClassScheduleModal = ({
                             onPress={isAddDayOpen ? undefined : onModalClose}
                             disabled={isAddDayOpen}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -316,7 +317,7 @@ const ClassScheduleModal = ({
         return (
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class was scheduled successfully!
                         </Text>
                     </View>
@@ -329,7 +330,7 @@ const ClassScheduleModal = ({
                                 setSelectedSlotIndex(-1);
                             }}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -387,12 +388,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'grey',
         paddingVertical: 3,
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
     modalButtonsContainer: {
         flexDirection: 'row',

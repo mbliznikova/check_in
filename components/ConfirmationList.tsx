@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
@@ -51,7 +51,6 @@ type AttendanceType = {
 const ConfirmationList = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 

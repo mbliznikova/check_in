@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
@@ -20,7 +21,7 @@ type StudentType = {
 const StudentManagement = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
@@ -190,7 +191,7 @@ const StudentManagement = () => {
                         pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
                     ]}
                 >
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>
+                    <Text style={textStyle}>
                         + Add new student
                     </Text>
                 </Pressable>
@@ -382,7 +383,7 @@ const StudentManagement = () => {
                             }}
                             style={{padding: 10}}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}>
+                            <Text style={[textStyle, styles.studentName]}>
                                 {`${std.firstName} ${std.lastName}`}
                             </Text>
                         </Pressable>
@@ -397,7 +398,7 @@ const StudentManagement = () => {
                                     setIsEditModalVisible(true);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Edit</Text>
+                                <Text style={[textStyle, styles.actionButtonText]}>Edit</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
@@ -407,7 +408,7 @@ const StudentManagement = () => {
                                     setIsDeleteModalVisible(true);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Delete</Text>
+                                <Text style={[textStyle, styles.actionButtonText]}>Delete</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -531,12 +532,6 @@ const styles = StyleSheet.create({
     actionButtonText: {
         paddingRight: 10,
         textDecorationLine: 'underline',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, useColorScheme, Modal} from 'react-native';
+import { View, Text, FlatList, StyleSheet, Modal} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from './ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
@@ -15,7 +16,7 @@ const StudentReport = ({
     lastName,
     classesInfo
 }: StudentAttendanceDetailsType) => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
     const attendanceList: Map<string, [number, number]>[] = Array.from(classesInfo.values());
 
     return (
@@ -34,10 +35,10 @@ const StudentReport = ({
 
                     return (
                     <View style={styles.reportRow}>
-                        <Text style={[styles.className, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                        <Text style={[styles.className, textStyle]}>
                             {className}
                         </Text>
-                        <Text style={[styles.record, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                        <Text style={[styles.record, textStyle]}>
                             {attendance[0]} ({attendance[1]})
                         </Text>
                     </View>
@@ -68,12 +69,6 @@ const styles = StyleSheet.create({
     record: {
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
     separator: {
         height: 1,

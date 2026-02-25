@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput, ScrollView } from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from './ScreenTitle';
 import Checkbox from './Checkbox';
@@ -40,7 +41,7 @@ const CreateScheduleClass = ({
     scheduleData = new Map(),
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [className, setClassName] = useState("");
     const [newClassDuration, setNewClassDuration] = useState(defaultClassDuration);
@@ -84,7 +85,7 @@ const CreateScheduleClass = ({
                             }
                         }}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                        <Text style={[textStyle, styles.dayText]}>
                             {DAY_NAMES[dayIndex]}
                         </Text>
                     </Pressable>
@@ -110,7 +111,7 @@ const CreateScheduleClass = ({
                 <ScrollView style={{maxHeight: 200}}>
                     <View>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             {`Select or enter time for ${selectedDayId ? selectedDayName : ""}:`}
                         </Text>
@@ -127,7 +128,7 @@ const CreateScheduleClass = ({
                                     >
                                         <Text
                                             style={[
-                                                colorScheme === 'dark'? styles.lightColor : styles.darkColor,
+                                                textStyle,
                                                 styles.timeSlot,
                                                 selectedSlotIndex === index ? styles.selectedTimeSlotBorders : styles.notSelectedTimeSlotBorders
                                             ]}
@@ -140,7 +141,7 @@ const CreateScheduleClass = ({
 
                             <View style={{paddingTop: 20}}>
                                 <TextInput
-                                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                                    style={[textStyle, styles.inputFeld]}
                                     value={time}
                                     onChangeText={(timeStr) => {setTime(timeStr)}}
                                 />
@@ -177,7 +178,7 @@ const CreateScheduleClass = ({
                                     setSelectedSlotIndex(-1);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Schedule</Text>
+                                <Text style={[textStyle]}>Schedule</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
@@ -187,7 +188,7 @@ const CreateScheduleClass = ({
                                     setSelectedSlotIndex(-1);
                                 }}
                                 >
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                    <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -205,7 +206,7 @@ const CreateScheduleClass = ({
                         key={day}
                         style={styles.scheduleRow}>
                             <View style={styles.dayContainer}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>
+                                <Text style={[textStyle, styles.dayText]}>
                                     {DAY_NAMES[day]}
                                 </Text>
                             </View>
@@ -218,10 +219,10 @@ const CreateScheduleClass = ({
                                             onScheduleDelete(scheduleId, day, time);
                                         }}
                                     >
-                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.deleteTimeButton]}>
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>
                                         x
                                         </Text>
-                                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                        <Text style={[textStyle, styles.timeText]}>
                                             {time.slice(0,5)}
                                         </Text>
                                     </Pressable>
@@ -238,7 +239,7 @@ const CreateScheduleClass = ({
                                 }}
                                 style={styles.addTimeButton}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+</Text>
+                                <Text style={[textStyle]}>+</Text>
                             </Pressable>
                     </View>
                 ))}
@@ -250,7 +251,7 @@ const CreateScheduleClass = ({
                                 setIsAddDayOpen(!isAddDayOpen);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dayText]}>+ Add day</Text>
+                            <Text style={[textStyle, styles.dayText]}>+ Add day</Text>
                         </Pressable>
                         {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
                         {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
@@ -265,12 +266,12 @@ const CreateScheduleClass = ({
             <View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        style={[textStyle, styles.itemContainer]}
                     >
                         Class name:
                     </Text>
                     <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        style={[textStyle, styles.inputFeld]}
                         value={className}
                         onChangeText={(createdClassName) => {setClassName(createdClassName)}}
                     />
@@ -278,12 +279,12 @@ const CreateScheduleClass = ({
 
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        style={[textStyle, styles.itemContainer]}
                     >
                         Class duration:
                     </Text>
                     <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        style={[textStyle, styles.inputFeld]}
                         value={newClassDuration?.toString()}
                         onChangeText={(updatedClassDuration) => {
                             setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
@@ -293,7 +294,7 @@ const CreateScheduleClass = ({
 
                 <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between', alignSelf: 'center'}]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, ]}
+                        style={[textStyle, styles.itemContainer, ]}
                         >
                             Is recurring?
                     </Text>
@@ -301,18 +302,18 @@ const CreateScheduleClass = ({
                         label=''
                         checked={isRecurring}
                         onChange={() => {setIsRecurring(!isRecurring)}}
-                        labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                        labelStyle={textStyle}
                     />
                 </View>
 
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        style={[textStyle, styles.itemContainer]}
                     >
                         Price:
                     </Text>
                     <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        style={[textStyle, styles.inputFeld]}
                         value={(classPrice.toString())}
                         onChangeText={(classPriceAmount) => {
                             setClassPrice(Number(classPriceAmount))
@@ -334,13 +335,13 @@ const CreateScheduleClass = ({
                         style={className ? styles.createButton : styles.disabledButton}
                         disabled={!className}
                     >
-                        <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
+                        <Text style={textStyle}>Create</Text>
                     </Pressable>
                     <Pressable
                         style={styles.modalCancelButton}
                         onPress={onModalClose}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
                 </View>
             </View>
@@ -354,7 +355,7 @@ const CreateScheduleClass = ({
 
                 <View style={[styles.itemContainer, styles.itemRow, {justifyContent: 'center'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}
+                            style={[textStyle]}
                         >
                             {isCreateSuccess ? `Class ${className} has been successfully created!` : ''}
                     </Text>
@@ -368,7 +369,7 @@ const CreateScheduleClass = ({
                         onPress={isAddDayOpen ? undefined : onModalClose}
                         disabled={isAddDayOpen}
                     >
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                        <Text style={[textStyle]}>OK</Text>
                     </Pressable>
                 </View>
 
@@ -392,7 +393,7 @@ const CreateScheduleClass = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class was created and scheduled successfully!
                         </Text>
                     </View>
@@ -405,7 +406,7 @@ const CreateScheduleClass = ({
                                 setSelectedSlotIndex(-1);
                             }}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -485,12 +486,6 @@ const styles = StyleSheet.create({
         top: '100%',
         borderWidth: 1,
         borderRadius: 10,
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
     inputFeld: {
         height: 30,

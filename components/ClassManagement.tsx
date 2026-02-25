@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useAuth } from '@clerk/clerk-expo';
 
 import { useApi } from "@/api/client";
@@ -53,7 +54,7 @@ type ClassOccurrenceType = {
 const ClassManagement = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [classes, setClasses] = useState<ClassType[]>([]);
 
@@ -1348,7 +1349,7 @@ const ClassManagement = () => {
                     onPress={() => {
                         setIsCreateModalVisible(true)
                     }}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>+ Create new class</Text>
+                        <Text style={[textStyle]}>+ Create new class</Text>
                 </Pressable>
             </View>
         </View>
@@ -1371,7 +1372,7 @@ const ClassManagement = () => {
                                 fetchClassSchedules(cls.id);
                                 setIsScheduleModalVisible(true);
                             }}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.className]}>{cls.name}</Text>
+                            <Text style={[textStyle, styles.className]}>{cls.name}</Text>
                         </Pressable>
                         <View style={{flexDirection: 'row'}}>
                             <Pressable
@@ -1383,7 +1384,7 @@ const ClassManagement = () => {
                                     fetchClassOccurrences(cls.id);
                                     setIsOccurrencesModalVisible(true);
                                 }}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>See occurrences</Text>
+                                <Text style={[textStyle, styles.actionButton]}>See occurrences</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
@@ -1397,7 +1398,7 @@ const ClassManagement = () => {
                                     setSelectedPriceId(currentPriceId);
                                     setIsEditModalVisible(true);
                                 }}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Edit</Text>
+                                <Text style={[textStyle, styles.actionButton]}>Edit</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
@@ -1406,7 +1407,7 @@ const ClassManagement = () => {
                                     setSelectedClassDuration(cls.durationMinutes);
                                     setIsDeleteModalVisible(true);
                                 }}>
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButton]}>Delete</Text>
+                                <Text style={[textStyle, styles.actionButton]}>Delete</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -1615,12 +1616,6 @@ const styles = StyleSheet.create({
     primaryButtonUnpressed: {
         backgroundColor: 'blue',
         borderRadius: 8,
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

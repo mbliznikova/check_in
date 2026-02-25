@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
@@ -63,6 +64,7 @@ const Attendance = () => {
     const { apiFetch } = useApi();
 
     const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
@@ -296,8 +298,8 @@ const Attendance = () => {
                 {renderSelector()}
             </View>
             <View style={styles.headerRow}>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance (24 hrs policy if applicable)</Text>
+                <Text style={[styles.columnHeadersText, textStyle]}>Student</Text>
+                <Text style={[styles.columnHeadersText, textStyle]}>Attendance (24 hrs policy if applicable)</Text>
             </View>
         </View>
     );
@@ -306,16 +308,16 @@ const Attendance = () => {
         return (
             <View style={styles.selector}>
                 <View style={{paddingRight: 20}}>
-                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
+                    <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.inputFeld]}
                     value={monthInput}
                     onChangeText={(newMonth) => {readMonth(newMonth)}}
                 />
                 <View style={{width: 10}}></View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.inputFeld]}
                     value={yearInput}
                     onChangeText={(newYear) => {readYear(newYear)}}
                 />
@@ -326,7 +328,7 @@ const Attendance = () => {
                     }}
                     style={[styles.paymentButton, styles.selectorButtonColor]}
                 >
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                    <Text style={textStyle}>Show</Text>
                 </Pressable>
             </View>
         );
@@ -367,7 +369,7 @@ const Attendance = () => {
                                                             setIsModalVisible(true);
                                                         }}
                                                     >
-                                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{studentName}</Text>
+                                                        <Text style={[textStyle, styles.studentName]}>{studentName}</Text>
                                                     </Pressable>
                                                     <Modal
                                                         visible={isModalVisible}
@@ -396,7 +398,7 @@ const Attendance = () => {
                                                     </Modal>
                                                 </View>
                                                 <View>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
+                                                    <Text style={textStyle}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
                                                 </View>
                                             </View>
                                         );
@@ -404,7 +406,7 @@ const Attendance = () => {
                                 />
                                 <View style = {{alignItems: 'flex-end'}}>
                                     <View style={[styles.container]}>
-                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, {fontSize: 20, fontWeight: 'bold'}]}>
+                                        <Text style={[textStyle, {fontSize: 20, fontWeight: 'bold'}]}>
                                         {`Students attended: ${classInfo.students.size}`}
                                         </Text>
                                     </View>
@@ -506,12 +508,6 @@ const styles = StyleSheet.create({
     balanceColumn: {
         flex: 1,
         alignItems: 'flex-end',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
     separator: {
         height: 1,

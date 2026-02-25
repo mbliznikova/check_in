@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Pressable, View, Text, StyleSheet, FlatList, useColorScheme, StyleProp, ViewStyle} from 'react-native';
+import {Pressable, View, Text, StyleSheet, FlatList, StyleProp, ViewStyle} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentType = {
@@ -24,13 +25,13 @@ const StudentList = ({
         style,
     }: StudentListProps) => {
 
-        const colorScheme = useColorScheme();
+        const textStyle = useThemeTextStyle();
 
         const renderItem = ({ item }: {item: StudentType}) => (
             <View style={style}>
                 <Pressable
                     onPress={() => onStudentPress(item)}>
-                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName ?? UNKNOWN_NAME} {item.lastName ?? UNKNOWN_NAME}</Text>
+                    <Text style={[textStyle, styles.studentName]}>{item.firstName ?? UNKNOWN_NAME} {item.lastName ?? UNKNOWN_NAME}</Text>
                 </Pressable>
                 <Pressable
                     style={({ pressed }) => [
@@ -100,12 +101,6 @@ const styles = StyleSheet.create({
         flex: 1,
         minWidth: 100,
         textDecorationLine: 'underline',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

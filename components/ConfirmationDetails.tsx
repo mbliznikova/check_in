@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
 import { isSuccessMessageResponse } from '@/api/validators';
@@ -45,7 +46,7 @@ const ConfirmationDetails = ({
 }: AttendanceType) => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [confirmation, setConfirmation] = useState<ConfirmationMap>(new Map());
 
@@ -169,7 +170,7 @@ const ConfirmationDetails = ({
                               alert('Students have been confirmed');
                             }}
                           >
-                            <Text style={styles.lightColor}>Confirm</Text>
+                            <Text style={{ color: '#fff' }}>Confirm</Text>
                           </Pressable>
                         </View>
                       }
@@ -182,10 +183,10 @@ const ConfirmationDetails = ({
                                     name={`${occurrenceInfo.name} - ${occurrenceInfo.time.slice(0, 5)}`}
                                 />
                                 <View style={styles.spaceBetweenRow}>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Student
                                     </Text>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Did actually show up?
                                     </Text>
                                 </View>
@@ -202,13 +203,13 @@ const ConfirmationDetails = ({
                                                     label={studentName}
                                                     checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
                                                     onChange={()=>{toggleCheckIn(Number(occurrenceId), Number(studentId))}}
-                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                    labelStyle={textStyle}
                                                 />
                                                 <Checkbox
                                                     label=''
                                                     checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isShowedUp') ?? true}
                                                     onChange={()=>{toggleShowUp(Number(occurrenceId), Number(studentId))}}
-                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                    labelStyle={textStyle}
                                                 />
                                             </View>
                                         );
@@ -285,12 +286,6 @@ const styles = StyleSheet.create({
     rightText: {
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 })
 
