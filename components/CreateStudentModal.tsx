@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
 import Checkbox from './Checkbox';
@@ -40,7 +41,7 @@ const CreateStudentModal = ({
                         First name:
                     </Text>
                     <TextInput
-                    style={[textStyle, styles.inputFeld]}
+                    style={[textStyle, commonStyles.inputField]}
                     value={firstName}
                     onChangeText={(newFirstName) => {setFirstName(newFirstName)}}
                 />
@@ -52,7 +53,7 @@ const CreateStudentModal = ({
                         Last name:
                     </Text>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField]}
                         value={lastName}
                         onChangeText={(newLastName) => {setLastName(newLastName)}}
                     />
@@ -79,7 +80,7 @@ const CreateStudentModal = ({
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[textStyle, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={emergencyContact}
                             onChangeText={(newContact) => {
                                 setEmergencyContact(newContact)
@@ -175,14 +176,6 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row'
-    },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
     },
     createButton: {
         padding: 10,

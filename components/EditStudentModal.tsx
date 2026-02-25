@@ -2,6 +2,8 @@ import React from 'react';
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from "./ScreenTitle";
 import Checkbox from './Checkbox';
@@ -49,8 +51,8 @@ const EditStudentModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Student was updated successfully!
@@ -58,7 +60,7 @@ const EditStudentModal = ({
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
                                 <Text style={[textStyle]}>OK</Text>
@@ -71,9 +73,9 @@ const EditStudentModal = ({
 
     const renderEditForm = () => {
         return (
-            <View style={styles.modalContainer}>
+            <View style={modalStyles.modalContainer}>
                 <ScreenTitle titleText={`Edit student ${oldFirstName} ${oldLastName}`}/>
-                <View style={styles.modalView}>
+                <View style={modalStyles.modalView}>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
                             style={[textStyle, styles.itemContainer]}
@@ -81,7 +83,7 @@ const EditStudentModal = ({
                             Edit first name:
                         </Text>
                         <TextInput
-                            style={[textStyle, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newFirstName}
                             onChangeText={(newFirstName) => {
                                 setNewFirstName(newFirstName)
@@ -96,7 +98,7 @@ const EditStudentModal = ({
                             Edit last name:
                         </Text>
                         <TextInput
-                            style={[textStyle, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newLastName}
                             onChangeText={(newLastName) => {
                                 setNewLastName(newLastName)
@@ -125,7 +127,7 @@ const EditStudentModal = ({
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[textStyle, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newEmergencyContact}
                             onChangeText={(newContact) => {
                                 setNewEmergencyContact(newContact)
@@ -149,12 +151,12 @@ const EditStudentModal = ({
                                 setNewFirstName("");
                                 setNewLastName("");
                             }}
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                         >
                             <Text style={textStyle}>Save</Text>
                         </Pressable>
                         <Pressable
-                            style={styles.modalCancelButton}
+                            style={modalStyles.modalCancelButton}
                             onPress={onModalClose}
                             >
                                 <Text style={[textStyle]}>Cancel</Text>
@@ -177,20 +179,6 @@ const EditStudentModal = ({
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     modalInfo: {
         padding: 20,
     },
@@ -206,36 +194,12 @@ const styles = StyleSheet.create({
     modalSingleButtonContainer: {
          justifyContent: 'center'
     },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
-    },
     itemContainer: {
         padding: 10,
         alignItems: 'center',
     },
     itemRow: {
         flexDirection: 'row'
-    },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
     },
     createButton: {
         padding: 10,

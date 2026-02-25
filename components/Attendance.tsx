@@ -4,6 +4,8 @@ import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressabl
 
 import { useApi } from "@/api/client";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
@@ -311,13 +313,13 @@ const Attendance = () => {
                     <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
                 <TextInput
-                    style={[textStyle, styles.inputFeld]}
+                    style={[textStyle, styles.dateInput]}
                     value={monthInput}
                     onChangeText={(newMonth) => {readMonth(newMonth)}}
                 />
                 <View style={{width: 10}}></View>
                 <TextInput
-                    style={[textStyle, styles.inputFeld]}
+                    style={[textStyle, styles.dateInput]}
                     value={yearInput}
                     onChangeText={(newYear) => {readYear(newYear)}}
                 />
@@ -360,7 +362,7 @@ const Attendance = () => {
                                         const studentBalance = studentInfo.balance;
 
                                         return (
-                                            <View style={styles.spaceBetweenRow}>
+                                            <View style={commonStyles.spaceBetweenRow}>
                                                 <View style={styles.studentNameColumn}>
                                                     <Pressable
                                                         onPress={() => {
@@ -379,8 +381,8 @@ const Attendance = () => {
                                                             setIsModalVisible(false)
                                                         }}
                                                     >
-                                                        <View style={styles.modalContainer}>
-                                                            <View style={styles.modalView}>
+                                                        <View style={modalStyles.modalContainer}>
+                                                            <View style={modalStyles.modalView}>
                                                                 <StudentReport
                                                                     firstName={student.firstName}
                                                                     lastName={student.lastName}
@@ -388,7 +390,7 @@ const Attendance = () => {
                                                                         student.classesInfo
                                                                     }
                                                                 />
-                                                                <Pressable style={styles.modalCancelButton} onPress={() => {
+                                                                <Pressable style={modalStyles.modalCancelButton} onPress={() => {
                                                                     setIsModalVisible(false);
                                                                 }}>
                                                                     <Text style={styles.modalText}>Cancel</Text>
@@ -411,7 +413,7 @@ const Attendance = () => {
                                         </Text>
                                     </View>
                                 </View>
-                                <View style={styles.separator} />
+                                <View style={commonStyles.separator} />
                             </View>
                         );
                     }}
@@ -430,28 +432,6 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 16,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     modalText: {
         color: 'black',
@@ -488,13 +468,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    spaceBetweenRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 30,
-    },
     studentName: {
         flex: 1,
         minWidth: 100,
@@ -508,11 +481,6 @@ const styles = StyleSheet.create({
     balanceColumn: {
         flex: 1,
         alignItems: 'flex-end',
-    },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
     },
     selector: {
         paddingVertical: 20,
@@ -528,7 +496,7 @@ const styles = StyleSheet.create({
     selectorButtonColor: {
         borderColor: 'grey',
     },
-    inputFeld: {
+    dateInput: {
         height: 30,
         width: 100,
         borderWidth: 1,

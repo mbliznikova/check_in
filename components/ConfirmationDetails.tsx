@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { commonStyles } from '@/constants/commonStyles';
 
 import { useApi } from "@/api/client";
 import { isSuccessMessageResponse } from '@/api/validators';
@@ -182,7 +183,7 @@ const ConfirmationDetails = ({
                                     id={Number(occurrenceId)}
                                     name={`${occurrenceInfo.name} - ${occurrenceInfo.time.slice(0, 5)}`}
                                 />
-                                <View style={styles.spaceBetweenRow}>
+                                <View style={commonStyles.spaceBetweenRow}>
                                     <Text style={[textStyle]}>
                                         Student
                                     </Text>
@@ -198,7 +199,7 @@ const ConfirmationDetails = ({
                                         const [studentId, studentInfo] = item;
                                         const studentName = (studentInfo.firstName ?? UNKNOWN_NAME) + ' ' + (studentInfo.lastName ?? UNKNOWN_NAME);
                                         return (
-                                            <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
+                                            <View style={[styles.checkboxListItem, commonStyles.spaceBetweenRow]}>
                                                 <Checkbox
                                                     label={studentName}
                                                     checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
@@ -222,7 +223,7 @@ const ConfirmationDetails = ({
                 />
             </View>
 
-            <View style={styles.separator} />
+            <View style={commonStyles.separator} />
 
         </SafeAreaView>
     );
@@ -238,21 +239,9 @@ const styles = StyleSheet.create({
     contentContainer: {
         paddingHorizontal: 16,
     },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
-    },
     checkboxListItem: {
         paddingVertical: 10,
         color: 'white',
-    },
-    spaceBetweenRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 30,
     },
     confirmButtonContainer: {
         justifyContent: 'center',

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput, ScrollView } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
 import Checkbox from './Checkbox';
@@ -141,7 +143,7 @@ const CreateScheduleClass = ({
 
                             <View style={{paddingTop: 20}}>
                                 <TextInput
-                                    style={[textStyle, styles.inputFeld]}
+                                    style={[textStyle, commonStyles.inputField]}
                                     value={time}
                                     onChangeText={(timeStr) => {setTime(timeStr)}}
                                 />
@@ -150,7 +152,7 @@ const CreateScheduleClass = ({
 
                         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                             <Pressable
-                                style={styles.modalConfirmButton}
+                                style={modalStyles.modalConfirmButton}
                                 onPress={async () => {
                                     console.log(
                                         `Class id ${createdClassId}, class name ${className}, day ${selectedDayName}, time ${time}`);
@@ -181,7 +183,7 @@ const CreateScheduleClass = ({
                                 <Text style={[textStyle]}>Schedule</Text>
                             </Pressable>
                             <Pressable
-                                style={styles.modalCancelButton}
+                                style={modalStyles.modalCancelButton}
                                 onPress={() => {
                                     setIsAddTimeOpen(false);
                                     setTime("");
@@ -271,7 +273,7 @@ const CreateScheduleClass = ({
                         Class name:
                     </Text>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField]}
                         value={className}
                         onChangeText={(createdClassName) => {setClassName(createdClassName)}}
                     />
@@ -284,7 +286,7 @@ const CreateScheduleClass = ({
                         Class duration:
                     </Text>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField]}
                         value={newClassDuration?.toString()}
                         onChangeText={(updatedClassDuration) => {
                             setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
@@ -313,7 +315,7 @@ const CreateScheduleClass = ({
                         Price:
                     </Text>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField]}
                         value={(classPrice.toString())}
                         onChangeText={(classPriceAmount) => {
                             setClassPrice(Number(classPriceAmount))
@@ -338,7 +340,7 @@ const CreateScheduleClass = ({
                         <Text style={textStyle}>Create</Text>
                     </Pressable>
                     <Pressable
-                        style={styles.modalCancelButton}
+                        style={modalStyles.modalCancelButton}
                         onPress={onModalClose}
                         >
                             <Text style={[textStyle]}>Cancel</Text>
@@ -365,7 +367,7 @@ const CreateScheduleClass = ({
 
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                     <Pressable
-                        style={styles.modalConfirmButton}
+                        style={modalStyles.modalConfirmButton}
                         onPress={isAddDayOpen ? undefined : onModalClose}
                         disabled={isAddDayOpen}
                     >
@@ -379,8 +381,8 @@ const CreateScheduleClass = ({
 
     const renderCreateScheduleForm = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'}/>
                     {isCreateSuccess? renderClassScheduleForm() : renderClassCreationForm()}
                 </View>
@@ -390,8 +392,8 @@ const CreateScheduleClass = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class was created and scheduled successfully!
@@ -399,7 +401,7 @@ const CreateScheduleClass = ({
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={() => {
                                 setIsAddTimeOpen(false);
                                 setIsConfirmationOpen(false);
@@ -434,20 +436,6 @@ const CreateScheduleClass = ({
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     modalInfo: {
         padding: 20,
     },
@@ -487,14 +475,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10,
     },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
-    },
     createButton: {
         alignItems: 'center',
         paddingVertical: 5,
@@ -512,15 +492,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'grey',
         opacity: 0.5,
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        borderWidth: 1,
-        backgroundColor: 'grey',
     },
     timeButton: {
         borderRadius: 10,
@@ -553,14 +524,6 @@ const styles = StyleSheet.create({
     },
     modalSingleButtonContainer: {
          justifyContent: 'center'
-    },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
     },
     hiddenButtonContainer: {
         opacity: 0,
