@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator} from 'react-native';
+import {StyleSheet, FlatList, SafeAreaView} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
