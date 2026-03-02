@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { useAuth } from '@clerk/clerk-expo';
 
-import { useApi } from "@/api/client";
-import { isValidArrayResponse } from '@/api/validators';
+import { useClassData } from "@/hooks/useClassData";
+import { useClassSchedules } from "@/hooks/useClassSchedules";
+import { useClassOccurrences } from "@/hooks/useClassOccurrences";
+import { SelectedClassState } from "./ClassManagement.types";
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
@@ -13,1399 +14,87 @@ import ClassScheduleModal from "./ClassScheduleModal";
 import ClassOccurrenceModal from "./ClassOccurrencesModal";
 import { Header } from "./Header";
 
-
-type ClassType = {
-    id: number;
-    name: string;
-    durationMinutes: number;
-    isRecurring: boolean;
-};
-
-type PriceItem = {
-    className: string;
-    amount: number;
-    priceId: number;
-};
-
-type PriceMap = Map<number, PriceItem>;
-
-type ScheduleType = {
-    id: number,
-    classTime: string,
-    classModel: number,
-    day: number,
-};
-
-type ClassOccurrenceType = {
-    id: number;
-    classId: number | null;
-    fallbackClassName: string;
-    scheduleId: number | null;
-    plannedDate: string;
-    actualDate: string;
-    plannedStartTime: string;
-    actualStartTime: string;
-    plannedDuration: string; // TODO: make number
-    actualDuration: number;
-    isCancelled: boolean;
-    notes: string;
+const INITIAL_SELECTED_CLASS: SelectedClassState = {
+    id: null,
+    name: '',
+    duration: 60,
+    isRecurring: true,
+    price: 0,
+    priceId: null,
 };
 
 const ClassManagement = () => {
-    const { apiFetch } = useApi();
-
     const textStyle = useThemeTextStyle();
 
-    const [classes, setClasses] = useState<ClassType[]>([]);
-
-    const [classesSet, setClassesSet] = useState<Set<string>>(new Set());
-
-    const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
-    const [selectedClassName, setSelectedClassName] = useState<string | null>(null);
-    const [selectedClassDuration, setSelectedClassDuration] = useState<number | null>(null);
-    const [selectedClassRecurrence, setSelectedClassRecurrence] = useState<boolean>(true);
-    const [selectedClassPrice, setSelectedClassPrice] = useState<number | null>(null);
-    const [selectedPriceId, setSelectedPriceId] = useState<number | null>(null);
-
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-    const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
-    const [isOccurrencesModalVisible, setIsOccurrencesModalVisible] = useState(false);
-
-    const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
-    const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
-    const [isEditSuccessful, setIsEditSuccessful] = useState(false);
-    const [isScheduleSuccessful, setIsScheduleSuccessful] = useState(false);
-    const [isCreateOccurrenceSuccessful, setIsCreateOccurrenceSuccessful] = useState(false);
-    const [isEditOccurrenceSuccessful, setIsEditOccurrenceSuccessful] = useState(false); // TODO: pass it to the appropriate modal and handle there
-
-    const [isCreateClassError, setIsCreateClassError] = useState(false);
-
-    const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map()); // dayId: [scheduleID, time]
-    const [currentClassOccurrenceMap, setCurrentClassOccurrenceMap] = useState<Map<string, [number, string][]>>(new Map()); // date: [occurrenceID, time]
-
-    const [createdClassId, setCreatedClassId] = useState<number | null>(null);
-
-    const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
-    const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
-
-    const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
-    const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
-
-    const [prices, setPrices] = useState<PriceMap>(new Map());
-
-    const isValidCreateResponse = (responseData: any, className: string, classDuration: number, isRecurring: boolean): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Class was created successfully' &&
-            'id' in responseData &&
-            'name' in responseData && responseData.name === className &&
-            'durationMinutes' in responseData && responseData.durationMinutes === classDuration &&
-            'isRecurring' in responseData && responseData.isRecurring === isRecurring
-        );
-    };
-
-    // TODO: handle the created class name - comes from the modal
-    const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Schedule was created successfully' &&
-            'scheduleId' in responseData &&
-            'classId' in responseData && responseData.classId === classId &&
-            'className' in responseData && responseData.className === className &&
-            'day'  in responseData && responseData.day === dayName &&
-            'time' in responseData // TODO: handle the time from response better
-        );
-    };
-
-    const isValidCreateOccurrenceResponse = (
-        responseData: any,
-        className: string,
-        plannedDate: string,
-        plannedStartTime: string,
-        plannedDuration: number = 60,
-        classId?: number,
-        notes?: string,
-    ) => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Class occurrence was created successfully' &&
-            'occurrenceId' in responseData &&
-            'fallbackClassName' in responseData && responseData.fallbackClassName === className &&
-            'plannedDate' in responseData && responseData.plannedDate === plannedDate &&
-            'plannedStartTime' in responseData && responseData.plannedStartTime.slice(0,5) === plannedStartTime && // TODO: handle in BE?
-            'plannedDuration' in responseData && responseData.plannedDuration === plannedDuration &&
-            (classId === undefined || ('classId' in responseData && responseData.classId === classId)) &&
-            ((responseData.notes || '') === (notes || ''))
-        );
-    };
-
-    const isValidPriceResponse = (responseData: any) => { // TODO: have a "general" response?
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            'response' in responseData
-        )
-    }
-
-    const isValidaEditPriceResponse = (responseData: any, priceId: number, newAmount: number) => {
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Price was updated successfully' &&
-            'id' in responseData && responseData.id === priceId &&
-            'amount' in responseData && responseData.amount == newAmount
-        );
-    };
-
-    const isValidCreatePriceResponse = (responseData: any, classId: number, amount: number) => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Price was created successfully' &&
-            'priceId' in responseData &&
-            'classId' in responseData && responseData.classId === classId &&
-            'amount' in responseData && responseData.amount === amount
-        );
-    };
-
-    const isValidDeleteClassResponse = (responseData: any, classId: number, className: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Class ${classId} - ${className} was deleted successfully` &&
-            'classId' in responseData && responseData.classId === classId &&
-            'className' in responseData && responseData.className === className
-        );
-    };
-
-    const isValidDeleteScheduleResponse = (responseData: any, scheduleId: number): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Schedule ${scheduleId} was deleted successfully` &&
-            'scheduleId' in responseData && responseData.scheduleId === scheduleId
-        );
-    };
-
-    const isValidDeleteOccurrenceResponse = (responseData: any, occurrenceId: number, className: string, date: string, time: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time} was deleted successfully` &&
-            'occurrenceId' in responseData && responseData.occurrenceId === occurrenceId
-        );
-    };
-
-    const isValidEditResponse = (responseData: any, classId: number, className: string, classDuration: number): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Class was updated successfully` && // TODO: update the message here and in BE
-            'classId' in responseData && responseData.classId === classId &&
-            'className' in responseData && responseData.className === className &&
-            'durationMinutes' in responseData && responseData.durationMinutes === classDuration
-        );
-    };
-
-    const isValidAvailableTimeSlotsResponse = (responseData: any): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Available time slots' &&
-            'availableSlots' in responseData && Array.isArray(responseData.availableSlots)
-        );
-    };
-
-    const isValidAvailableTimeIntervalsResponse = (responseData: any): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'Available time intervals for class occurrence' &&
-            'availableIntervals' in responseData && Array.isArray(responseData.availableIntervals)
-        );
-    };
-
-    const isValidEditOccurrenceResponse = (
-        responseData: any,
-        occurrenceId: number,
-        actualDate?: string,
-        actualStartTime?: string,
-        actualDuration?: number,
-        isCancelled?: boolean,
-        notes?: string) => {
-            return (
-                typeof responseData === 'object' &&
-                responseData !== null &&
-                'message' in responseData && responseData.message === 'Class Occurrence was updated successfully' &&
-                'id' in responseData && responseData.id === occurrenceId &&
-                (actualDate === undefined || ('actualDate' in responseData && responseData.actualDate === actualDate)) && 
-                (actualStartTime === undefined || ('actualStartTime' in responseData && responseData.actualStartTime.slice(0,5) === actualStartTime)) &&
-                (actualDuration === undefined || ('actualDuration' in responseData && responseData.actualDuration === actualDuration)) &&
-                (isCancelled === undefined || ('isCancelled' in responseData && responseData.isCancelled === isCancelled)) &&
-                (notes === undefined || ('notes' in responseData && responseData.notes === notes))
-            );
-        };
-
-    const removeClass = (targetClassId: number) => {
-        const updatedClasses = classes.filter(cls => cls.id != targetClassId);
-        setClasses(updatedClasses);
-    };
-
-    const updateClassName = (targetClassId: number, newName: string, newDuration: number, newRecurrence: boolean) => {
-        setClasses(
-            prevClasses => prevClasses.map(
-                cls => cls.id === targetClassId ? {...cls, name: newName, durationMinutes: newDuration, isRecurring: newRecurrence} : cls
-            )
-        );
-    };
-
-    const removeScheduleFromState = (targetScheduleId: number, day: number) => {
-        // TODO: handle case when no schedules left
-        const currentSchedule = currentClassScheduleMap.get(day);
-        console.log(`Current Schedule data is: ${currentSchedule}`);
-        if (!currentSchedule) {
-            console.log(`No such day with number ${day} in ${currentClassScheduleMap}`);
-            return;
-        }
-        const udpatedSchedule = currentSchedule.filter(([id]) => id !== targetScheduleId);
-
-        console.log(`udpatedSchedule is ${udpatedSchedule}`);
-
-        const updatedMap = new Map(currentClassScheduleMap);
-
-        if(udpatedSchedule.length === 0) {
-            console.log(`No schedules for day ${day}`);
-            updatedMap.delete(day);
-        } else {
-            updatedMap.set(day, udpatedSchedule);
-        }
-
-        console.log(`Schedule data without deleted schedule: ${udpatedSchedule}`);
-        setCurrentClassScheduleMap(updatedMap);
-    }
-
-    const addScheduleToState = (scheduleId: number, day: number, time: string) => {
-        console.log(`Adding schedule with id ${scheduleId} for: day ${day}, time ${time}`);
-
-        const daySchedule = currentClassScheduleMap.get(day);
-        console.log(`Current Schedule data is: ${daySchedule}`);
-
-        const udpatedSchedule = new Map(currentClassScheduleMap);
-
-        if (!daySchedule) {
-            udpatedSchedule.set(day, [[scheduleId, time]]);
-        } else {
-            udpatedSchedule.get(day)?.push([scheduleId, time]);
-        };
-
-        console.log(`Schedule data with added schedule: ${udpatedSchedule}`);
-
-        setCurrentClassScheduleMap(udpatedSchedule);
-    };
-
-    const addClassToUniqueness = (name: string) => {
-        const newClassSet = new Set(classesSet);
-        newClassSet.add(name);
-        console.log(`Added ${name} to class uniqueness`);
-    };
-
-    // rename to addOccurrenceToState to keep consistency
-    const addOccurrenceToCurrentClassOccurrenceMap = (occurrenceId: number, plannedDate: string, plannedTime: string) => {
-        console.log(`Adding class occurrence with id ${occurrenceId} for: date ${plannedDate}, time ${plannedTime}`);
-
-        const dayOccurrences = currentClassOccurrenceMap.get(plannedDate);
-        console.log(`Current occurrence data for ${plannedDate} is: ${dayOccurrences}`);
-
-        const updatedOccurences = new Map(currentClassOccurrenceMap);
-
-        if (!dayOccurrences) {
-            updatedOccurences.set(plannedDate, [[occurrenceId, plannedTime]]);
-        } else {
-            updatedOccurences.get(plannedDate)?.push([occurrenceId, plannedTime]);
-        };
-
-        console.log(`Occurrence data with added occurrence: ${updatedOccurences}`);
-
-        setCurrentClassOccurrenceMap(updatedOccurences);
-    };
-
-    const addOccurrencetoAllOccurrenceMap = (
-        occurrenceId: number,
-        className: string,
-        plannedDate: string,
-        plannedTime: string,
-        duration: number = 60,
-        classId?: number,
-        scheduleId?: number,
-        notes?: string,
-    ) => {
-        console.log(`Adding occurrence ${occurrenceId} to allOccurrencesMap`);
-
-        const newOccurrence: ClassOccurrenceType = {
-            id: occurrenceId,
-            classId: classId ?? null,
-            fallbackClassName: className,
-            scheduleId: scheduleId ?? null,
-            plannedDate: plannedDate,
-            plannedStartTime: plannedTime,
-            actualDate: plannedDate,
-            actualStartTime: plannedTime,
-            plannedDuration: duration.toString(),
-            actualDuration: duration,
-            isCancelled: false,
-            notes: notes ?? '',
-        };
-
-        const tmpMap = new Map(allOccurrencesMap);
-        tmpMap.set(occurrenceId, newOccurrence);
-        setAllOccurrencesMap(tmpMap);
-    };
-
-    const addOccurrenceToState = (
-        occurrenceId: number,
-        className: string,
-        plannedDate: string,
-        plannedTime: string,
-        duration: number = 60,
-        classId?: number,
-        scheduleId?: number,
-        notes?: string,
-    ) => {
-        addOccurrenceToCurrentClassOccurrenceMap(occurrenceId, plannedDate, plannedTime);
-        addOccurrencetoAllOccurrenceMap(
-            occurrenceId,
-            className,
-            plannedDate,
-            plannedTime,
-            duration,
-            classId,
-            scheduleId,
-            notes,
-        );
-    };
-
-    const editCurrentClassOccurrenceMap = (
-        occurrenceId: number,
-        oldDate: string,
-        oldStartTime: string,
-        newDate: string,
-        newStartTime: string,
-    ) => {
-
-        if (oldDate === newDate && oldStartTime === newStartTime) {
-            console.log(`No date and time to edit: no changes for class occurrence ${occurrenceId}`);
-            return;
-        }
-
-        console.log(`Editing class occurrence with id ${occurrenceId}, at date ${newDate} and time ${newStartTime}`);
-
-        const oldDateArray = currentClassOccurrenceMap.get(oldDate);
-        if (!oldDateArray) {
-            console.log(`No data in currentClassOccurrenceMap for date ${oldDate}`);
-            return null;
-        }
-
-        const tmpMap = new Map(currentClassOccurrenceMap);
-
-        const filteredOldDateArray = oldDateArray.filter(([id, t]) => !(id === occurrenceId && t === oldStartTime));
-        if (oldDate === newDate) filteredOldDateArray.push([occurrenceId, newStartTime]); // Assuming that oldStartTime !== newStartTime here
-        tmpMap.set(oldDate, filteredOldDateArray);
-
-        if (filteredOldDateArray.length === 0) {
-            tmpMap.delete(oldDate);
-        }
-
-        if (oldDate !== newDate) {
-            const newDateArray = tmpMap.get(newDate) ?? [];
-
-            if (oldStartTime !== newStartTime) { // different time for another date
-                if (!newDateArray.some(([id, time]) => id === occurrenceId && time === newStartTime)) { // avoid duplications
-                    newDateArray.push([occurrenceId, newStartTime]);
-                }
-            } else { // same time for another date
-                if (!newDateArray.some(([id, time]) => id === occurrenceId && time === oldStartTime)) {
-                    newDateArray.push([occurrenceId, oldStartTime]);
-                }
-            }
-
-            tmpMap.set(newDate, newDateArray)
-        }
-
-        setCurrentClassOccurrenceMap(tmpMap);
-    };
-
-    const editOccurrenceInState = (
-        occurrenceId: number,
-        actualDate?: string,
-        actualStartTime?: string,
-        actualDuration?: number,
-        isCancelled?: boolean,
-        notes?: string,
-    ) => {
-        console.log(`Editing class occurrence with id ${occurrenceId} in state`);
-
-        const targetOccurrence = allOccurrencesMap.get(occurrenceId);
-
-        if (!targetOccurrence) {
-            console.warn(`No occurrence with id ${occurrenceId} was found`);
-            return;
-        }
-
-        const oldActualDate = targetOccurrence.actualDate;
-        const oldActualStartTime = targetOccurrence.actualStartTime;
-
-        const updates: Partial<ClassOccurrenceType> = {};
-        if (actualDate !== undefined) updates.actualDate = actualDate;
-        if (actualStartTime !== undefined) updates.actualStartTime = actualStartTime;
-        if (actualDuration !== undefined) updates.actualDuration = actualDuration;
-        if (isCancelled !== undefined) updates.isCancelled = isCancelled;
-        if (notes !== undefined) updates.notes = notes;
-        const updatedOccurrenceData = {...targetOccurrence, ...updates}
-
-        const tmpMap = new Map(allOccurrencesMap);
-        tmpMap.set(occurrenceId, updatedOccurrenceData);
-        setAllOccurrencesMap(tmpMap);
-
-        // currentClassOccurrenceMap is date: [occurrenceID, time]
-
-        if (actualDate || actualStartTime) {
-            editCurrentClassOccurrenceMap(
-                occurrenceId,
-                oldActualDate,
-                oldActualStartTime,
-                actualDate ?? oldActualDate,
-                actualStartTime?? oldActualStartTime);
-        }
-
-        if (oldActualDate!== actualDate || oldActualStartTime !== actualStartTime) {
-            removeOccurrenceFromUniqueness(oldActualDate, oldActualStartTime);
-            addOccurrenceToUniqueness(actualDate ?? oldActualDate, actualStartTime ?? oldActualStartTime);
-        }
-    };
-
-    const removeOccurrenceFromState = (targetOccurrenceId: number, plannedDate: string) => {
-        console.log(`Removing class occurrence with id ${targetOccurrenceId} from date ${plannedDate}`);
-
-        const currentOccurrences = currentClassOccurrenceMap.get(plannedDate);
-        console.log(`Current Occurrence data is: ${currentOccurrences}`);
-        if (!currentOccurrences) {
-            console.log(`No such date ${plannedDate} in ${currentClassOccurrenceMap}`);
-            return;
-        }
-
-        const udpatedOccurrences = currentOccurrences.filter(([id]) => id !== targetOccurrenceId);
-
-        console.log(`Updated occurrences are ${udpatedOccurrences}`);
-
-        const updatedMap = new Map(currentClassOccurrenceMap);
-
-        if (udpatedOccurrences.length === 0) {
-            console.log(`No class occurrences for ${plannedDate}`);
-            updatedMap.delete(plannedDate);
-        } else {
-            updatedMap.set(plannedDate, udpatedOccurrences)
-        }
-
-        setCurrentClassOccurrenceMap(updatedMap);
-    };
-
-    const removeClassFromUniqueness = (name: string) => { // TODO: WHY NOT USED?
-        const newClassSet = new Set(classesSet);
-        newClassSet.delete(name);
-        console.log(`Removed ${name} from class uniqueness`);
-    };
-
-    const addScheduleToUniqueness = (day: number, time: string) => {
-        const newSchedulesSet = new Set(schedulesSet);
-        newSchedulesSet.add(`${day}-${time.slice(0, 5)}`);
-        console.log(`Added ${day}-${time.slice(0, 5)} to schedule uniqueness`);
-
-        setSchedulesSet(newSchedulesSet);
-    };
-
-    const removeScheduleFromUniqueness = (day: number, time: string) => {
-        const newSchedulesSet = new Set(schedulesSet);
-        newSchedulesSet.delete(`${day}-${time.slice(0, 5)}`);
-        console.log(`Removed ${day}-${time.slice(0, 5)} from schedule uniqueness`);
-
-        setSchedulesSet(newSchedulesSet);
-    };
-
-    const addOccurrenceToUniqueness = (date: string, time: string) => {
-        const newOccurrencesSet = new Set(occurrencesSet);
-        newOccurrencesSet.add(`${date}-${time.slice(0, 5)}`)
-        console.log(`Added ${date}-${time.slice(0, 5)} to occurrence uniqueness`);
-
-        setOccurrencesSet(newOccurrencesSet);
-    };
-
-    const removeOccurrenceFromUniqueness = (date: string, time: string) => {
-        const newOccurrencesSet = new Set(occurrencesSet);
-        newOccurrencesSet.delete(`${date}-${time.slice(0, 5)}`)
-        console.log(`Removed ${date}-${time.slice(0, 5)} from occurrence uniqueness`);
-
-        setOccurrencesSet(newOccurrencesSet);
-    };
-
-    const checkIfClassUnique = (name: string): boolean => {
-        return !classesSet.has(name);
-    };
-
-    const checkIfScheduleUnique = (dayId: number, time: string): boolean => {
-        const scheduleToCheck = `${dayId}-${time}`;
-
-        return !schedulesSet.has(scheduleToCheck);
-    };
-
-    const checkIfOccurrenceUnique = (date: string, time: string) => {
-        const occurrenceToCheck = `${date}-${time}`;
-
-        return !occurrencesSet.has(occurrenceToCheck);
-    };
-
-    const getChangesFromClassEdit = (newName: string, newDuration: number, newRecurrence: boolean) => {
-        const dataToUpdate: Record<string, string | number | boolean> = {};
-
-        const currentClassState = {
-            'name': selectedClassName,
-            'durationMinutes': selectedClassDuration,
-            'isRecurring': selectedClassRecurrence,
-        };
-
-        const newClassState = {
-            'name': newName,
-            'durationMinutes': newDuration,
-            'isRecurring': newRecurrence,
-        };
-
-        for (const key in newClassState) {
-            if (newClassState[key as keyof typeof newClassState] !== currentClassState[key as keyof typeof currentClassState]) {
-                const dynamicKey: string = key;
-                dataToUpdate[dynamicKey] = newClassState[key as keyof typeof newClassState];
-                console.log(`Adding to request body ${dynamicKey}: ${newClassState[key as keyof typeof newClassState]}`);
-            }
-        }
-
-        return dataToUpdate;
-    };
-
-    const fetchClasses = async () => {
-        try {
-            const response = await apiFetch("/classes/",
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClasses. The response from backend is valid.`);
-
-                    const fetchedClasses: ClassType[] = responseData.response;
-                    setClasses(fetchedClasses);
-                } else {
-                    console.warn(`Function fetchClasses. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchClasses. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch(error) {
-            console.error(`Error while fetching the classes from the server: ${error}`);
-        }
-    };
-
-    const deleteClass = async () => {
-        if (selectedClassId === null || selectedClassName === null) {
-            console.warn("No class selected to delete");
-            return null;
-        }
-        try {
-            const response = await apiFetch(`/classes/${selectedClassId}/delete/`,
-                { method: "DELETE" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidDeleteClassResponse(responseData, selectedClassId, selectedClassName)) {
-                    console.log(`Function deleteClass. The response from backend is valid.`);
-                } else {
-                    console.warn(`Function deleteClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-
-                setIsDeleteSuccessful(true);
-
-                removeClass(selectedClassId);
-
-            } else {
-                console.warn(`Function deleteClass. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch(error) {
-            console.error(`Error while deleting the class: ${error}`);
-        }
-    };
-
-    const fetchPrices = async () => {
-        try {
-            const response = await apiFetch("/prices/",
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidPriceResponse(responseData)) {
-                    console.log("Function fetchPrices at ClassManagement.tsx. The response from backend is valid.")
-
-                    const priceData: PriceMap = new Map(
-                        Object.entries(responseData.response).map(
-                            ([classIdStr, value]) =>
-                                [Number(classIdStr), value] as [number, PriceItem]
-                        )
-                    );
-
-                    setPrices(priceData);
-                }
-            } else {
-                console.log("Function fetchPrices at Payments.tsx. Request was unsuccessful: ", response.status, response.statusText)
-            }
-        } catch (err) {
-            console.error("Error while fetching the list of prices: ", err);
-        }
-    }
-
-    const createClassPrice = async (classId: number, amount: number) => {
-        if (!classId || !amount) {
-            console.warn("No class id or no amount");
-            return null;
-        };
-
-        const data = {
-            "classId": classId,
-            "amount": amount,
-        };
-
-        try {
-            const response = await apiFetch("/prices/", {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const errorMessage = `Function createClassPrice. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Price was created successfully!');
-
-                const responseData = await response.json();
-
-                if (isValidCreatePriceResponse(responseData, classId, amount)) {
-                    console.log(`Function createClassPrice. The response from backend is valid.`);
-                } else {
-                    console.log(`Function createClassPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-            }
-        } catch (error) {
-            console.error(`Error while sending the data to the server when creating price: ${error}`);
-        }
-    };
-
-    const createClass = async (className: string, price: number, classDuration: number = 60, isRecurring: boolean = true) => {
-        // TODO: sanitize input
-        const data = {
-            "name": className,
-            "durationMinutes": classDuration,
-            "isRecurring": isRecurring,
-        };
-
-        try {
-            const response = await apiFetch("/classes/", {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            // TODO: refactor component and make function to follow the commom structure
-            if (!response.ok) {
-                setIsCreateClassError(true);
-                const errorMessage = `Function createClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Class was created successfully!');
-
-                const responseData = await response.json();
-
-                if (isValidCreateResponse(responseData, className, classDuration, isRecurring)) {
-                    console.log(`Function createClass. The response from backend is valid.`);
-
-                    const newClass = {id: responseData.id, name: responseData.name, durationMinutes: responseData.durationMinutes, isRecurring: responseData.isRecurring};
-
-                    setIsCreateSuccessful(true);
-                    setCreatedClassId(responseData.id);
-                    setClasses(prevClasses => [...prevClasses, newClass]);
-                    addClassToUniqueness(className);
-
-                    createClassPrice(responseData.id, price);
-
-                } else {
-                    console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-            }
-        } catch(error) {
-            console.error(`Error while sending the data to the server when creating class: ${error}`);
-        }
-    }
-
-    // TODO: have classToScheduleId as a number?
-    const scheduleClass = async (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => {
-        // TODO: sanitize input and add checks
-        const data = {
-            "classId": classToScheduleId,
-            "day": dayName,
-            "classTime": time,
-        }
-
-        try {
-            const response = await apiFetch("/schedules/", {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const errorMessage = `Function scheduleClass. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Class was scheduled successfully!');
-
-                const responseData = await response.json();
-
-                if (isValidScheduleResponse(responseData, Number(classToScheduleId), classToScheduleName, dayName)
-                ) {
-                    console.log(`Function scheduleClass. The response from backend is valid.`)
-                } else {
-                    console.log(`Function scheduleClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-
-                const scheduleId = responseData.scheduleId;
-
-                setIsScheduleSuccessful(true);
-
-                addScheduleToState(scheduleId, dayId, time);
-                addScheduleToUniqueness(dayId, time);
-
-            }
-        } catch(error) {
-            console.error(`Error while sending the data to the server when scheduling class: ${error}`);
-        }
-    };
-
-    // TODO: should I rather have classId and className as parameters, not call state vars inside the function?
-    const editClass = async (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => {
-        if (selectedClassId === null || selectedClassName === null) {
-            console.warn("No class selected to edit");
-            return null;
-        }
-
-        const data = getChangesFromClassEdit(newClassName, newClassDuration, newClassRecurrence);
-
-        try {
-            const response = await apiFetch(`/classes/${selectedClassId}/edit/`, {
-                method: "PUT",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-        if (response.ok) {
-            const responseData = await response.json();
-
-            if (isValidEditResponse(responseData, selectedClassId, newClassName, newClassDuration)) {
-                console.log(`Successfully edited class ${newClassName} (was ${selectedClassName}) - ${selectedClassId}. Duration: ${selectedClassDuration} -> ${newClassDuration}.`);
-            } else {
-                console.warn(`Function editClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-            }
-
-            setIsEditSuccessful(true);
-
-            updateClassName(selectedClassId, newClassName, newClassDuration, newClassRecurrence);
-            setSelectedClassDuration(newClassDuration);
-            setSelectedClassRecurrence(newClassRecurrence);
-            addClassToUniqueness(newClassName);
-
-            // setSelectedClassRecurrence(true); // TODO: how to handle better?
-
-        } else {
-            console.warn(`Function editClass. Request was unsuccessful: ${response.status, response.statusText}`);
-        }
-
-        } catch(error) {
-            console.error(`Error while sending the data to the server when editing class: ${error}`)
-        }
-    };
-
-    const editPrice = async (priceId: number, newAmount: number, classId: number) => {
-        if (priceId === null || newAmount === null) {
-            console.warn("No price id or no amount to edit");
-            return null;
-        }
-
-        const data = {
-            "amount": newAmount
-        };
-
-        try {
-            const response = await apiFetch(`/prices/${priceId}/`, {
-                method: "PATCH",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidaEditPriceResponse(responseData, priceId, newAmount)) {
-                    console.log(`Function editPrice. The response from backend is valid.`);
-                } else {
-                    console.warn(`Function editPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-
-                setIsEditSuccessful(true);
-
-                setSelectedClassPrice(newAmount);
-
-                const newMap = new Map(prices);
-                const newItem = newMap.get(classId);
-
-                if (newItem) {
-                    const updatedItem = {...newItem, amount: newAmount}
-                    newMap.set(classId, updatedItem);
-
-                    setPrices(newMap);
-                }
-
-            } else {
-                console.warn(`Function editPrice. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while editing a price: ${error}`);
-        }
-    };
-
-    const fetchSchedules = async() => {
-        try {
-            const response = await apiFetch("/schedules/",
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchSchedules. The response from backend is valid.`);
-                    const schedules = responseData.response;
-
-                    setAllSchedulesList(schedules);
-
-                } else {
-                    console.warn(`Function fetchSchedules. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchSchedules. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching schedule data from the server for a class: ${error}`);
-        }
-    };
-
-    const fetchClassSchedules = async (classId: number) => {
-        try {
-            const response = await apiFetch(`/schedules/?class_id=${classId}`,
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                // TODO: validation for elements of the array?
-                if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClassSchedules. The response from backend is valid.`);
-                    const schedules = responseData.response;
-                    const scheduleMap: Map<number, [number, string][]> = new Map();
-
-                    schedules.forEach((element: ScheduleType) => {
-                        if (scheduleMap.has(element.day)) {
-                            scheduleMap.get(element.day)?.push([element.id, element.classTime])
-                        } else {
-                            scheduleMap.set(element.day, [[element.id, element.classTime]])
-                        }
-                    });
-
-                    setCurrentClassScheduleMap(scheduleMap);
-                    // TODO: reset currentClassScheduleMap in appropriate place?
-
-                } else {
-                    console.warn(`Function fetchClassSchedules. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchClassSchedules. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching schedule data from the server for a class: ${error}`);
-        }
-    };
-
-    const deleteClassSchedule = async(scheduleId: number, day: number, time: string) => {
-        if (scheduleId === null || day === null) {
-            console.warn("No schedule or day selected");
-            return null;
-        }
-
-        try {
-            const response = await apiFetch(`/schedules/${scheduleId}/delete/`, {
-                method: "DELETE",
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidDeleteScheduleResponse(responseData, scheduleId)) {
-                    console.log(`Function deleteClassSchedule. The response from backend is valid.`);
-
-                    removeScheduleFromState(scheduleId, day);
-                    removeScheduleFromUniqueness(day, time);
-                } else {
-                    console.warn(`Function deleteClassSchedule. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function deleteClassSchedule. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-
-        } catch (error) {
-            console.error(`Error while deleting the schedule: ${error}`);
-        }
-    };
-
-    const fetchAvailableTimeSlots = async(dayName: string, classDurationToFit: number): Promise<string[]> => {
-        if (dayName === null || classDurationToFit === null) {
-            console.warn("No day or duration provided");
-            return [];
-        }
-
-        let slots: string[] = [];
-
-        try {
-            const response = await apiFetch(`/available_time_slots/?day=${dayName}&duration=${classDurationToFit}`,
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidAvailableTimeSlotsResponse(responseData)) {
-                    console.log(`Function fetchAvailableTimeSlots. The response from backend is valid.`);
-
-                    slots = responseData.availableSlots ?? [];
-                } else {
-                    console.warn(`Function fetchAvailableTimeSlots. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchAvailableTimeSlots. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching available time slots: ${error}`);
-        }
-
-        return slots;
-    };
-
-    const fetchAllClassOccurrences = async () => {
-        try {
-            const response = await apiFetch("/class_occurrences/",
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchAllClassOccurrences. The response from backend is valid.`);
-
-                    const classOccurrences: ClassOccurrenceType[] = responseData.response;
-                    const occurrencesMap = new Map<number, ClassOccurrenceType>();
-                    classOccurrences.forEach((occ) => {
-                        occurrencesMap.set(occ.id, occ);
-                    });
-                    setAllOccurrencesMap(occurrencesMap);
-                }
-            } else {
-                console.warn(`Function fetchAllClassOccurrences. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching all class occurrences data from the server: ${error}`);
-        }
-    };
-
-    const fetchClassOccurrences = async (classId: number) => {
-        try {
-            const response = await apiFetch(`/class_occurrences/?class_id=${classId}`,
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                // TODO: validation for elements of the array?
-                if (isValidArrayResponse(responseData, 'response')) {
-                    console.log(`Function fetchClassOccurrences. The response from backend is valid.`);
-                    const occurrences = responseData.response;
-                    const occurrencesMap: Map<string, [number, string][]> = new Map();
-
-                    occurrences.forEach((element: ClassOccurrenceType) => {
-                        if (occurrencesMap.has(element.actualDate)) {
-                            occurrencesMap.get(element.actualDate)?.push([element.id, element.actualStartTime])
-                        } else {
-                            occurrencesMap.set(element.actualDate, [[element.id, element.actualStartTime]])
-                        }
-                    });
-
-                    setCurrentClassOccurrenceMap(occurrencesMap);
-                    // TODO: reset setCurrentClassOccurrenceMap in appropriate place?
-
-                } else {
-                    console.warn(`Function fetchClassOccurrences. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchClassOccurrences. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching occurrence data from the server for a class: ${error}`);
-        }
-    };
-
-    const createClassOccurrence = async (
-        className: string,
-        plannedDate: string,
-        plannedTime: string,
-        duration: number = 60,
-        classId?: number,
-        scheduleId?: number,
-        notes?: string) => {
-            // onCreateOccurrence: (classToScheduleId: string, classToScheduleName: string, dayId: number, dayName: string, time: string) => void;
-            // TODO: add validation here?
-            const data = {
-                "fallbackClassName": className,
-                "plannedDate": plannedDate,
-                "plannedStartTime": plannedTime,
-                "plannedDuration": duration,
-                "classModel": classId,
-                "schedule": scheduleId,
-                "notes": notes,
-            };
-
-        try {
-            const response = await apiFetch("/class_occurrences/", {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const errorMessage = `Function createClassOccurrence. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
-            } else {
-                console.log('Class occurrence was created successfully!');
-
-                const responseData = await response.json();
-
-                if (isValidCreateOccurrenceResponse(responseData, className, plannedDate, plannedTime, duration, classId, notes)
-                ) {
-                    console.log(`Function createClassOccurrence. The response from backend is valid.`)
-                } else {
-                    console.log(`Function createClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`)
-                }
-
-                const occurrenceId = responseData.occurrenceId;
-
-                setIsCreateOccurrenceSuccessful(true);
-
-                addOccurrenceToState(
-                    occurrenceId,
-                    className,
-                    plannedDate,
-                    plannedTime,
-                    duration,
-                    classId,
-                    scheduleId,
-                    notes,
-                );
-
-                addOccurrenceToUniqueness(plannedDate, plannedTime);
-
-            }
-        } catch(error) {
-            console.error(`Error while sending the data to the server when creating class occurrence: ${error}`);
-        }
-    };
-
-    const deleteClassOccurrence = async(occurrenceId: number, className: string, date: string, time: string) => {
-        if (occurrenceId === null) {
-            console.warn("No occurrence selected");
-            return null;
-        }
-
-        try {
-            const response = await apiFetch(`/class_occurrences/${occurrenceId}/delete/`, {
-                method: "DELETE",
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidDeleteOccurrenceResponse(responseData, occurrenceId, className, date, time)) {
-                    console.log(`Function deleteClassOccurrence. The response from backend is valid.`);
-
-                    removeOccurrenceFromState(occurrenceId, date)
-                    removeOccurrenceFromUniqueness(date, time);
-
-                } else {
-                    console.warn(`Function deleteClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function deleteClassOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-
-        } catch (error) {
-            console.error(`Error while deleting the class occurrence: ${error}`);
-        }
-    };
-
-    const fetchAvailableTimeIntervalsOccurrence = async (date: string, classDurationToFit: number): Promise<string[]> => {
-        if (date === null || classDurationToFit === null) {
-            console.warn("No date or class duration provided");
-            return [];
-        }
-        let intervals: string[] = [];
-
-        try {
-            const response = await apiFetch(`/available_occurrence_time/?date=${date}&duration=${classDurationToFit}`,
-                { method: "GET" }
-            );
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidAvailableTimeIntervalsResponse(responseData)) {
-                    console.log(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is valid.`);
-
-                    intervals = responseData.availableIntervals ?? [];
-                } else {
-                    console.warn(`Function fetchAvailableTimeIntervalsOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function fetchAvailableTimeIntervalsOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while fetching available time intervals for class occurrence: ${error}`);
-        }
-
-        return intervals;
-    };
-
-    const editClassOccurrence = async(
-        occurrenceId: number,
-        actualDate?: string,
-        actualStartTime?: string,
-        actualDuration?: number,
-        isCancelled?: boolean,
-        notes?: string,
-    ) => {
-        if (occurrenceId === null) {
-            console.warn("No occurrence selected");
-            return null;
-        }
-
-        const data: any = {}
-
-        if (actualDate !== undefined) data.actualDate = actualDate;
-        if (actualStartTime !== undefined) data.actualStartTime = actualStartTime;
-        if (actualDuration !== undefined) data.actualDuration = actualDuration;
-        if (isCancelled !== undefined) data.isCancelled = isCancelled;
-        if (notes !== undefined) data.notes = notes;
-
-        if (Object.keys(data).length === 0) {
-            console.warn("Function editClassOccurrence. Nothing to edit provided");
-            return null;
-        }
-
-        try {
-            const response = await apiFetch(`/class_occurrences/${occurrenceId}/edit/`, {
-                method: "PATCH",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidEditOccurrenceResponse(responseData, occurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes)) {
-                    console.log(`Function editClassOccurrence. The response from backend is valid.`);
-
-                    editOccurrenceInState(
-                        occurrenceId,
-                        actualDate ?? undefined,
-                        actualStartTime ?? undefined,
-                        actualDuration ?? undefined,
-                        isCancelled ?? undefined,
-                        notes ?? undefined,
-                    );
-
-                    setIsEditOccurrenceSuccessful(true);
-                } else {
-                    console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-            } else {
-                console.warn(`Function editClassOccurrence. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch (error) {
-            console.error(`Error while editing a class occurrence: ${error}`);
-        }
-    };
-
-    useEffect(() => {
-        fetchPrices();
-        fetchClasses();
-        fetchSchedules();
-        fetchAllClassOccurrences();
-    },
-    []);
-
-    useEffect(() => {
-        const classSet: Set<string> = new Set();
-
-        classes.forEach((cls) => {
-            classSet.add(cls.name)
-        });
-
-        setClassesSet(classSet);
-    },
-    [classes]);
-
-    useEffect(() => {
-        const scheduleSet: Set<string> = new Set();
-
-        allSchedulesList.forEach((schedule) => {
-            // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
-            scheduleSet.add(`${schedule.day}-${schedule.classTime.slice(0,5)}`);
-        });
-
-        setSchedulesSet(scheduleSet);
-    },
-    [allSchedulesList]);
-
-    // add useEffect to handle adding the created class to the list?
-
-    useEffect(() => {
-        const occurrencesSetTemp: Set<string> = new Set();
-
-        // TODO: use actual time?
-        allOccurrencesMap.forEach((occurrence) => {
-            occurrencesSetTemp.add(`${occurrence.actualDate}-${occurrence.actualStartTime.slice(0, 5)}`);
-            // also think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
-        });
-
-        setOccurrencesSet(occurrencesSetTemp);
-    },
-    [allOccurrencesMap]);
-
-    const renderHeaderRow = () => {
-        return (
-        <View style={styles.headerRow}>
-            <View style={{marginLeft: 'auto'}}>
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.button,
-                        pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed,
-                    ]}
-                    onPress={() => {
-                        setIsCreateModalVisible(true)
-                    }}>
+    const classData = useClassData();
+    const classSchedules = useClassSchedules();
+    const classOccurrences = useClassOccurrences();
+
+    const [selectedClass, setSelectedClass] = useState<SelectedClassState>(INITIAL_SELECTED_CLASS);
+
+    const resetSelectedClass = () => setSelectedClass(INITIAL_SELECTED_CLASS);
+
+    return (
+        <SafeAreaView style={{ flex: 1 }}>
+            <Header />
+            <ScreenTitle titleText={'Class management'} />
+
+            <View style={styles.headerRow}>
+                <View style={{ marginLeft: 'auto' }}>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.button,
+                            pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed,
+                        ]}
+                        onPress={classData.openCreateModal}>
                         <Text style={[textStyle]}>+ Create new class</Text>
-                </Pressable>
+                    </Pressable>
+                </View>
             </View>
-        </View>
-        );
-    };
 
-    const renderClassList = () => {
-        return (
             <FlatList
-                data={classes}
+                data={classData.classes}
                 keyExtractor={(cls) => cls.id.toString()}
                 renderItem={({ item: cls }) => (
                     <View style={styles.classesList}>
                         <Pressable
-                            style={{padding: 10}}
+                            style={{ padding: 10 }}
                             onPress={() => {
-                                setSelectedClassId(cls.id);
-                                setSelectedClassName(cls.name);
-                                setSelectedClassDuration(cls.durationMinutes);
-                                fetchClassSchedules(cls.id);
-                                setIsScheduleModalVisible(true);
+                                setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes });
+                                classSchedules.fetchClassSchedules(cls.id);
+                                classSchedules.openScheduleModal();
                             }}>
                             <Text style={[textStyle, styles.className]}>{cls.name}</Text>
                         </Pressable>
-                        <View style={{flexDirection: 'row'}}>
+                        <View style={{ flexDirection: 'row' }}>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClassId(cls.id);
-                                    setSelectedClassName(cls.name);
-                                    setSelectedClassRecurrence(cls.isRecurring);
-                                    setSelectedClassDuration(cls.durationMinutes);
-                                    fetchClassOccurrences(cls.id);
-                                    setIsOccurrencesModalVisible(true);
+                                    setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes, isRecurring: cls.isRecurring });
+                                    classOccurrences.fetchClassOccurrences(cls.id);
+                                    classOccurrences.openOccurrenceModal();
                                 }}>
                                 <Text style={[textStyle, styles.actionButton]}>See occurrences</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClassId(cls.id);
-                                    setSelectedClassName(cls.name);
-                                    setSelectedClassRecurrence(cls.isRecurring);
-                                    setSelectedClassDuration(cls.durationMinutes);
-                                    const currentPrice = prices.get(cls.id)?.amount ?? 0;
-                                    setSelectedClassPrice(currentPrice);
-                                    const currentPriceId = prices.get(cls.id)?.priceId ?? null;
-                                    setSelectedPriceId(currentPriceId);
-                                    setIsEditModalVisible(true);
+                                    const currentPrice = classData.prices.get(cls.id)?.amount ?? 0;
+                                    const currentPriceId = classData.prices.get(cls.id)?.priceId ?? null;
+                                    setSelectedClass({
+                                        id: cls.id,
+                                        name: cls.name,
+                                        duration: cls.durationMinutes,
+                                        isRecurring: cls.isRecurring,
+                                        price: currentPrice,
+                                        priceId: currentPriceId,
+                                    });
+                                    classData.openEditModal();
                                 }}>
                                 <Text style={[textStyle, styles.actionButton]}>Edit</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClassId(cls.id);
-                                    setSelectedClassName(cls.name);
-                                    setSelectedClassDuration(cls.durationMinutes);
-                                    setIsDeleteModalVisible(true);
+                                    setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes });
+                                    classData.openDeleteModal();
                                 }}>
                                 <Text style={[textStyle, styles.actionButton]}>Delete</Text>
                             </Pressable>
@@ -1413,167 +102,121 @@ const ClassManagement = () => {
                     </View>
                 )}>
             </FlatList>
-        );
-    };
 
-    const renderCreateClassModal = () => {
-        if (!isCreateModalVisible) {
-            return null;
-        }
-        return (
+            {classData.isCreateModalVisible && (
                 <CreateScheduleClass
-                    isVisible={isCreateModalVisible}
-                    onCreateClass={createClass}
-                    onClassUniquenessCheck={checkIfClassUnique}
-                    onRequestingTimeSlots={fetchAvailableTimeSlots}
-                    onScheduleClass={scheduleClass}
-                    onScheduleUniquenessCheck={checkIfScheduleUnique}
-                    onScheduleDelete={deleteClassSchedule}
+                    isVisible={classData.isCreateModalVisible}
+                    onCreateClass={classData.createClass}
+                    onClassUniquenessCheck={classData.checkIfClassUnique}
+                    onRequestingTimeSlots={classSchedules.fetchAvailableTimeSlots}
+                    onScheduleClass={classSchedules.scheduleClass}
+                    onScheduleUniquenessCheck={classSchedules.checkIfScheduleUnique}
+                    onScheduleDelete={classSchedules.deleteClassSchedule}
                     onModalClose={() => {
-                        setIsCreateModalVisible(false);
-                        setIsCreateSuccessful(false);
-                        setCreatedClassId(null);
-                        setIsScheduleSuccessful(false);
-                        setCurrentClassScheduleMap(new Map());
-                        setSelectedClassId(null);
-                        setSelectedClassName("");
+                        classData.closeCreateModal();
+                        classSchedules.clearScheduleContext();
+                        resetSelectedClass();
                     }}
-                    defaultClassDuration={60} // TODO: have as a variable
-                    isCreateSuccess={isCreateSuccessful}
-                    isError={isCreateClassError}
-                    createdClassId={createdClassId}
-                    scheduleData={currentClassScheduleMap}
-                    isSheduleSuccess={isScheduleSuccessful}
+                    defaultClassDuration={60}
+                    isCreateSuccess={classData.isCreateSuccess}
+                    isError={classData.isCreateError}
+                    createdClassId={classData.createdClassId}
+                    scheduleData={classSchedules.currentClassScheduleMap}
+                    isSheduleSuccess={classSchedules.isScheduleSuccess}
                 />
-        );
-    };
+            )}
 
-    const renderDeleteClassModal = () => {
-        if (!isDeleteModalVisible) {
-            return null;
-        }
-        return (
-            <DeleteClassModal
-                isVisible={isDeleteModalVisible}
-                onModalClose={() => {
-                    setIsDeleteModalVisible(false);
-                    setIsDeleteSuccessful(false);
-                    setSelectedClassId(null);
-                    setSelectedClassName("");
-                }}
-                onDeleteClass={deleteClass}
-                className={selectedClassName ?? ""}
-                isSuccess={isDeleteSuccessful}
-            />
-        );
-    };
+            {classData.isDeleteModalVisible && (
+                <DeleteClassModal
+                    isVisible={classData.isDeleteModalVisible}
+                    onModalClose={() => {
+                        classData.closeDeleteModal();
+                        resetSelectedClass();
+                    }}
+                    onDeleteClass={() => {
+                        if (selectedClass.id !== null && selectedClass.name) {
+                            classData.deleteClass(selectedClass.id, selectedClass.name);
+                        }
+                    }}
+                    className={selectedClass.name}
+                    isSuccess={classData.isDeleteSuccess}
+                />
+            )}
 
-    const renderEditClassModal = () => {
-        if (!isEditModalVisible) {
-            return null;
-        }
+            {classData.isEditModalVisible && selectedClass.id !== null && selectedClass.priceId !== null && (
+                <EditClassModal
+                    isVisible={classData.isEditModalVisible}
+                    onModalClose={() => {
+                        classData.closeEditModal();
+                        resetSelectedClass();
+                    }}
+                    onEditClass={(newName, newDuration, newRecurrence) => {
+                        if (selectedClass.id !== null) {
+                            classData.editClass(
+                                selectedClass.id,
+                                selectedClass.name,
+                                selectedClass.duration,
+                                selectedClass.isRecurring,
+                                newName,
+                                newDuration,
+                                newRecurrence,
+                            );
+                        }
+                    }}
+                    onEditPrice={(priceId, newAmount, classId) => {
+                        classData.editPrice(priceId, newAmount, classId);
+                        setSelectedClass(prev => ({ ...prev, price: newAmount }));
+                    }}
+                    onClassUniquenessCheck={classData.checkIfClassUnique}
+                    classId={selectedClass.id}
+                    oldClassName={selectedClass.name}
+                    oldClassDuration={selectedClass.duration}
+                    oldClassRecurrence={selectedClass.isRecurring}
+                    oldClassPrice={selectedClass.price}
+                    priceId={selectedClass.priceId}
+                    isSuccess={classData.isEditSuccess}
+                />
+            )}
 
-        if (
-            selectedClassId === null ||
-            selectedPriceId === null
-        ) {
-                return null;
-        }
+            {classSchedules.isScheduleModalVisible && (
+                <ClassScheduleModal
+                    isVisible={classSchedules.isScheduleModalVisible}
+                    onModalClose={() => {
+                        classSchedules.closeScheduleModal();
+                        resetSelectedClass();
+                    }}
+                    onRequestingTimeSlots={classSchedules.fetchAvailableTimeSlots}
+                    onScheduleDelete={classSchedules.deleteClassSchedule}
+                    onScheduleClass={classSchedules.scheduleClass}
+                    onUniquenessCheck={classSchedules.checkIfScheduleUnique}
+                    scheduleData={classSchedules.currentClassScheduleMap}
+                    classId={selectedClass.id}
+                    className={selectedClass.name}
+                    classDuration={selectedClass.duration}
+                    isSheduleSuccess={classSchedules.isScheduleSuccess}
+                />
+            )}
 
-        return (
-            <EditClassModal
-                isVisible={isEditModalVisible}
-                onModalClose={() => {
-                    setIsEditModalVisible(false);
-                    setIsEditSuccessful(false);
-                    setSelectedClassDuration(null);
-                    setSelectedClassPrice(null);
-                    setSelectedPriceId(null);
-                    setSelectedClassId(null);
-                    setSelectedClassName("");
-                }}
-                onEditClass={editClass}
-                onEditPrice={editPrice}
-                onClassUniquenessCheck={checkIfClassUnique}
-                classId={selectedClassId}
-                oldClassName={selectedClassName ?? ""}
-                oldClassDuration={selectedClassDuration ?? 60}
-                oldClassRecurrence={selectedClassRecurrence}
-                oldClassPrice={selectedClassPrice ?? 0}
-                priceId={selectedPriceId}
-                isSuccess={isEditSuccessful}
-            />
-        );
-    };
-
-    const renderScheduleListClassModal = () => {
-        if (!isScheduleModalVisible) {
-            return null;
-        }
-        return (
-            <ClassScheduleModal
-                isVisible={isScheduleModalVisible}
-                onModalClose={() => {
-                    setIsScheduleModalVisible(false);
-                    setIsScheduleSuccessful(false);
-                    setCurrentClassScheduleMap(new Map());
-                    setSelectedClassId(null);
-                    setSelectedClassName("");
-                }}
-                onRequestingTimeSlots={fetchAvailableTimeSlots}
-                onScheduleDelete={deleteClassSchedule}
-                onScheduleClass={scheduleClass}
-                onUniquenessCheck={checkIfScheduleUnique}
-                scheduleData={currentClassScheduleMap}
-                classId={selectedClassId}
-                className={selectedClassName}
-                classDuration={selectedClassDuration}
-                isSheduleSuccess={isScheduleSuccessful}
-            />
-        );
-    };
-
-    const renderClassOccurrencesModal = () => {
-        if (!isOccurrencesModalVisible) {
-            return null
-        }
-        return (
-            <ClassOccurrenceModal
-                isVisible={isOccurrencesModalVisible}
-                onModalClose={() => {
-                    setIsOccurrencesModalVisible(false);
-                    setCurrentClassOccurrenceMap(new Map());
-                    setIsCreateOccurrenceSuccessful(false);
-                    setIsEditOccurrenceSuccessful(false);
-                    setSelectedClassId(null);
-                    setSelectedClassName("");
-                }}
-                onRequestingTimeIntervals={fetchAvailableTimeIntervalsOccurrence}
-                onCreateOccurrence={createClassOccurrence}
-                onEditOccurrence={editClassOccurrence}
-                onDeleteOccurrence={deleteClassOccurrence}
-                onUniquenessCheck={checkIfOccurrenceUnique}
-                occurrenceIdTimebyDate={currentClassOccurrenceMap}
-                allOccurrenceDataById={allOccurrencesMap}
-                classId={selectedClassId}
-                className={selectedClassName}
-                classDuration={selectedClassDuration}
-                isCreateOccurrenceSuccess={isCreateOccurrenceSuccessful}
-            />
-        );
-    };
-
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <Header/>
-            <ScreenTitle titleText={'Class management'}/>
-            {renderHeaderRow()}
-            {renderClassList()}
-            {renderDeleteClassModal()}
-            {renderCreateClassModal()}
-            {renderEditClassModal()}
-            {renderScheduleListClassModal()}
-            {renderClassOccurrencesModal()}
+            {classOccurrences.isOccurrenceModalVisible && (
+                <ClassOccurrenceModal
+                    isVisible={classOccurrences.isOccurrenceModalVisible}
+                    onModalClose={() => {
+                        classOccurrences.closeOccurrenceModal();
+                        resetSelectedClass();
+                    }}
+                    onRequestingTimeIntervals={classOccurrences.fetchAvailableTimeIntervalsOccurrence}
+                    onCreateOccurrence={classOccurrences.createClassOccurrence}
+                    onEditOccurrence={classOccurrences.editClassOccurrence}
+                    onDeleteOccurrence={classOccurrences.deleteClassOccurrence}
+                    onUniquenessCheck={classOccurrences.checkIfOccurrenceUnique}
+                    occurrenceIdTimebyDate={classOccurrences.currentClassOccurrenceMap}
+                    allOccurrenceDataById={classOccurrences.allOccurrencesMap}
+                    classId={selectedClass.id}
+                    className={selectedClass.name}
+                    classDuration={selectedClass.duration}
+                    isCreateOccurrenceSuccess={classOccurrences.isCreateOccurrenceSuccess}
+                />
+            )}
         </SafeAreaView>
     );
 };
