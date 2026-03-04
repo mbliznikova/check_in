@@ -8,7 +8,7 @@ export type AttendanceStudentType = {
 export type AttendanceClassType = {
     name: string;
     time: string;
-    class_id?: string;
+    classId?: string;
     students: {
         [studentId: string]: AttendanceStudentType;
     };

@@ -196,7 +196,7 @@ const Attendance = () => {
             const occurrences = att.occurrences;
 
             Object.entries(occurrences).forEach(([occurrenceId, occurrenceInfo]) => {
-                const classIdNum = Number(occurrenceInfo.class_id)
+                const classIdNum = Number(occurrenceInfo.classId)
 
                 if (!reportMap.has(classIdNum)) {
                     reportMap.set(classIdNum, {
