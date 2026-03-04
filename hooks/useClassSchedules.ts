@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
-import { ScheduleType } from "@/components/ClassManagement.types";
+import { ScheduleType } from "@/types/class";
 
 const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
     return (

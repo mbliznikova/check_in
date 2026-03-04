@@ -5,7 +5,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useClassData } from "@/hooks/useClassData";
 import { useClassSchedules } from "@/hooks/useClassSchedules";
 import { useClassOccurrences } from "@/hooks/useClassOccurrences";
-import { SelectedClassState } from "./ClassManagement.types";
+import { SelectedClassState } from "@/types/class";
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
@@ -60,7 +60,12 @@ const ClassManagement = () => {
                         <Pressable
                             style={{ padding: 10 }}
                             onPress={() => {
-                                setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes });
+                                setSelectedClass({
+                                    ...INITIAL_SELECTED_CLASS,
+                                    id: cls.id,
+                                    name: cls.name,
+                                    duration: cls.durationMinutes,
+                                });
                                 classSchedules.fetchClassSchedules(cls.id);
                                 classSchedules.openScheduleModal();
                             }}>
@@ -69,7 +74,13 @@ const ClassManagement = () => {
                         <View style={{ flexDirection: 'row' }}>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes, isRecurring: cls.isRecurring });
+                                    setSelectedClass({
+                                        ...INITIAL_SELECTED_CLASS,
+                                        id: cls.id,
+                                        name: cls.name,
+                                        duration: cls.durationMinutes,
+                                        isRecurring: cls.isRecurring,
+                                    });
                                     classOccurrences.fetchClassOccurrences(cls.id);
                                     classOccurrences.openOccurrenceModal();
                                 }}>
@@ -93,7 +104,12 @@ const ClassManagement = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClass({ ...INITIAL_SELECTED_CLASS, id: cls.id, name: cls.name, duration: cls.durationMinutes });
+                                    setSelectedClass({
+                                        ...INITIAL_SELECTED_CLASS,
+                                        id: cls.id,
+                                        name: cls.name,
+                                        duration: cls.durationMinutes,
+                                    });
                                     classData.openDeleteModal();
                                 }}>
                                 <Text style={[textStyle, styles.actionButton]}>Delete</Text>

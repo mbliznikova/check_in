@@ -5,14 +5,10 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
+import { StudentType } from '@/types/student';
+import { PaymentType } from '@/types/payment';
 import ScreenTitle from './ScreenTitle';
 import { Header } from './Header';
-
-type StudentType = {
-    id: number;
-    firstName: string;
-    lastName: string;
-};
 
 type RawPriceType = {
     [classId: string]: {
@@ -34,16 +30,6 @@ type ClassPaymentType = Map<number, {
     paid: boolean;
     lastPaymentId: number | null;
   }>;
-
-type PaymentType = {
-    id: number;
-    studentId: number;
-    classId: number;
-    studentName: string;
-    className: string;
-    amount: number;
-    paymentDate: string;
-};
 
 type PaymentMapType = Map<number, {
     studentName: string;
@@ -364,8 +350,8 @@ const Payments = () => {
                 responseData !== null &&
                 'message' in responseData && responseData.message === 'Payment was successfully created' &&
                 'paymentId' in responseData && typeof responseData.paymentId === 'number' &&
-                // Not checking responseData.classId === classId for the case the student/class was deleted and no such FK in Payment in BE,
-                // but the payment was added (retrospective), in case Payments FE was not refreshed after student/class was deleted?
+                // Not checking responseData.classId === classId: student/class may have been deleted,
+                // leaving no FK in Payment on BE. Payment still valid if added retrospectively.
                 'studentId' in responseData &&
                 'classId' in responseData &&
                 'studentName' in responseData && responseData.studentName === studentName &&
@@ -483,6 +469,9 @@ const Payments = () => {
                             const price = classPrice ? classPrice.amount : 0.0;
                             const paymentId = classInfo.lastPaymentId;
 
+                            const balanceTextStyle = isPaid ? styles.paidText : styles.unpaidText;
+                            const balanceText = isPaid ? `$${amount - price}` : `-$${price}`;
+
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
@@ -520,7 +509,7 @@ const Payments = () => {
                                                     setPaymentAction('add');
                                                     setIsModalVisible(true);
                                                 }}>
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? `$${amount - price}` : `-$${price}`}</Text>
+                                                <Text style={[balanceTextStyle]}>{balanceText}</Text>
                                             </Pressable>
                                             <Pressable
                                                 style={{paddingLeft: 10}}

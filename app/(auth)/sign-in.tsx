@@ -1,7 +1,10 @@
 import { useSignIn } from '@clerk/clerk-expo'
 import { SignIn as WebSignIn } from '@clerk/clerk-expo/web'
 import { Link, useRouter } from 'expo-router'
-import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet, Platform } from 'react-native'
+import {
+    Text, TextInput, TouchableOpacity, View,
+    useColorScheme, StyleSheet, Platform,
+} from 'react-native'
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import React, { useState } from "react";
 

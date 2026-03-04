@@ -2,13 +2,7 @@ import * as React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { UNKNOWN_NAME } from '@/constants/ui';
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-};
+import { StudentType } from '@/types/student';
 
 const Student = ({
     firstName='John',

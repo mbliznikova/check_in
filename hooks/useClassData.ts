@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
-import { ClassType, PriceItem, PriceMap } from "@/components/ClassManagement.types";
+import { ClassType, PriceItem, PriceMap } from "@/types/class";
 
 const isValidCreateResponse = (responseData: any, className: string, classDuration: number, isRecurring: boolean): boolean => {
     return (

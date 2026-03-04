@@ -1,16 +1,9 @@
-import * as React from 'react';  
+import * as React from 'react';
 import { useEffect, useState } from 'react';
 import {View, StyleSheet, Pressable, Button, Text, Modal} from 'react-native';
 
 import Checkbox from './Checkbox';
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-    occurrences?: Set<number>;
-};
+import { StudentType } from '@/types/student';
 
 type ClassSelectionModalProps = {
     isVisible: boolean;

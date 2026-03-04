@@ -4,12 +4,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from './ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
-
-type StudentAttendanceDetailsType = {
-    firstName: string;
-    lastName: string;
-    classesInfo: Map<number, Map<string, [number, number]>>;
-}
+import { StudentAttendanceDetailsType } from '@/types/attendance';
 
 const StudentReport = ({
     firstName,

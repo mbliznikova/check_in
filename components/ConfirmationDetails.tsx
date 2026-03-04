@@ -6,31 +6,11 @@ import { commonStyles } from '@/constants/commonStyles';
 
 import { useApi } from "@/api/client";
 import { isSuccessMessageResponse } from '@/api/validators';
+import { AttendanceType } from '@/types/attendance';
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
-
-type AttendanceStudentType = {
-    firstName: string;
-    lastName: string;
-    isShowedUp: boolean;
-}
-
-type AttendanceClassType = {
-    name: string;
-    time: string;
-    students: {
-        [studentId: string]: AttendanceStudentType;
-    }
-}
-
-type AttendanceType = {
-    date: string;
-    occurrences: {
-        [occurrenceId: string]: AttendanceClassType;
-    }
-}
 
 type ConfirmationMap =
     Map<number,

@@ -5,17 +5,13 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse, isSuccessMessageResponse } from '@/api/validators';
+import { ClassBasicType as ClassType } from '@/types/class';
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
-
-type ClassType = {
-    id: number;
-    name: string;
-};
 
 type StudentAttendanceType = {
     id: number;

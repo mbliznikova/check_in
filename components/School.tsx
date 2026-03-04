@@ -4,22 +4,10 @@ import {View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Dimensions } 
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
+import { StudentType } from '@/types/student';
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-    occurrences?: Set<number>;
-};
-
-type ClassType = {
-    id: number;
-    name: string;
-};
 
 type ClassOccurrenceType = {
     id: number;
@@ -91,7 +79,10 @@ const School = () => {
                         setClassOccurrenceList(fetchedClassOccurrences);
                         console.log("Fetched class occurrences: ", fetchedClassOccurrences);
                     } else {
-                        console.warn('Function fetchClassOccurrences. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                        console.warn(
+                            'Function fetchClassOccurrences. The response from backend is NOT valid! '
+                            + JSON.stringify(responseData)
+                        );
                     }
                 } else {
                     console.log("Function fetchClassOccurrences. Response was unsuccessful: ", response.status, response.statusText)

@@ -1,3 +1,10 @@
+// Minimal class identifier — used in check-in and confirmation flows
+export type ClassBasicType = {
+    id: number;
+    name: string;
+};
+
+// Full class data with scheduling info — used in class management
 export type ClassType = {
     id: number;
     name: string;

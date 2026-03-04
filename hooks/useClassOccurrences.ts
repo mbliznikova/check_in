@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
-import { ClassOccurrenceType } from "@/components/ClassManagement.types";
+import { ClassOccurrenceType } from "@/types/class";
 
 const isValidCreateOccurrenceResponse = (
     responseData: any,

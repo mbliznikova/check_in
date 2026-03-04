@@ -11,28 +11,8 @@ import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
 import { Header } from './Header';
-
-type AttendanceStudentType = {
-    firstName: string;
-    lastName: string;
-    isShowedUp: boolean;
-}
-
-type AttendanceClassType = {
-    name: string;
-    time: string;
-    class_id: string;
-    students: {
-        [studentId: string]: AttendanceStudentType;
-    }
-}
-
-type AttendanceType = {
-    date: string;
-    occurrences: {
-        [occurrenceId: string]: AttendanceClassType;
-    }
-}
+import { AttendanceType, StudentAttendanceDetailsType } from '@/types/attendance';
+import { PaymentType } from '@/types/payment';
 
 type StudentAttendanceCountType = {
     firstName: string;
@@ -45,22 +25,6 @@ type ClassAttendanceCountType = {
     name: string;
     students: Map<number, StudentAttendanceCountType>;
 }
-
-type StudentAttendanceDetailsType = {
-    firstName: string;
-    lastName: string;
-    classesInfo: Map<number, Map<string, [number, number]>>;
-}
-
-type PaymentType = {
-    id: number;
-    studentId: number;
-    classId: number;
-    studentName: string;
-    className: string;
-    amount: number;
-    paymentDate: string;
-};
 
 const Attendance = () => {
     const { apiFetch } = useApi();
@@ -294,7 +258,10 @@ const Attendance = () => {
     };
 
     const renderHeader = () => (
-        <View style={[styles.headerContainer, colorScheme === 'dark'? styles.darkBackground : styles.lightBackground]}>
+        <View style={[
+            styles.headerContainer,
+            colorScheme === 'dark' ? styles.darkBackground : styles.lightBackground,
+        ]}>
             <ScreenTitle titleText={`Attendance report (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 {renderSelector()}
@@ -366,8 +333,8 @@ const Attendance = () => {
                                                 <View style={styles.studentNameColumn}>
                                                     <Pressable
                                                         onPress={() => {
-                                                            const currentStudent = setCurrentStudent(studentId, studentInfo.firstName, studentInfo.lastName);
-                                                            setStudent(currentStudent);
+                                                            const { firstName, lastName } = studentInfo;
+                                                            setStudent(setCurrentStudent(studentId, firstName, lastName));
                                                             setIsModalVisible(true);
                                                         }}
                                                     >
@@ -390,9 +357,10 @@ const Attendance = () => {
                                                                         student.classesInfo
                                                                     }
                                                                 />
-                                                                <Pressable style={modalStyles.modalCancelButton} onPress={() => {
-                                                                    setIsModalVisible(false);
-                                                                }}>
+                                                                <Pressable
+                                                                    style={modalStyles.modalCancelButton}
+                                                                    onPress={() => setIsModalVisible(false)}
+                                                                >
                                                                     <Text style={styles.modalText}>Cancel</Text>
                                                                 </Pressable>
                                                             </View>

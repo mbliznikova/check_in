@@ -1,15 +1,8 @@
 import * as React from 'react';
 import {Pressable, View, Text, StyleSheet, FlatList, StyleProp, ViewStyle} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { StudentType } from '@/types/student';
 import { UNKNOWN_NAME } from '@/constants/ui';
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-    occurrences?: Set<number>;
-};
 
 type StudentListProps = {
     studentList?: StudentType[];
