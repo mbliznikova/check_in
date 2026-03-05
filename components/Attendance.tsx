@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
@@ -48,6 +48,8 @@ const Attendance = () => {
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
     const [balance, setBalance] = useState<Map<number, Map<number, number>>>(new Map());
+
+    const [loading, setLoading] = useState(true);
 
     const today = new Date();
     const monthName = today.toLocaleString('default', { month: 'long' });
@@ -141,6 +143,7 @@ const Attendance = () => {
 
         fetchAttendances();
         fetchPayments();
+        setLoading(false);
     },
     []);
 
@@ -313,6 +316,7 @@ const Attendance = () => {
                     stickyHeaderIndices={[0]}
                     data={Array.from(report.entries())}
                     keyExtractor={([classId]) => classId.toString()}
+                    ListEmptyComponent={loading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
                     renderItem={({ item: [classId, classInfo] }) => {
                         return (
                             <View>

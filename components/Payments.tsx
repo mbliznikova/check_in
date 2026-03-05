@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
@@ -411,6 +411,7 @@ const Payments = () => {
         fetchStudents();
         fetchPayments();
         fetchSummary();
+        setLoading(false);
     },
     []);
 
@@ -666,6 +667,10 @@ const Payments = () => {
             </View>
         );
     };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={styles.container}>

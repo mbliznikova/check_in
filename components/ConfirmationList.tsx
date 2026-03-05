@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {StyleSheet, FlatList, SafeAreaView} from 'react-native';
+import {StyleSheet, FlatList, SafeAreaView, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
@@ -66,8 +66,13 @@ const ConfirmationList = () => {
         }
 
         fetchAttendances();
-    }, 
+        setLoading(false);
+    },
     []);
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={styles.appContainer}>
