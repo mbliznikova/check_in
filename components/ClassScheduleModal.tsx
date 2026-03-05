@@ -1,7 +1,6 @@
 import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
-import ScreenTitle from "./ScreenTitle";
 import { useEffect, useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
 

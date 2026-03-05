@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, Modal} from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from './ScreenTitle';

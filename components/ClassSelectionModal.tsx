@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import {View, StyleSheet, Pressable, Button, Text, Modal} from 'react-native';
+import {View, StyleSheet, Pressable, Text, Modal} from 'react-native';
 
 import Checkbox from './Checkbox';
 import { StudentType } from '@/types/student';
