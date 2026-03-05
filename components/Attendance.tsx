@@ -198,7 +198,8 @@ const Attendance = () => {
         attendanceList.forEach(att => {
             const occurrences = att.occurrences;
 
-            Object.entries(occurrences).forEach(([occurrenceId, occurrenceInfo]) => {
+            // have _ instead of unused occurrenceId
+            Object.entries(occurrences).forEach(([_, occurrenceInfo]) => {
                 const classIdNum = Number(occurrenceInfo.classId)
 
                 if (!reportMap.has(classIdNum)) {
@@ -330,7 +331,6 @@ const Attendance = () => {
                                     renderItem={({ item: [studentId, studentInfo] }) => {
                                         const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
                                         const studentAttendance = studentInfo.count;
-                                        const studentBalance = studentInfo.balance;
 
                                         return (
                                             <View style={commonStyles.spaceBetweenRow}>

@@ -198,7 +198,7 @@ const School = () => {
     }, [studentsUpdated]);
 
     function assignStudentsToOccurrences() {
-        // Add students who attends a certain class to the class map: [class_id, [student1, student2]]
+        // Add students who attends a certain class to the class map: [classId, [student1, student2]]
         const studentOccurrenceMap = new Map<number, StudentType[]>();
 
         classOccurrenceList.forEach(cls => {
