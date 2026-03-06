@@ -262,7 +262,8 @@ const CheckInConfirmation = () => {
                 <ScreenTitle titleText='Confirm check in'></ScreenTitle>
 
                 <FlatList
-                    data={classList} // TODO: update with calss occurrences!
+                    // data={classList} // TODO: update with calss occurrences!
+                    data={classOccurrenceList}
                     keyExtractor={cls => cls.id.toString()}
                     renderItem={({ item: cls }) => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
@@ -271,7 +272,8 @@ const CheckInConfirmation = () => {
                                 <View style={styles.separator} />
                                 <ClassName
                                     id={cls.id}
-                                    name={cls.name}
+                                    // name={cls.name}
+                                    name={cls.fallbackClassName}
                                 />
                                 <View style={styles.spaceBetweenRow}>
                                     <Text style={[textStyle]}>
