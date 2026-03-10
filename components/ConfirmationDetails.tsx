@@ -1,32 +1,16 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { commonStyles } from '@/constants/commonStyles';
 
 import { useApi } from "@/api/client";
+import { isSuccessMessageResponse } from '@/api/validators';
+import { AttendanceType } from '@/types/attendance';
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
-
-type AttendanceStudentType = {
-    firstName: string;
-    lastName: string;
-    isShowedUp: boolean;
-}
-
-type AttendanceClassType = {
-    name: string;
-    time: string;
-    students: {
-        [studentId: string]: AttendanceStudentType;
-    }
-}
-
-type AttendanceType = {
-    date: string;
-    occurrences: {
-        [occurrenceId: string]: AttendanceClassType;
-    }
-}
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type ConfirmationMap =
     Map<number,
@@ -43,7 +27,7 @@ const ConfirmationDetails = ({
 }: AttendanceType) => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [confirmation, setConfirmation] = useState<ConfirmationMap>(new Map());
 
@@ -140,12 +124,7 @@ const ConfirmationDetails = ({
            console.log('sendConfirmation function. Confirmation was sent successfully!');
 
            const responseData = await response.json();
-           if ( // TODO: have validation function
-               typeof responseData === 'object' &&
-               responseData !== null &&
-               'message' in responseData &&
-               responseData.message === 'Attendance confirmed successfully'
-           ) {
+           if (isSuccessMessageResponse(responseData, 'Attendance confirmed successfully')) {
                console.log('Function sendConfirmation. The response from backend is valid.');
            } else {
                console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
@@ -172,7 +151,7 @@ const ConfirmationDetails = ({
                               alert('Students have been confirmed');
                             }}
                           >
-                            <Text style={styles.lightColor}>Confirm</Text>
+                            <Text style={{ color: '#fff' }}>Confirm</Text>
                           </Pressable>
                         </View>
                       }
@@ -184,11 +163,11 @@ const ConfirmationDetails = ({
                                     id={Number(occurrenceId)}
                                     name={`${occurrenceInfo.name} - ${occurrenceInfo.time.slice(0, 5)}`}
                                 />
-                                <View style={styles.spaceBetweenRow}>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                <View style={commonStyles.spaceBetweenRow}>
+                                    <Text style={[textStyle]}>
                                         Student
                                     </Text>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Did actually show up?
                                     </Text>
                                 </View>
@@ -198,20 +177,20 @@ const ConfirmationDetails = ({
                                     keyExtractor={([studentId, _studentInfo]) => studentId.toString()}
                                     renderItem={({ item }) => {
                                         const [studentId, studentInfo] = item;
-                                        const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
+                                        const studentName = (studentInfo.firstName ?? UNKNOWN_NAME) + ' ' + (studentInfo.lastName ?? UNKNOWN_NAME);
                                         return (
-                                            <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
+                                            <View style={[styles.checkboxListItem, commonStyles.spaceBetweenRow]}>
                                                 <Checkbox
                                                     label={studentName}
                                                     checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isCheckedIn') ?? true}
                                                     onChange={()=>{toggleCheckIn(Number(occurrenceId), Number(studentId))}}
-                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                    labelStyle={textStyle}
                                                 />
                                                 <Checkbox
                                                     label=''
                                                     checked={confirmation.get(Number(occurrenceId))?.get(Number(studentId))?.get('isShowedUp') ?? true}
                                                     onChange={()=>{toggleShowUp(Number(occurrenceId), Number(studentId))}}
-                                                    labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                    labelStyle={textStyle}
                                                 />
                                             </View>
                                         );
@@ -224,7 +203,7 @@ const ConfirmationDetails = ({
                 />
             </View>
 
-            <View style={styles.separator} />
+            <View style={commonStyles.separator} />
 
         </SafeAreaView>
     );
@@ -240,21 +219,9 @@ const styles = StyleSheet.create({
     contentContainer: {
         paddingHorizontal: 16,
     },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
-    },
     checkboxListItem: {
         paddingVertical: 10,
         color: 'white',
-    },
-    spaceBetweenRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 30,
     },
     confirmButtonContainer: {
         justifyContent: 'center',
@@ -288,12 +255,6 @@ const styles = StyleSheet.create({
     rightText: {
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 })
 

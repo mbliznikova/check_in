@@ -1,34 +1,18 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
+import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
 import { Header } from './Header';
-
-type AttendanceStudentType = {
-    firstName: string;
-    lastName: string;
-    isShowedUp: boolean;
-}
-
-type AttendanceClassType = {
-    name: string;
-    time: string;
-    class_id: string;
-    students: {
-        [studentId: string]: AttendanceStudentType;
-    }
-}
-
-type AttendanceType = {
-    date: string;
-    occurrences: {
-        [occurrenceId: string]: AttendanceClassType;
-    }
-}
+import { AttendanceType, StudentAttendanceDetailsType } from '@/types/attendance';
+import { PaymentType } from '@/types/payment';
 
 type StudentAttendanceCountType = {
     firstName: string;
@@ -42,26 +26,11 @@ type ClassAttendanceCountType = {
     students: Map<number, StudentAttendanceCountType>;
 }
 
-type StudentAttendanceDetailsType = {
-    firstName: string;
-    lastName: string;
-    classesInfo: Map<number, Map<string, [number, number]>>;
-}
-
-type PaymentType = {
-    id: number;
-    studentId: number;
-    classId: number;
-    studentName: string;
-    className: string;
-    amount: number;
-    paymentDate: string;
-};
-
 const Attendance = () => {
     const { apiFetch } = useApi();
 
     const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
@@ -79,6 +48,8 @@ const Attendance = () => {
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
     const [balance, setBalance] = useState<Map<number, Map<number, number>>>(new Map());
+
+    const [loading, setLoading] = useState(true);
 
     const today = new Date();
     const monthName = today.toLocaleString('default', { month: 'long' });
@@ -112,15 +83,6 @@ const Attendance = () => {
             console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
         }
         setYearInput(yearString);
-    };
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
     };
 
     const fetchAttendances = async () => {
@@ -181,6 +143,7 @@ const Attendance = () => {
 
         fetchAttendances();
         fetchPayments();
+        setLoading(false);
     },
     []);
 
@@ -235,8 +198,9 @@ const Attendance = () => {
         attendanceList.forEach(att => {
             const occurrences = att.occurrences;
 
-            Object.entries(occurrences).forEach(([occurrenceId, occurrenceInfo]) => {
-                const classIdNum = Number(occurrenceInfo.class_id)
+            // have _ instead of unused occurrenceId
+            Object.entries(occurrences).forEach(([_, occurrenceInfo]) => {
+                const classIdNum = Number(occurrenceInfo.classId)
 
                 if (!reportMap.has(classIdNum)) {
                     reportMap.set(classIdNum, {
@@ -298,14 +262,17 @@ const Attendance = () => {
     };
 
     const renderHeader = () => (
-        <View style={[styles.headerContainer, colorScheme === 'dark'? styles.darkBackground : styles.lightBackground]}>
+        <View style={[
+            styles.headerContainer,
+            colorScheme === 'dark' ? styles.darkBackground : styles.lightBackground,
+        ]}>
             <ScreenTitle titleText={`Attendance report (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 {renderSelector()}
             </View>
             <View style={styles.headerRow}>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Student</Text>
-                <Text style={[styles.columnHeadersText, colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Attendance (24 hrs policy if applicable)</Text>
+                <Text style={[styles.columnHeadersText, textStyle]}>Student</Text>
+                <Text style={[styles.columnHeadersText, textStyle]}>Attendance (24 hrs policy if applicable)</Text>
             </View>
         </View>
     );
@@ -314,16 +281,16 @@ const Attendance = () => {
         return (
             <View style={styles.selector}>
                 <View style={{paddingRight: 20}}>
-                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
+                    <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.dateInput]}
                     value={monthInput}
                     onChangeText={(newMonth) => {readMonth(newMonth)}}
                 />
                 <View style={{width: 10}}></View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.dateInput]}
                     value={yearInput}
                     onChangeText={(newYear) => {readYear(newYear)}}
                 />
@@ -334,7 +301,7 @@ const Attendance = () => {
                     }}
                     style={[styles.paymentButton, styles.selectorButtonColor]}
                 >
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                    <Text style={textStyle}>Show</Text>
                 </Pressable>
             </View>
         );
@@ -350,6 +317,7 @@ const Attendance = () => {
                     stickyHeaderIndices={[0]}
                     data={Array.from(report.entries())}
                     keyExtractor={([classId]) => classId.toString()}
+                    ListEmptyComponent={loading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
                     renderItem={({ item: [classId, classInfo] }) => {
                         return (
                             <View>
@@ -363,19 +331,18 @@ const Attendance = () => {
                                     renderItem={({ item: [studentId, studentInfo] }) => {
                                         const studentName = studentInfo.firstName + ' ' + studentInfo.lastName;
                                         const studentAttendance = studentInfo.count;
-                                        const studentBalance = studentInfo.balance;
 
                                         return (
-                                            <View style={styles.spaceBetweenRow}>
+                                            <View style={commonStyles.spaceBetweenRow}>
                                                 <View style={styles.studentNameColumn}>
                                                     <Pressable
                                                         onPress={() => {
-                                                            const currentStudent = setCurrentStudent(studentId, studentInfo.firstName, studentInfo.lastName);
-                                                            setStudent(currentStudent);
+                                                            const { firstName, lastName } = studentInfo;
+                                                            setStudent(setCurrentStudent(studentId, firstName, lastName));
                                                             setIsModalVisible(true);
                                                         }}
                                                     >
-                                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{studentName}</Text>
+                                                        <Text style={[textStyle, styles.studentName]}>{studentName}</Text>
                                                     </Pressable>
                                                     <Modal
                                                         visible={isModalVisible}
@@ -385,8 +352,8 @@ const Attendance = () => {
                                                             setIsModalVisible(false)
                                                         }}
                                                     >
-                                                        <View style={styles.modalContainer}>
-                                                            <View style={styles.modalView}>
+                                                        <View style={modalStyles.modalContainer}>
+                                                            <View style={modalStyles.modalView}>
                                                                 <StudentReport
                                                                     firstName={student.firstName}
                                                                     lastName={student.lastName}
@@ -394,9 +361,10 @@ const Attendance = () => {
                                                                         student.classesInfo
                                                                     }
                                                                 />
-                                                                <Pressable style={styles.modalCancelButton} onPress={() => {
-                                                                    setIsModalVisible(false);
-                                                                }}>
+                                                                <Pressable
+                                                                    style={modalStyles.modalCancelButton}
+                                                                    onPress={() => setIsModalVisible(false)}
+                                                                >
                                                                     <Text style={styles.modalText}>Cancel</Text>
                                                                 </Pressable>
                                                             </View>
@@ -404,7 +372,7 @@ const Attendance = () => {
                                                     </Modal>
                                                 </View>
                                                 <View>
-                                                    <Text style={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
+                                                    <Text style={textStyle}>{studentAttendance[0]} ({studentAttendance[1]})</Text>
                                                 </View>
                                             </View>
                                         );
@@ -412,12 +380,12 @@ const Attendance = () => {
                                 />
                                 <View style = {{alignItems: 'flex-end'}}>
                                     <View style={[styles.container]}>
-                                        <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, {fontSize: 20, fontWeight: 'bold'}]}>
+                                        <Text style={[textStyle, {fontSize: 20, fontWeight: 'bold'}]}>
                                         {`Students attended: ${classInfo.students.size}`}
                                         </Text>
                                     </View>
                                 </View>
-                                <View style={styles.separator} />
+                                <View style={commonStyles.separator} />
                             </View>
                         );
                     }}
@@ -436,28 +404,6 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 16,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     modalText: {
         color: 'black',
@@ -494,13 +440,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    spaceBetweenRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 30,
-    },
     studentName: {
         flex: 1,
         minWidth: 100,
@@ -514,17 +453,6 @@ const styles = StyleSheet.create({
     balanceColumn: {
         flex: 1,
         alignItems: 'flex-end',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
-    },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
     },
     selector: {
         paddingVertical: 20,
@@ -540,7 +468,7 @@ const styles = StyleSheet.create({
     selectorButtonColor: {
         borderColor: 'grey',
     },
-    inputFeld: {
+    dateInput: {
         height: 30,
         width: 100,
         borderWidth: 1,

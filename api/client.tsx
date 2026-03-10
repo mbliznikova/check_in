@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-expo';
+import Constants from 'expo-constants';
 
-const API_BASE_URL = "http://192.168.1.230:8000/backend";
+const API_BASE_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.230:8000/backend";
 
 let currentSchoolId: number | null = null;
 
@@ -17,6 +18,8 @@ export function setHeaderSchoolId(schoolId: number | null) {
         resolveSchoolReady = null;
     }
 }
+
+export type ApiFetch = (endpoint: string, options?: RequestInit) => Promise<Response>;
 
 export function useApi() {
     const { getToken } = useAuth();

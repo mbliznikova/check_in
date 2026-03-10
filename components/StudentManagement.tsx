@@ -1,25 +1,20 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, useColorScheme, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from "@/api/validators";
+import { StudentManagementType as StudentType } from "@/types/student";
 import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
 import EditStudentModal from "./EditStudentModal";
 import { Header } from "./Header";
 
-type StudentType = {
-    id: number,
-    firstName: string,
-    lastName: string,
-    isLiabilityFormSent: boolean,
-    emergencyContacts: string,
-};
-
 const StudentManagement = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
@@ -38,15 +33,6 @@ const StudentManagement = () => {
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
 
     const [studentsSet, setStudentsSet] = useState<Set<string>>(new Set());
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    };
 
     const isValidCreateStudentResponse = (
         responseData: any,
@@ -97,7 +83,13 @@ const StudentManagement = () => {
 
     const addStudentToState = (studentId: number, firstName: string, lastName: string, isLiabilityForm: boolean, contacts: string) => {
         const newStudents = [...students];
-        newStudents.push({id: studentId, firstName: firstName, lastName: lastName, isLiabilityFormSent: isLiabilityForm, emergencyContacts: contacts});
+        newStudents.push({
+            id: studentId,
+            firstName: firstName,
+            lastName: lastName,
+            isLiabilityFormSent: isLiabilityForm,
+            emergencyContacts: contacts,
+        });
         newStudents.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
 
         setStudents(newStudents);
@@ -105,7 +97,13 @@ const StudentManagement = () => {
         console.log(`Added new student to the state variable: ${firstName} ${lastName} : ${studentId}`);
     };
 
-    const editStudentInState = (targetStudentId: number, newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => {
+    const editStudentInState = (
+        targetStudentId: number,
+        newFirstName: string,
+        newLastName: string,
+        isLiabilityChecked: boolean,
+        contacts: string,
+    ) => {
         if (!targetStudentId) {
             console.warn(`No student with id ${targetStudentId}`);
             return;
@@ -115,7 +113,13 @@ const StudentManagement = () => {
 
         setStudents(prevStudents => prevStudents.map(student =>
                 student.id === targetStudentId
-                ? { ...student, firstName: newFirstName, lastName: newLastName, isLiabilityFormSent: isLiabilityChecked, emergencyContacts: contacts }
+                ? {
+                    ...student,
+                    firstName: newFirstName,
+                    lastName: newLastName,
+                    isLiabilityFormSent: isLiabilityChecked,
+                    emergencyContacts: contacts,
+                  }
                 : student
             ).sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()))
         );
@@ -158,7 +162,12 @@ const StudentManagement = () => {
         return !studentsSet.has(studentToCheck);
     };
 
-    const getChangesFromEdit = (newFirstName: string, newLastName: string, isLiabilityChecked: boolean, contacts: string) => {
+    const getChangesFromEdit = (
+        newFirstName: string,
+        newLastName: string,
+        isLiabilityChecked: boolean,
+        contacts: string,
+    ) => {
         const dataToUpdate: Record<string, string | boolean> = {};
 
         const currentStudentState = {
@@ -176,10 +185,12 @@ const StudentManagement = () => {
         };
 
         for (const key in newStudentState) {
-            if (newStudentState[key as keyof typeof newStudentState] !== currentStudentState[key as keyof typeof currentStudentState]) {
+            const oldVal = currentStudentState[key as keyof typeof currentStudentState];
+            const newVal = newStudentState[key as keyof typeof newStudentState];
+            if (newVal !== oldVal) {
                 const dynamicKey: string = key;
-                dataToUpdate[dynamicKey] = newStudentState[key as keyof typeof newStudentState];
-                console.log(`Adding to request body ${dynamicKey}: ${newStudentState[key as keyof typeof newStudentState]}`);
+                dataToUpdate[dynamicKey] = newVal;
+                console.log(`Adding to request body ${dynamicKey}: ${newVal}`);
             }
         }
 
@@ -198,7 +209,7 @@ const StudentManagement = () => {
                         pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
                     ]}
                 >
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>
+                    <Text style={textStyle}>
                         + Add new student
                     </Text>
                 </Pressable>
@@ -215,7 +226,9 @@ const StudentManagement = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log('Function fetchStudents at StudentManagement.tsx. The response from backend is valid.')
+                    console.log(
+                        'Function fetchStudents at StudentManagement.tsx. The response from backend is valid.'
+                    )
 
                     const studentList: StudentType[] = responseData.response;
                     studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
@@ -390,7 +403,7 @@ const StudentManagement = () => {
                             }}
                             style={{padding: 10}}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.studentName]}>
+                            <Text style={[textStyle, styles.studentName]}>
                                 {`${std.firstName} ${std.lastName}`}
                             </Text>
                         </Pressable>
@@ -405,7 +418,7 @@ const StudentManagement = () => {
                                     setIsEditModalVisible(true);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Edit</Text>
+                                <Text style={[textStyle, styles.actionButtonText]}>Edit</Text>
                             </Pressable>
                             <Pressable
                                 onPress={() => {
@@ -415,7 +428,7 @@ const StudentManagement = () => {
                                     setIsDeleteModalVisible(true);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.actionButtonText]}>Delete</Text>
+                                <Text style={[textStyle, styles.actionButtonText]}>Delete</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -539,12 +552,6 @@ const styles = StyleSheet.create({
     actionButtonText: {
         paddingRight: 10,
         textDecorationLine: 'underline',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

@@ -1,14 +1,15 @@
-import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 const CurrentDate = () => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
     const date = new Date();
     return (
         <View style={styles.container}>
             <Text style={[
                 styles.container, 
                 styles.mainTextStyle,
-                colorScheme === 'dark' ? styles.lightColor : styles.darkColor
+                textStyle
                 ]}>
                     {date.toLocaleString('en-US', {weekday: 'long'})}, {date.toLocaleString('en-US', {month: 'short'})} {date.getDate()} {date.getFullYear()}
             </Text>
@@ -25,12 +26,6 @@ const styles = StyleSheet.create({
         fontSize: 20, 
         fontWeight: 'normal',
     },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
-      },
 })
 
 export default CurrentDate;

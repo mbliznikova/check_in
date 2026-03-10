@@ -1,24 +1,13 @@
-import * as React from 'react';  
+import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
+import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
+import { StudentType } from '@/types/student';
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-    occurrences?: Set<number>;
-};
-
-type ClassType = {
-    id: number;
-    name: string;
-};
 
 type ClassOccurrenceType = {
     id: number;
@@ -57,15 +46,6 @@ const School = () => {
 
     const [studentsUpdated, setStudentsUpdated] = useState(false);
 
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
-
     useEffect(() => {
         const fetchClassOccurrences = async () => {
             try {
@@ -99,7 +79,10 @@ const School = () => {
                         setClassOccurrenceList(fetchedClassOccurrences);
                         console.log("Fetched class occurrences: ", fetchedClassOccurrences);
                     } else {
-                        console.warn('Function fetchClassOccurrences. The response from backend is NOT valid! '  + JSON.stringify(responseData));
+                        console.warn(
+                            'Function fetchClassOccurrences. The response from backend is NOT valid! '
+                            + JSON.stringify(responseData)
+                        );
                     }
                 } else {
                     console.log("Function fetchClassOccurrences. Response was unsuccessful: ", response.status, response.statusText)
@@ -146,7 +129,7 @@ const School = () => {
 
         const fetchAttendedStudents = async () => {
             try {
-                const response = await apiFetch("/attended_sudents/",
+                const response = await apiFetch("/attended_students/",
                     { method: "GET" }
                 );
 
@@ -215,22 +198,22 @@ const School = () => {
     }, [studentsUpdated]);
 
     function assignStudentsToOccurrences() {
-        // Add students who attends a certain class to the class map: [class_id, [student1, student2]]
-        const studentOccuurenceMap = new Map<number, StudentType[]>();
+        // Add students who attends a certain class to the class map: [classId, [student1, student2]]
+        const studentOccurrenceMap = new Map<number, StudentType[]>();
 
         classOccurrenceList.forEach(cls => {
-            studentOccuurenceMap.set(cls.id, [])
+            studentOccurrenceMap.set(cls.id, [])
         })
 
         students.forEach(student => {
             Array.from(student.occurrences ?? []).forEach(occId => {
-                if (studentOccuurenceMap.has(occId)) {
-                    studentOccuurenceMap.get(occId)?.push(student);
+                if (studentOccurrenceMap.has(occId)) {
+                    studentOccurrenceMap.get(occId)?.push(student);
                 }
             });
         });
 
-        return studentOccuurenceMap;
+        return studentOccurrenceMap;
     }
 
     function ifOneListsContainsAnother(listOne: number[], listTwo: number[]): boolean {

@@ -1,69 +1,40 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {StyleSheet, FlatList, SafeAreaView, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
+import { AttendanceType } from '@/types/attendance';
 import ConfirmationDetails from './ConfirmationDetails';
 import { Header } from './Header';
 
-// {"date": "2025-04-03", 
-//  "classes": 
-//      {"1": 
+// {"date": "2025-04-03",
+//  "classes":
+//      {"1":
 //          {
-//              "name": "Longsword", 
-//              "students": 
+//              "name": "Longsword",
+//              "students":
 //                  {"1":
-//                      {"first_name": "John", 
-//                      "last_name": "Smith", 
-//                      "is_showed_up": true}}}, 
-//      "4": 
+//                      {"first_name": "John",
+//                      "last_name": "Smith",
+//                      "is_showed_up": true}}},
+//      "4":
 //          {
-//              "name": "Fencing seminar", 
-//              "students": 
+//              "name": "Fencing seminar",
+//              "students":
 //                  {"1": {
-//                      "first_name": "John", 
-//                      "last_name": "Smith", 
+//                      "first_name": "John",
+//                      "last_name": "Smith",
 //                      "is_showed_up": true}}}}}
 
-
-type AttendanceStudentType = {
-    firstName: string;
-    lastName: string;
-    isShowedUp: boolean;
-}
-
-type AttendanceClassType = {
-    name: string;
-    time: string;
-    students: {
-        [studentId: string]: AttendanceStudentType;
-    }
-}
-
-type AttendanceType = {
-    date: string;
-    occurrences: {
-        [occurrenceId: string]: AttendanceClassType;
-    }
-}
 
 const ConfirmationList = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
     const [loading, setLoading] = useState(true);
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
 
     useEffect(() => {
         const fetchAttendances = async () => {
@@ -95,8 +66,13 @@ const ConfirmationList = () => {
         }
 
         fetchAttendances();
-    }, 
+        setLoading(false);
+    },
     []);
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={styles.appContainer}>

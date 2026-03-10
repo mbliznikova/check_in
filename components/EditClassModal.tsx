@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 
 import Checkbox from './Checkbox';
 import ScreenTitle from "./ScreenTitle";
@@ -35,7 +38,7 @@ const EditClassModal = ({
     isSuccess = false,
 }: EditClassModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
@@ -44,19 +47,19 @@ const EditClassModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class name was updated successfully to {newClassName}
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -67,25 +70,25 @@ const EditClassModal = ({
     // TODO: should I delete occurences when making class recurrent?
     const renderConfirmationToRecurrent = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Make this class recurrent?
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={() => {}} // TODO: remove occurrences?
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -95,25 +98,25 @@ const EditClassModal = ({
 
     const renderConfirmationToNonRecurrent = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Make this class non-recurrent? All schedules will be deleted.
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={() => {}}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -123,17 +126,17 @@ const EditClassModal = ({
 
     const renderEditForm = () => {
         return (
-            <View style={styles.modalContainer}>
+            <View style={modalStyles.modalContainer}>
                 <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
-                <View style={styles.modalView}>
+                <View style={modalStyles.modalView}>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit class name:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newClassName}
                             onChangeText={(updatedClassName) => {
                                 setNewClassName(updatedClassName)
@@ -143,12 +146,12 @@ const EditClassModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit class duration:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newClassDuration?.toString()}
                             onChangeText={(updatedClassDuration) => {
                                 setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
@@ -158,7 +161,7 @@ const EditClassModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between', alignSelf: 'center'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, ]}
+                            style={[textStyle, styles.itemContainer, ]}
                             >
                                 Is recurring?
                         </Text>
@@ -166,18 +169,18 @@ const EditClassModal = ({
                             label=''
                             checked={newClassRecurrence}
                             onChange={() => {setNewClassRecurrence(!newClassRecurrence)}}
-                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                            labelStyle={textStyle}
                         />
                     </View>
 
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit class price:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newClassPrice?.toString()}
                             onChangeText={(updatedClassPrice) => {
                                 setNewClassPrice(Number(updatedClassPrice)) // TODO: better handling and type conversion & validation. Number picker?
@@ -213,15 +216,15 @@ const EditClassModal = ({
                                 }
                                 // setNewClassName("");
                             }}
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                         >
-                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
+                            <Text style={textStyle}>Save</Text>
                         </Pressable>
                         <Pressable
-                            style={styles.modalCancelButton}
+                            style={modalStyles.modalCancelButton}
                             onPress={onModalClose}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -241,20 +244,6 @@ const EditClassModal = ({
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     modalInfo: {
         padding: 20,
     },
@@ -270,22 +259,6 @@ const styles = StyleSheet.create({
     modalSingleButtonContainer: {
          justifyContent: 'center'
     },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
-    },
     itemContainer: {
         padding: 10,
         alignItems: 'center',
@@ -293,25 +266,11 @@ const styles = StyleSheet.create({
     itemRow: {
         flexDirection: 'row'
     },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
-    },
     createButton: {
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

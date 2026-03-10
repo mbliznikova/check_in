@@ -7,6 +7,7 @@ import { setHeaderSchoolId } from '@/api/client';
 type UserContextType = {
     role: string | null;
     isLoading: boolean;
+    error: string | null;
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -14,6 +15,7 @@ const UserContext = createContext<UserContextType | null>(null)
 export function UserProvider({children}: {children: ReactNode}) {
     const [role, setRole] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
     const {isSignedIn} = useAuth();
     const {apiFetch} = useApi();
@@ -29,9 +31,11 @@ export function UserProvider({children}: {children: ReactNode}) {
         const loadUserInfo = async () => {
             const userInfo = await fetchCurrentUser(apiFetch);
 
-            if (userInfo){
+            if (userInfo) {
                 setRole(userInfo.role);
-                setHeaderSchoolId(userInfo.schoolId)
+                setHeaderSchoolId(userInfo.schoolId);
+            } else {
+                setError('Failed to load user info');
             }
             setIsLoading(false);
         };
@@ -41,7 +45,7 @@ export function UserProvider({children}: {children: ReactNode}) {
         [isSignedIn, apiFetch]);
 
     return (
-        <UserContext.Provider value={{role, isLoading}}>
+        <UserContext.Provider value={{role, isLoading, error}}>
             {children}
         </UserContext.Provider>
     );

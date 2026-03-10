@@ -1,4 +1,4 @@
-import { useApi } from "@/api/client";
+import type { ApiFetch } from "@/api/client";
 
 const isValidCurrentUserResponse = (responseData: any): boolean => {
     return (
@@ -12,7 +12,7 @@ const isValidCurrentUserResponse = (responseData: any): boolean => {
     );
 }
 
-export const fetchCurrentUser = async (apiFetch: any) => {
+export const fetchCurrentUser = async (apiFetch: ApiFetch) => {
     try {
         const response = await apiFetch("/me/", { method: "GET" });
 

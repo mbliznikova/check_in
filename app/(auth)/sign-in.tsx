@@ -1,7 +1,11 @@
 import { useSignIn } from '@clerk/clerk-expo'
 import { SignIn as WebSignIn } from '@clerk/clerk-expo/web'
 import { Link, useRouter } from 'expo-router'
-import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet, Platform } from 'react-native'
+import {
+    Text, TextInput, TouchableOpacity, View,
+    useColorScheme, StyleSheet, Platform,
+} from 'react-native'
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import React, { useState } from "react";
 
 export default function Page() {
@@ -26,7 +30,7 @@ export default function Page() {
   const [pendingVerification, setPendingVerification] = useState(false)
   const [code, setCode] = useState('')
 
-  const textColor = isDark ? styles.lightColor : styles.darkColor;
+  const textStyle = useThemeTextStyle();
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
@@ -87,7 +91,7 @@ export default function Page() {
       <View>
 
         <View style={styles.titleTextContainer}>
-          <Text style={[textColor, styles.titleText]}>Verify your email</Text>
+          <Text style={[textStyle, styles.titleText]}>Verify your email</Text>
         </View>
 
         <View style={[styles.itemContainer]}>
@@ -96,7 +100,7 @@ export default function Page() {
             placeholder='Enter your verification code'
             placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
             onChangeText={(code) => setCode(code)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
         </View>
 
@@ -105,7 +109,7 @@ export default function Page() {
             onPress={onVerifyPress}
             style={[styles.button]}
           >
-            <Text style={textColor}>Verify</Text>
+            <Text style={textStyle}>Verify</Text>
           </TouchableOpacity>
         </View>
 
@@ -118,7 +122,7 @@ export default function Page() {
       <View>
 
         <View style={styles.titleTextContainer}>
-          <Text style={[textColor, styles.titleText]}>Sign in to CHECK_IN</Text>
+          <Text style={[textStyle, styles.titleText]}>Sign in to CHECK_IN</Text>
         </View>
 
         <View style={[styles.itemContainer]}>
@@ -128,7 +132,7 @@ export default function Page() {
             placeholder='Enter email'
             placeholderTextColor={isDark ? '#999' : '#666'}
             onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
           <TextInput
             value={password}
@@ -136,7 +140,7 @@ export default function Page() {
             placeholderTextColor={isDark ? '#999' : '#666'}
             secureTextEntry={true}
             onChangeText={(password) => setPassword(password)}
-            style={[textColor, styles.inputFeld]}
+            style={[textStyle, styles.inputFeld]}
           />
           {errorMsg.length > 0 && (
             <Text style={[styles.errorText]}>{errorMsg}</Text>
@@ -148,15 +152,15 @@ export default function Page() {
             onPress={onSignInPress}
             style={[styles.button]}
           >
-            <Text style={textColor}>Continue</Text>
+            <Text style={textStyle}>Continue</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.itemContainer}>
           <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
             <Link href="/sign-up">
-              <Text style={[textColor, styles.regularText]}>Don't have an account? </Text>
-              <Text style={[textColor, styles.signUpText, styles.regularText]}>Sign up</Text>
+              <Text style={[textStyle, styles.regularText]}>Don't have an account? </Text>
+              <Text style={[textStyle, styles.signUpText, styles.regularText]}>Sign up</Text>
             </Link>
           </View>
         </View>
@@ -185,12 +189,6 @@ const styles = StyleSheet.create({
   },
   itemRow: {
       flexDirection: 'row'
-  },
-  darkColor: {
-      color: 'black',
-  },
-  lightColor: {
-      color: 'white',
   },
   inputFeld: {
       height: 30,

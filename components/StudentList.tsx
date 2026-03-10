@@ -1,14 +1,8 @@
-import * as React from 'react';  
-import {Pressable, View, Text, StyleSheet, FlatList, useColorScheme, StyleProp, ViewStyle} from 'react-native';
-
-
-type StudentType = {
-    firstName: string;
-    lastName: string;
-    id: number;
-    classes?: Set<number>;
-    occurrences?: Set<number>;
-};
+import * as React from 'react';
+import {Pressable, View, Text, StyleSheet, FlatList, StyleProp, ViewStyle} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { StudentType } from '@/types/student';
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentListProps = {
     studentList?: StudentType[];
@@ -24,13 +18,13 @@ const StudentList = ({
         style,
     }: StudentListProps) => {
 
-        const colorScheme = useColorScheme();
+        const textStyle = useThemeTextStyle();
 
         const renderItem = ({ item }: {item: StudentType}) => (
             <View style={style}>
                 <Pressable
                     onPress={() => onStudentPress(item)}>
-                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.studentName]}>{item.firstName} {item.lastName}</Text>
+                    <Text style={[textStyle, styles.studentName]}>{item.firstName ?? UNKNOWN_NAME} {item.lastName ?? UNKNOWN_NAME}</Text>
                 </Pressable>
                 <Pressable
                     style={({ pressed }) => [
@@ -100,12 +94,6 @@ const styles = StyleSheet.create({
         flex: 1,
         minWidth: 100,
         textDecorationLine: 'underline',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

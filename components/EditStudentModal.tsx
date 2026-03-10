@@ -1,6 +1,9 @@
 import React from 'react';
 import { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, useColorScheme, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { modalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from "./ScreenTitle";
 import Checkbox from './Checkbox';
@@ -29,7 +32,7 @@ const EditStudentModal = ({
     isSuccess = false,
 }: EditStudentModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [newFirstName, setNewFirstName] = useState(oldFirstName);
     const [newLastName, setNewLastName] = useState(oldLastName);
@@ -48,19 +51,19 @@ const EditStudentModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Student was updated successfully!
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -70,17 +73,17 @@ const EditStudentModal = ({
 
     const renderEditForm = () => {
         return (
-            <View style={styles.modalContainer}>
+            <View style={modalStyles.modalContainer}>
                 <ScreenTitle titleText={`Edit student ${oldFirstName} ${oldLastName}`}/>
-                <View style={styles.modalView}>
+                <View style={modalStyles.modalView}>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit first name:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newFirstName}
                             onChangeText={(newFirstName) => {
                                 setNewFirstName(newFirstName)
@@ -90,12 +93,12 @@ const EditStudentModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                            style={[textStyle, styles.itemContainer]}
                         >
                             Edit last name:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newLastName}
                             onChangeText={(newLastName) => {
                                 setNewLastName(newLastName)
@@ -105,7 +108,7 @@ const EditStudentModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Did submit liability form?
                         </Text>
@@ -113,18 +116,18 @@ const EditStudentModal = ({
                             label=''
                             checked={isLiabilityFormChecked}
                             onChange={() => {setIsLiabilityFormChecked(!isLiabilityFormChecked)}}
-                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                            labelStyle={textStyle}
                         />
                     </View>
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={newEmergencyContact}
                             onChangeText={(newContact) => {
                                 setNewEmergencyContact(newContact)
@@ -148,15 +151,15 @@ const EditStudentModal = ({
                                 setNewFirstName("");
                                 setNewLastName("");
                             }}
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                         >
-                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Save</Text>
+                            <Text style={textStyle}>Save</Text>
                         </Pressable>
                         <Pressable
-                            style={styles.modalCancelButton}
+                            style={modalStyles.modalCancelButton}
                             onPress={onModalClose}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -176,20 +179,6 @@ const EditStudentModal = ({
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     modalInfo: {
         padding: 20,
     },
@@ -205,22 +194,6 @@ const styles = StyleSheet.create({
     modalSingleButtonContainer: {
          justifyContent: 'center'
     },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
-    },
     itemContainer: {
         padding: 10,
         alignItems: 'center',
@@ -228,25 +201,11 @@ const styles = StyleSheet.create({
     itemRow: {
         flexDirection: 'row'
     },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
-    },
     createButton: {
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

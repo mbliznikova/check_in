@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator } from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
+import { isValidArrayResponse } from '@/api/validators';
+import { StudentType } from '@/types/student';
+import { PaymentType } from '@/types/payment';
 import ScreenTitle from './ScreenTitle';
 import { Header } from './Header';
-
-type StudentType = {
-    id: number;
-    firstName: string;
-    lastName: string;
-};
 
 type RawPriceType = {
     [classId: string]: {
@@ -33,16 +31,6 @@ type ClassPaymentType = Map<number, {
     lastPaymentId: number | null;
   }>;
 
-type PaymentType = {
-    id: number;
-    studentId: number;
-    classId: number;
-    studentName: string;
-    className: string;
-    amount: number;
-    paymentDate: string;
-};
-
 type PaymentMapType = Map<number, {
     studentName: string;
     paymentData: ClassPaymentType;
@@ -51,7 +39,7 @@ type PaymentMapType = Map<number, {
 const Payments = () => {
     const { apiFetch } = useApi();
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -119,15 +107,6 @@ const Payments = () => {
             console.warn('The year number from ' + yearString + ' is incorrect: ' + yearConverted);
         }
         setYearInput(yearString);
-    };
-
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === "object" &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
     };
 
     const isGeneralValidResponse = (responseData: any, key: string): boolean => {
@@ -371,8 +350,8 @@ const Payments = () => {
                 responseData !== null &&
                 'message' in responseData && responseData.message === 'Payment was successfully created' &&
                 'paymentId' in responseData && typeof responseData.paymentId === 'number' &&
-                // Not checking responseData.classId === classId for the case the student/class was deleted and no such FK in Payment in BE,
-                // but the payment was added (retrospective), in case Payments FE was not refreshed after student/class was deleted?
+                // Not checking responseData.classId === classId: student/class may have been deleted,
+                // leaving no FK in Payment on BE. Payment still valid if added retrospectively.
                 'studentId' in responseData &&
                 'classId' in responseData &&
                 'studentName' in responseData && responseData.studentName === studentName &&
@@ -432,6 +411,7 @@ const Payments = () => {
         fetchStudents();
         fetchPayments();
         fetchSummary();
+        setLoading(false);
     },
     []);
 
@@ -454,7 +434,7 @@ const Payments = () => {
                 {priceArray.map(([classId, classInfo]) => {
                     const className = classInfo.className;
                     return (
-                        <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text key={classId} style={[textStyle, {fontWeight: "bold"}]}>
                             {className}
                         </Text>
                     );
@@ -475,7 +455,7 @@ const Payments = () => {
                 return (
                     <View key={student.id} style={styles.spaceBetweenRow}>
                         <View style={{ width: 120 }}>
-                            <Text key={student.id} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            <Text key={student.id} style={[textStyle, {fontWeight: "bold"}]}>
                                 {studentData.studentName}
                             </Text>
                         </View>
@@ -489,6 +469,9 @@ const Payments = () => {
                             const className = classPrice ? classPrice.className : "Undefined";
                             const price = classPrice ? classPrice.amount : 0.0;
                             const paymentId = classInfo.lastPaymentId;
+
+                            const balanceTextStyle = isPaid ? styles.paidText : styles.unpaidText;
+                            const balanceText = isPaid ? `$${amount - price}` : `-$${price}`;
 
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
@@ -527,7 +510,7 @@ const Payments = () => {
                                                     setPaymentAction('add');
                                                     setIsModalVisible(true);
                                                 }}>
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? `$${amount - price}` : `-$${price}`}</Text>
+                                                <Text style={[balanceTextStyle]}>{balanceText}</Text>
                                             </Pressable>
                                             <Pressable
                                                 style={{paddingLeft: 10}}
@@ -617,7 +600,7 @@ const Payments = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
                         <View style={styles.modalInfo}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            <Text style={[textStyle, {fontWeight: "bold"}]}>
                                 {paymentAction === 'add'
                                     ? `Do you want to add ${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
                                     : paymentAction === 'delete'
@@ -631,13 +614,13 @@ const Payments = () => {
                                 style={styles.modalConfirmButton}
                                 onPress={handleConfirm}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
                                 onPress={() => closeModal}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -649,8 +632,8 @@ const Payments = () => {
     const renderSummary = () => {
         return (
             <View style={[styles.spaceBetweenRow]}>
-                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>Summary:</Text>
-                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>{summary}</Text>
+                <Text style={[textStyle, styles.summary]}>Summary:</Text>
+                <Text style={[textStyle, styles.summary]}>{summary}</Text>
             </View>
         );
     };
@@ -659,16 +642,16 @@ const Payments = () => {
         return (
             <View style={styles.selector}>
                 <View style={{paddingRight: 20}}>
-                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
+                    <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.inputFeld]}
                     value={monthInput}
                     onChangeText={(newMonth) => {readMonth(newMonth)}}
                 />
                 <View style={{width: 10}}></View>
                 <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, styles.inputFeld]}
                     value={yearInput}
                     onChangeText={(newYear) => {readYear(newYear)}}
                 />
@@ -679,11 +662,15 @@ const Payments = () => {
                     }}
                     style={[styles.paymentButton, styles.selectorButtonColor]}
                 >
-                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                    <Text style={textStyle}>Show</Text>
                 </Pressable>
             </View>
         );
     };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -819,12 +806,6 @@ const styles = StyleSheet.create({
     },
     selectorButtonColor: {
         borderColor: 'grey',
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
     inputFeld: {
         height: 30,

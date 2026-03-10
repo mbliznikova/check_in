@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, useColorScheme, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+
+import { useApi } from "@/api/client";
+import { isValidArrayResponse, isSuccessMessageResponse } from '@/api/validators';
+import { ClassBasicType as ClassType } from '@/types/class';
 
 import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
-
-type ClassType = {
-    id: number;
-    name: string;
-};
+import { UNKNOWN_NAME } from '@/constants/ui';
 
 type StudentAttendanceType = {
     id: number;
@@ -35,7 +36,8 @@ type ClassOccurrenceType = {
 };
 
 const CheckInConfirmation = () => {
-    const colorScheme = useColorScheme();
+    const { apiFetch } = useApi();
+    const textStyle = useThemeTextStyle();
 
     const [students, setStudents] = useState<StudentAttendanceType[]>([]);
 
@@ -51,19 +53,10 @@ const CheckInConfirmation = () => {
 
     const [ifStudentsToConfirm, setIfStudentsToConfirm] = useState(false);
 
-    const isValidArrayResponse = (responseData: any, key: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            key in responseData &&
-            Array.isArray(responseData[key])
-        );
-    }
-
     useEffect(() => {
         const fetchClasses = async () => { // OLD
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_classes_list/');
+                const response = await apiFetch('/today_classes_list/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (isValidArrayResponse(responseData, 'response')) {
@@ -87,7 +80,7 @@ const CheckInConfirmation = () => {
 
         const fetchClassOccurrences = async () => { // NEW
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/today_class_occurrences/');
+                const response = await apiFetch('/today_class_occurrences/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -125,7 +118,7 @@ const CheckInConfirmation = () => {
 
         const fetchAttendedStudents = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/backend/attended_sudents/');
+                const response = await apiFetch('/attended_students/');
                 if (response.ok) {
                     const responseData = await response.json();
                     if (
@@ -167,7 +160,7 @@ const CheckInConfirmation = () => {
         if (students.length === 0) return;
 
         setIfStudentsToConfirm(true);
-        setConfirmedClasses(setConfirmation());
+        setConfirmedClasses(() => setConfirmation());
 
     }, [students]);
 
@@ -230,16 +223,14 @@ const CheckInConfirmation = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/confirm/', {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch('/confirm/', {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -249,12 +240,7 @@ const CheckInConfirmation = () => {
             console.log('Confirmation was sent successfully!');
 
             const responseData = await response.json();
-            if (
-                typeof responseData === 'object' &&
-                responseData !== null &&
-                'message' in responseData &&
-                responseData.message === 'Attendance confirmed successfully'
-            ) {
+            if (isSuccessMessageResponse(responseData, 'Attendance confirmed successfully')) {
                 console.log('Function sendConfirmation. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
                 console.warn('Function sendConfirmation. The response from backend is NOT valid! '  + JSON.stringify(responseData));
@@ -276,7 +262,8 @@ const CheckInConfirmation = () => {
                 <ScreenTitle titleText='Confirm check in'></ScreenTitle>
 
                 <FlatList
-                    data={classList} // TODO: update with calss occurrences!
+                    // data={classList} // TODO: update with calss occurrences!
+                    data={classOccurrenceList}
                     keyExtractor={cls => cls.id.toString()}
                     renderItem={({ item: cls }) => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
@@ -285,33 +272,34 @@ const CheckInConfirmation = () => {
                                 <View style={styles.separator} />
                                 <ClassName
                                     id={cls.id}
-                                    name={cls.name}
+                                    // name={cls.name}
+                                    name={cls.fallbackClassName}
                                 />
                                 <View style={styles.spaceBetweenRow}>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Student
                                     </Text>
-                                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>
+                                    <Text style={[textStyle]}>
                                         Did actually show up?
                                     </Text>
                                 </View>
                                 <FlatList
                                     data={studentsAtClass}
                                     renderItem={({ item: student }) => {
-                                        const name = student.firstName + ' ' + student.lastName
+                                        const name = (student.firstName ?? UNKNOWN_NAME) + ' ' + (student.lastName ?? UNKNOWN_NAME)
                                         return (
                                         <View style={[styles.checkboxListItem, styles.spaceBetweenRow]}>
                                             <Checkbox
                                                 label={name}
                                                 checked={confirmedClasses.get(student.id)?.has(cls.id) ?? false}
                                                 onChange={() => {toggleConfirmation(student.id, cls.id)}}
-                                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                labelStyle={textStyle}
                                             />
                                             <Checkbox
                                                 label={''}
                                                 checked={showUpStatus.get(student.id)?.get(cls.id) ?? true}
                                                 onChange={() => {toggleShowUpConfirmation(student.id, cls.id)}}
-                                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                                labelStyle={textStyle}
                                             />
                                         </View>
                                         )
@@ -375,12 +363,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'blue',
-      },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
       },
     separator: {
         height: 1,

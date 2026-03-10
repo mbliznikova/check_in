@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
 import Checkbox from './Checkbox';
@@ -20,7 +22,7 @@ const CreateStudentModal = ({
     onUniquenessCheck,
     isCreateSuccess
 }: StudentCreationModalProps) => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -34,24 +36,24 @@ const CreateStudentModal = ({
                 <ScreenTitle titleText='Add new student'/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        style={[textStyle, styles.itemContainer]}
                     >
                         First name:
                     </Text>
                     <TextInput
-                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    style={[textStyle, commonStyles.inputField]}
                     value={firstName}
                     onChangeText={(newFirstName) => {setFirstName(newFirstName)}}
                 />
                 </View>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                        style={[textStyle, styles.itemContainer]}
                     >
                         Last name:
                     </Text>
                     <TextInput
-                        style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField]}
                         value={lastName}
                         onChangeText={(newLastName) => {setLastName(newLastName)}}
                     />
@@ -59,7 +61,7 @@ const CreateStudentModal = ({
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Did submit liability form?
                         </Text>
@@ -67,18 +69,18 @@ const CreateStudentModal = ({
                             label=''
                             checked={isLiabilityFormChecked}
                             onChange={() => {setIsLiabilityFormChecked(!isLiabilityFormChecked)}}
-                            labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                            labelStyle={textStyle}
                         />
                     </View>
 
                     <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between'}]}>
                         <Text
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer, {fontWeight: 'bold',}]}
+                            style={[textStyle, styles.itemContainer, {fontWeight: 'bold',}]}
                         >
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                            style={[textStyle, commonStyles.inputField]}
                             value={emergencyContact}
                             onChangeText={(newContact) => {
                                 setEmergencyContact(newContact)
@@ -103,13 +105,13 @@ const CreateStudentModal = ({
                         style={[(firstName === "" || lastName === "") ? styles.disabledButton : styles.createButton]}
                         disabled={firstName === "" || lastName === ""}
                         >
-                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Create</Text>
+                            <Text style={textStyle}>Create</Text>
                         </Pressable>
                         <Pressable
                             onPress={onModalClose}
                             style={[styles.modalCancelButton]}
                         >
-                            <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Cancel</Text>
+                            <Text style={textStyle}>Cancel</Text>
                         </Pressable>
                 </View>
             </View>
@@ -121,7 +123,7 @@ const CreateStudentModal = ({
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             {`Student was added successfully!`}
                         </Text>
                     </View>
@@ -130,7 +132,7 @@ const CreateStudentModal = ({
                             style={styles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -174,20 +176,6 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row'
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
-    },
-    inputFeld: {
-        height: 30,
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 10,
-        borderRadius: 15,
     },
     createButton: {
         padding: 10,

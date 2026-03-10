@@ -1,6 +1,7 @@
 import * as React from 'react';  
 import { useEffect, useState } from 'react';
-import {View, StyleSheet, Pressable, Text,TextInput, Modal, useColorScheme, Platform, ScrollView} from 'react-native';
+import {View, StyleSheet, Pressable, Text,TextInput, Modal, Platform, ScrollView} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import Checkbox from './Checkbox';
 import ScreenTitle from './ScreenTitle';
@@ -66,7 +67,7 @@ const ClassOccurrenceModal = ({
     isCreateOccurrenceSuccess = false,
 }: ClassOccurrenceModalProps) => {
 
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
 
     //TODO: Consistency - create or add for occurrence, not both
     const [isAddOccurrenceOpen, setIsAddOccurrenceOpen] = useState(false);
@@ -123,7 +124,7 @@ const ClassOccurrenceModal = ({
         return (
             <View>
                 <View style={{padding: 20}}>
-                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                    <Text style={[textStyle, {fontWeight: "bold"}]}>
                         {`Set any time from available intervals (for duration ${plannedClassDuration} mins):`}
                     </Text>
                 </View>
@@ -146,18 +147,18 @@ const ClassOccurrenceModal = ({
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
                         <View style={{padding: 20}}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            <Text style={[textStyle, {fontWeight: "bold"}]}>
                                 Add new occurrence for class {className}
                             </Text>
                         </View>
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Duration:
                             </Text>
                             <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
+                                style={[textStyle, styles.shortInputFeld]}
                                 value={plannedClassDuration.toString()}
                                 onChangeText={(durationStr) => {setPlannedClassDuration(Number(durationStr))}}
                             />
@@ -165,12 +166,12 @@ const ClassOccurrenceModal = ({
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Notes:
                             </Text>
                             <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
+                                style={[textStyle, styles.longInputFeld]}
                                 value={notes}
                                 onChangeText={(noteStr) => {setNotes(noteStr)}}
                             />
@@ -194,7 +195,7 @@ const ClassOccurrenceModal = ({
                                     }
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Create</Text>
+                                <Text style={[textStyle]}>Create</Text>
                             </Pressable>
 
                             <Pressable
@@ -203,7 +204,7 @@ const ClassOccurrenceModal = ({
                                     setIsAddOccurrenceOpen(false);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -283,7 +284,7 @@ const ClassOccurrenceModal = ({
                         style={styles.occurrenceRow}
                     >
                         <View style={styles.dateContainer}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>
+                            <Text style={[textStyle, styles.dateText]}>
                                 {date}
                             </Text>
                         </View>
@@ -313,7 +314,7 @@ const ClassOccurrenceModal = ({
                                         setIsEditDeleteOpen(true)
                                     }}
                                 >
-                                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.timeText]}>
+                                    <Text style={[textStyle, styles.timeText]}>
                                         {time.slice(0,5)}
                                     </Text>
                                 </Pressable>
@@ -329,7 +330,7 @@ const ClassOccurrenceModal = ({
                                 setIsAddOccurrenceOpen(true);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.dateText]}>+ Add occurrence</Text>
+                            <Text style={[textStyle, styles.dateText]}>+ Add occurrence</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -361,7 +362,7 @@ const ClassOccurrenceModal = ({
                                 onPress={isAddOccurrenceOpen ? undefined : onModalClose}
                                 disabled={isAddOccurrenceOpen}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[textStyle]}>OK</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -374,7 +375,7 @@ const ClassOccurrenceModal = ({
         return (
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class occurrence was created successfully!
                         </Text>
                     </View>
@@ -385,7 +386,7 @@ const ClassOccurrenceModal = ({
                                 setIsConfirmationOpen(false);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                            <Text style={[textStyle]}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -422,7 +423,7 @@ const ClassOccurrenceModal = ({
         return (
                 <View style={styles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Do you want to delete class occurrence?
                         </Text>
                     </View>
@@ -434,7 +435,7 @@ const ClassOccurrenceModal = ({
                                 setIsDeleteConfirmationOpen(false);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete</Text>
+                            <Text style={[textStyle]}>Delete</Text>
                         </Pressable>
                         <Pressable
                             style={styles.modalCancelButton}
@@ -444,7 +445,7 @@ const ClassOccurrenceModal = ({
 
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                            <Text style={[textStyle]}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -460,14 +461,14 @@ const ClassOccurrenceModal = ({
                     <View style={styles.modalInfo}>
 
                         <View style={{alignItems: 'center', padding: 20}}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                            <Text style={[textStyle, {fontWeight: "bold"}]}>
                                 Edit occurrence
                             </Text>
                         </View>
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Change date:
                             </Text>
@@ -478,7 +479,7 @@ const ClassOccurrenceModal = ({
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Change time:
                             </Text>
@@ -487,12 +488,12 @@ const ClassOccurrenceModal = ({
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Change duration:
                             </Text>
                             <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.shortInputFeld]}
+                                style={[textStyle, styles.shortInputFeld]}
                                 value={actualDurationToEdit.toString()}
                                 onChangeText={(durationStr) => {setActualDurationToEdit(Number(durationStr))}}
                             />
@@ -500,7 +501,7 @@ const ClassOccurrenceModal = ({
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Is cancelled?
                             </Text>
@@ -508,18 +509,18 @@ const ClassOccurrenceModal = ({
                                 label=''
                                 checked={isCancelledToEdit}
                                 onChange={() => {setIsCancelledToEdit(!isCancelledToEdit)}}
-                                labelStyle={colorScheme === 'dark' ? styles.lightColor : styles.darkColor}
+                                labelStyle={textStyle}
                             />
                         </View>
 
                         <View style={[styles.itemContainer, styles.itemRow]}>
                             <Text
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.itemContainer]}
+                                style={[textStyle, styles.itemContainer]}
                             >
                                 Notes:
                             </Text>
                             <TextInput
-                                style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.longInputFeld]}
+                                style={[textStyle, styles.longInputFeld]}
                                 value={notesToEdit}
                                 onChangeText={(noteStr) => {setNotesToEdit(noteStr)}}
                             />
@@ -552,7 +553,7 @@ const ClassOccurrenceModal = ({
                                     }
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Save</Text>
+                                <Text style={[textStyle]}>Save</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
@@ -560,7 +561,7 @@ const ClassOccurrenceModal = ({
                                     setIsEditDeleteOpen(false);
                                 }}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
                         </View>
 
@@ -572,7 +573,7 @@ const ClassOccurrenceModal = ({
                                 setIsAddOccurrenceOpen(false);
                             }}
                         >
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Delete occurrence</Text>
+                            <Text style={[textStyle]}>Delete occurrence</Text>
                         </Pressable>
 
                     </View>
@@ -746,12 +747,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.5)',
         zIndex: 10,
-    },
-    darkColor: {
-        color: 'black',
-    },
-    lightColor: {
-        color: 'white',
     },
 });
 

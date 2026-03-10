@@ -1,15 +1,16 @@
-import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 const ScreenTitle = ({
     titleText = "Screen Title"
 }) => {
-    const colorScheme = useColorScheme();
+    const textStyle = useThemeTextStyle();
     return (
         <View style={styles.container}>
             <Text style={[
                 styles.container, 
                 styles.mainTextStyle,
-                colorScheme === 'dark' ? styles.lightColor : styles.darkColor
+                textStyle
                 ]}>
                     {titleText}
             </Text>
@@ -26,12 +27,6 @@ const styles = StyleSheet.create({
         fontSize: 25, 
         fontWeight: 'heavy'
     },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
-      },
 })
 
 export default ScreenTitle;

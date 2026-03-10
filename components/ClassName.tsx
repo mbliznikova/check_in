@@ -1,5 +1,6 @@
-import * as React from 'react';  
-import {View, Text, StyleSheet, useColorScheme} from 'react-native';
+import * as React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
+import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 type ClassNameProps = {
     id: number;
@@ -10,14 +11,14 @@ const ClassName = ({
         id,
         name = "Class name",
     }: ClassNameProps) => {
-        const colorScheme = useColorScheme();
+        const textStyle = useThemeTextStyle();
         return (
             <View style={styles.container}>
                 <View style={styles.headerRow}>
-                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.leftText]}>
+                    <Text style={[textStyle, styles.leftText]}>
                         Class
                     </Text>
-                    <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, styles.rightText]}>
+                    <Text style={[textStyle, styles.rightText]}>
                         {name}
                     </Text>
                 </View>
@@ -43,12 +44,6 @@ const styles = StyleSheet.create({
         fontSize: 20, 
         fontWeight: 'bold',
     },
-    darkColor: {
-        color: 'black',
-      },
-    lightColor: {
-        color: 'white',
-      },
 })
 
 export default ClassName;

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import ScreenTitle from '@/components/ScreenTitle';
 import CurrentDate from '@/components/CurrentDate';
