@@ -49,6 +49,15 @@ export default function TabLayout() {
         }}>
 
         <Tabs.Screen
+          name="schools"
+          options={{
+            title: 'Schools',
+            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          }}
+        />
+
+        <Tabs.Screen
           name="check-in"
           options={{
             title: 'Check-in',
