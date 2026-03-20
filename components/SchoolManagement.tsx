@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, SafeAreaView, View, Text, StyleSheet, FlatList } from "react-native";
-import { useOrganization } from "@clerk/clerk-expo";
+import { useOrganizationList } from "@clerk/clerk-expo";
 
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useApi } from "@/api/client";
@@ -14,7 +14,7 @@ import DeleteSchoolModal from "./DeleteSchoolModal";
 
 const SchoolManagement = () => {
     const { apiFetch } = useApi();
-    const { organization } = useOrganization();
+    const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
 
     const [schools, setSchools] = useState<SchoolType[]>([]);
@@ -111,9 +111,22 @@ const SchoolManagement = () => {
     };
 
     const createSchool = async (name: string, phone: string, address: string) => {
+        if (!createOrganization) {
+            console.warn('createOrganization is not yet available. Please try again.');
+            return;
+        }
+
+        let newOrg;
+        try {
+            newOrg = await createOrganization({ name });
+        } catch (error) {
+            console.error(`Failed to create Clerk organization: ${error}`);
+            return;
+        }
+
         const data = {
             name,
-            clerkOrgId: organization?.id,
+            clerkOrgId: newOrg.id,
             phone,
             address,
         };
@@ -137,9 +150,9 @@ const SchoolManagement = () => {
                 console.log('Function createSchool. The response from backend is valid.');
                 setIsCreateSuccessful(true);
                 addSchoolToState(
-                    responseData.schoolId,
+                    responseData.id,
                     responseData.name,
-                    responseData.clerkOrgId ?? organization?.id ?? '', // TODO: handle mandatory id for a new school
+                    newOrg.id,
                     responseData.phone ?? phone,
                     responseData.address ?? address,
                 );
