@@ -4,6 +4,7 @@ import { useOrganizationList } from "@clerk/clerk-expo";
 
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { SchoolType } from "@/types/school";
 import { Header } from "./Header";
@@ -16,6 +17,7 @@ const SchoolManagement = () => {
     const { apiFetch } = useApi();
     const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
+    const { switchSchool, schoolId: activeSchoolId } = useUserRole();
 
     const [schools, setSchools] = useState<SchoolType[]>([]);
     const [schoolId, setSchoolId] = useState<number | null>(null);
@@ -171,6 +173,8 @@ const SchoolManagement = () => {
         }
 
         const data = { name: newName, phone: newPhone, address: newAddress };
+        const previousSchoolId = activeSchoolId;
+        switchSchool(schoolId);
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/edit/`, {
@@ -195,6 +199,10 @@ const SchoolManagement = () => {
             }
         } catch (error) {
             console.error(`Error while editing school: ${error}`);
+        } finally {
+            if (previousSchoolId !== null) {
+                switchSchool(previousSchoolId);
+            }
         }
     };
 
@@ -203,6 +211,9 @@ const SchoolManagement = () => {
             console.warn("No school selected to delete");
             return;
         }
+
+        const previousSchoolId = activeSchoolId;
+        switchSchool(schoolId);
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/delete/`, {
@@ -225,6 +236,10 @@ const SchoolManagement = () => {
             }
         } catch (error) {
             console.error(`Error while deleting school: ${error}`);
+        } finally {
+            if (previousSchoolId !== null) {
+                switchSchool(previousSchoolId);
+            }
         }
     };
 

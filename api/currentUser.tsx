@@ -1,12 +1,13 @@
 import type { ApiFetch } from "@/api/client";
 
+type MembershipType = { schoolId: number; role: string };
+
 const isValidCurrentUserResponse = (responseData: any): boolean => {
     return (
         typeof responseData === 'object' &&
         responseData !== null &&
         Array.isArray(responseData.memberships) &&
         responseData.memberships.length > 0 &&
-        // TODO: handle case when there are more than 1 membership
         typeof responseData.memberships[0].schoolId === "number" &&
         typeof responseData.memberships[0].role === "string"
     );
@@ -23,6 +24,7 @@ export const fetchCurrentUser = async (apiFetch: ApiFetch) => {
                 return {
                     role: responseData.memberships[0].role,
                     schoolId: responseData.memberships[0].schoolId,
+                    memberships: responseData.memberships as MembershipType[],
                 }
             }
 
