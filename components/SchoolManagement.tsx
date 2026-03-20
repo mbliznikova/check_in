@@ -178,7 +178,7 @@ const SchoolManagement = () => {
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/edit/`, {
-                method: "PUT",
+                method: "PATCH",
                 headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });

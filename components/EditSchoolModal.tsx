@@ -67,7 +67,7 @@ const EditSchoolModal = ({
         return (
             <View style={modalStyles.modalContainer}>
                 <ScreenTitle titleText={`Edit school ${oldName}`}/>
-                <View style={modalStyles.modalView}>
+                <View style={[modalStyles.modalView, { paddingTop: 16 }]}>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text style={[textStyle, styles.itemContainer]}>
                             Edit name:
@@ -106,9 +106,6 @@ const EditSchoolModal = ({
                                     return;
                                 }
                                 onEditSchool(newName, newPhone, newAddress);
-                                setNewName("");
-                                setNewPhone("");
-                                setNewAddress("");
                             }}
                             style={modalStyles.modalConfirmButton}
                         >
