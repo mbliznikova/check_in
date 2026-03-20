@@ -47,7 +47,7 @@ const ClassManagement = () => {
                             pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed,
                         ]}
                         onPress={classData.openCreateModal}>
-                        <Text style={[textStyle]}>+ Create new class</Text>
+                        <Text style={[textStyle]}>+ Create Class</Text>
                     </Pressable>
                 </View>
             </View>

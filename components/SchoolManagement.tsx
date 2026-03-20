@@ -257,7 +257,7 @@ const SchoolManagement = () => {
                         pressed ? styles.primaryButtonPressed : styles.primaryButtonUnpressed
                     ]}
                 >
-                    <Text style={[textStyle]}>+  Create School</Text>
+                    <Text style={[textStyle]}>+ Create School</Text>
                 </Pressable>
             </View>
         );
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 20,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-end',
     },
     button: {
         paddingVertical: 5,

@@ -210,7 +210,7 @@ const StudentManagement = () => {
                     ]}
                 >
                     <Text style={textStyle}>
-                        + Add new student
+                        + Create Student
                     </Text>
                 </Pressable>
             </View>
