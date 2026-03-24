@@ -10,7 +10,6 @@ import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
 import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
-import { Header } from './Header';
 import { AttendanceType, StudentAttendanceDetailsType } from '@/types/attendance';
 import { PaymentType } from '@/types/payment';
 
@@ -310,7 +309,7 @@ const Attendance = () => {
     // TODO: refactor teh components: extract functions to separate places. DRY.
     return (
          <SafeAreaView style={styles.container}>
-            <Header/>
+
             <View style={[styles.container]}>
                 <FlatList
                     ListHeaderComponent={renderHeader}

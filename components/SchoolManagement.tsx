@@ -7,7 +7,6 @@ import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { SchoolType } from "@/types/school";
-import { Header } from "./Header";
 import ScreenTitle from "./ScreenTitle";
 import CreateSchoolModal from "./CreateSchoolModal";
 import EditSchoolModal from "./EditSchoolModal";
@@ -364,7 +363,7 @@ const SchoolManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <Header/>
+
             <ScreenTitle titleText='School Management'></ScreenTitle>
             {renderCreateSchool()}
             {renderSchoolList()}

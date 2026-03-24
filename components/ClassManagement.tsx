@@ -12,7 +12,6 @@ import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
 import ClassOccurrenceModal from "./ClassOccurrencesModal";
-import { Header } from "./Header";
 
 const INITIAL_SELECTED_CLASS: SelectedClassState = {
     id: null,
@@ -36,7 +35,7 @@ const ClassManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <Header />
+
             <ScreenTitle titleText={'Class management'} />
 
             <View style={styles.headerRow}>

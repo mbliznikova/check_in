@@ -1,6 +1,6 @@
 import type { ApiFetch } from "@/api/client";
 
-type MembershipType = { schoolId: number; role: string };
+type MembershipType = { schoolId: number; role: string; schoolName: string };
 
 const isValidCurrentUserResponse = (responseData: any): boolean => {
     return (
@@ -9,7 +9,8 @@ const isValidCurrentUserResponse = (responseData: any): boolean => {
         Array.isArray(responseData.memberships) &&
         responseData.memberships.length > 0 &&
         typeof responseData.memberships[0].schoolId === "number" &&
-        typeof responseData.memberships[0].role === "string"
+        typeof responseData.memberships[0].role === "string" &&
+        typeof responseData.memberships[0].schoolName === "string"
     );
 }
 

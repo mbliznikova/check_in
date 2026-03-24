@@ -6,7 +6,6 @@ import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
 import { AttendanceType } from '@/types/attendance';
 import ConfirmationDetails from './ConfirmationDetails';
-import { Header } from './Header';
 
 // {"date": "2025-04-03",
 //  "classes":
@@ -76,7 +75,7 @@ const ConfirmationList = () => {
 
     return (
         <SafeAreaView style={styles.appContainer}>
-            <Header/>
+
             <FlatList
                 data={attendances}
                 keyExtractor={att => att.date.toString()}

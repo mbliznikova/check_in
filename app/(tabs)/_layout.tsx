@@ -1,6 +1,7 @@
 import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
 import { Platform, ActivityIndicator, View } from 'react-native';
+import { Header } from '@/components/Header';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -33,6 +34,10 @@ export default function TabLayout() {
       </SignedOut>
 
     <SignedIn>
+      <View style={{ flex: 1, backgroundColor: Colors[colorScheme ?? 'light'].background }}>
+      <View style={{ zIndex: 10 }}>
+        <Header />
+      </View>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -112,6 +117,7 @@ export default function TabLayout() {
         />
 
       </Tabs>
+      </View>
       </SignedIn>
     </>
   );

@@ -9,7 +9,6 @@ import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
 import EditStudentModal from "./EditStudentModal";
-import { Header } from "./Header";
 
 const StudentManagement = () => {
     const { apiFetch } = useApi();
@@ -508,7 +507,7 @@ const StudentManagement = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <Header/>
+
             <ScreenTitle titleText='Student Management'></ScreenTitle>
             {renderHeader()}
             {renderStudentList()}

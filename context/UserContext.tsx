@@ -4,7 +4,7 @@ import { useApi } from '@/api/client';
 import { fetchCurrentUser } from '@/api/currentUser';
 import { setHeaderSchoolId } from '@/api/client';
 
-type MembershipType = { schoolId: number; role: string };
+type MembershipType = { schoolId: number; role: string; schoolName: string };
 
 type UserContextType = {
     role: string | null;

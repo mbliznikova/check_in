@@ -8,7 +8,6 @@ import { isValidArrayResponse } from '@/api/validators';
 import { StudentType } from '@/types/student';
 import { PaymentType } from '@/types/payment';
 import ScreenTitle from './ScreenTitle';
-import { Header } from './Header';
 
 type RawPriceType = {
     [classId: string]: {
@@ -674,7 +673,7 @@ const Payments = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header/>
+
             <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}
