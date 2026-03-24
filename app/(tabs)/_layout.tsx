@@ -15,7 +15,7 @@ import { useUserRole } from '@/context/UserContext';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const {role, isLoading} = useUserRole();
+  const {role, isLoading, schoolId} = useUserRole();
 
   if (isLoading) {
     return (
@@ -39,6 +39,7 @@ export default function TabLayout() {
         <Header />
       </View>
       <Tabs
+        key={schoolId ?? 'init'}
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
