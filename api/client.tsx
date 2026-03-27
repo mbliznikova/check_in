@@ -10,7 +10,7 @@ const schoolReady = new Promise<void>((resolve) => {
     resolveSchoolReady = resolve;
 });
 
-export function setHeaderSchoolId(schoolId: number | null) {
+export function configureSchoolId(schoolId: number | null) {
     currentSchoolId = schoolId;
 
     if (schoolId !== null && resolveSchoolReady) {

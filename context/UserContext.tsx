@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from '@clerk/clerk-expo';
 import { useApi } from '@/api/client';
 import { fetchCurrentUser } from '@/api/currentUser';
-import { setHeaderSchoolId } from '@/api/client';
+import { configureSchoolId } from '@/api/client';
 
 type MembershipType = { schoolId: number; role: string; schoolName: string };
 
@@ -33,7 +33,7 @@ export function UserProvider({children}: {children: ReactNode}) {
             console.warn(`switchSchool: no membership found for schoolId ${id}`);
             return;
         }
-        setHeaderSchoolId(id);
+        configureSchoolId(id);
         setSchoolId(id);
         setRole(membership.role);
     };
@@ -43,7 +43,7 @@ export function UserProvider({children}: {children: ReactNode}) {
             setRole(null);
             setSchoolId(null);
             setMemberships([]);
-            setHeaderSchoolId(null);
+            configureSchoolId(null);
             setIsLoading(false);
             return;
         }
@@ -55,7 +55,7 @@ export function UserProvider({children}: {children: ReactNode}) {
                 setRole(userInfo.role);
                 setSchoolId(userInfo.schoolId);
                 setMemberships(userInfo.memberships);
-                setHeaderSchoolId(userInfo.schoolId);
+                configureSchoolId(userInfo.schoolId);
             } else {
                 setError('Failed to load user info');
             }
