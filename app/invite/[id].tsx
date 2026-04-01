@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/clerk-expo';
 
 import { useApi } from '@/api/client';
 import { useUserRole } from '@/context/UserContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 export default function InviteAcceptScreen() {
@@ -14,6 +15,8 @@ export default function InviteAcceptScreen() {
     const { reloadUser } = useUserRole();
     const router = useRouter();
     const textStyle = useThemeTextStyle();
+
+    const backgroundColor = useThemeColor({}, 'background');
 
     const [loading, setLoading] = useState(false);
     const [accepted, setAccepted] = useState(false);
@@ -116,7 +119,7 @@ export default function InviteAcceptScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor }]}>
             {renderContent()}
         </SafeAreaView>
     );
