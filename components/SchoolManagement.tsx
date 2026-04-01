@@ -11,12 +11,13 @@ import ScreenTitle from "./ScreenTitle";
 import CreateSchoolModal from "./CreateSchoolModal";
 import EditSchoolModal from "./EditSchoolModal";
 import DeleteSchoolModal from "./DeleteSchoolModal";
+import InviteUserModal from "./InviteUserModal";
 
 const SchoolManagement = () => {
     const { apiFetch } = useApi();
     const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
-    const { switchSchool, schoolId: activeSchoolId } = useUserRole();
+    const { switchSchool, schoolId: activeSchoolId, role: activeRole } = useUserRole();
 
     const [schools, setSchools] = useState<SchoolType[]>([]);
     const [schoolId, setSchoolId] = useState<number | null>(null);
@@ -31,6 +32,10 @@ const SchoolManagement = () => {
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
+
+    const [isInviteModalVisible, setIsInviteModalVisible] = useState(false);
+    const [isInviteSuccessful, setIsInviteSuccessful] = useState(false);
+    const [inviteLink, setInviteLink] = useState('');
 
     const isValidCreateSchoolResponse = (responseData: any, name: string): boolean => {
         return (
@@ -242,6 +247,39 @@ const SchoolManagement = () => {
         }
     };
 
+    const sendInvitation = async (email: string, role: string) => {
+        if (schoolId === null) {
+            console.warn("No school selected for invitation");
+            return;
+        }
+
+        const previousSchoolId = activeSchoolId;
+        switchSchool(schoolId);
+
+        try {
+            const response = await apiFetch("/invitations/", {
+                method: "POST",
+                headers: { Accept: "application/json" },
+                body: JSON.stringify({ email, role }),
+            });
+
+            if (response.ok) {
+                const responseData = await response.json();
+                console.log('Function sendInvitation. Invitation sent successfully.');
+                setInviteLink(responseData.inviteLink ?? '');
+                setIsInviteSuccessful(true);
+            } else {
+                console.warn(`Function sendInvitation. Request was unsuccessful: ${response.status}, ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while sending invitation: ${error}`);
+        } finally {
+            if (previousSchoolId !== null) {
+                switchSchool(previousSchoolId);
+            }
+        }
+    };
+
     useEffect(() => {
         listSchools();
     }, []);
@@ -293,6 +331,17 @@ const SchoolManagement = () => {
                             >
                                 <Text style={[textStyle, styles.actionButtonText]}>Delete</Text>
                             </Pressable>
+                            {(activeRole === 'admin' || activeRole === 'owner') && (
+                                <Pressable
+                                    onPress={() => {
+                                        setSchoolId(school.id);
+                                        setName(school.name);
+                                        setIsInviteModalVisible(true);
+                                    }}
+                                >
+                                    <Text style={[textStyle, styles.actionButtonText]}>Invite</Text>
+                                </Pressable>
+                            )}
                         </View>
                     </View>
                 )}
@@ -341,6 +390,27 @@ const SchoolManagement = () => {
         );
     };
 
+    const renderInviteModal = () => {
+        if (!isInviteModalVisible) {
+            return null;
+        }
+        return (
+            <InviteUserModal
+                isVisible={isInviteModalVisible}
+                onModalClose={() => {
+                    setIsInviteModalVisible(false);
+                    setIsInviteSuccessful(false);
+                    setInviteLink('');
+                    setSchoolId(null);
+                    setName('');
+                }}
+                onSendInvitation={sendInvitation}
+                isSuccess={isInviteSuccessful}
+                inviteLink={inviteLink}
+            />
+        );
+    };
+
     const renderDeleteModal = () => {
         if (!isDeleteModalVisible) {
             return null;
@@ -370,6 +440,7 @@ const SchoolManagement = () => {
             {renderCreateModal()}
             {renderEditModal()}
             {renderDeleteModal()}
+            {renderInviteModal()}
         </SafeAreaView>
     );
 };

@@ -1,6 +1,6 @@
 import { useSignIn } from '@clerk/clerk-expo'
 import { SignIn as WebSignIn } from '@clerk/clerk-expo/web'
-import { Link, useRouter } from 'expo-router'
+import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 import {
     Text, TextInput, TouchableOpacity, View,
     useColorScheme, StyleSheet, Platform,
@@ -11,11 +11,12 @@ import React, { useState } from "react";
 export default function Page() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>()
 
   if (Platform.OS === 'web') {
     return (
       <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
-        <WebSignIn />
+        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/check-in'} />
     </View>
     );
   }
@@ -51,7 +52,7 @@ export default function Page() {
 
     } else if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        router.replace((returnTo as Href) ?? '/')
       } else {
         setErrorMsg('Additional steps required. Check console.');
         console.error(JSON.stringify(signInAttempt, null, 2))
@@ -75,7 +76,7 @@ export default function Page() {
 
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        router.replace((returnTo as Href) ?? '/')
       } else {
         setErrorMsg('Verification incomplete. Check console.');
         console.error(JSON.stringify(signInAttempt, null, 2))

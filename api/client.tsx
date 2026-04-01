@@ -27,13 +27,15 @@ export function useApi() {
     async function apiFetch(
         endpoint: string,
         options: RequestInit = {}) {
-            if (endpoint !== "/me/") {
+            const skipSchoolReady = endpoint === "/me/" || endpoint.startsWith("/invitations/");
+
+            if (!skipSchoolReady) {
                 await schoolReady;
             }
 
             const token = await getToken({ template: "backend" });
 
-            if (currentSchoolId == null) {
+            if (currentSchoolId == null && !skipSchoolReady) {
                 console.warn("apiFetch called without school id");
             }
 

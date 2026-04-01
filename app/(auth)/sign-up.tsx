@@ -2,11 +2,12 @@ import * as React from 'react'
 import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet } from 'react-native'
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useSignUp } from '@clerk/clerk-expo'
-import { Link, useRouter } from 'expo-router'
+import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
   const router = useRouter()
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>()
 
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -48,7 +49,7 @@ export default function SignUpScreen() {
 
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace('/')
+        router.replace((returnTo as Href) ?? '/')
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2))
       }

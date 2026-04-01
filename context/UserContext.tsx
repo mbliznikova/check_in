@@ -13,6 +13,7 @@ type UserContextType = {
     isLoading: boolean;
     error: string | null;
     switchSchool: (schoolId: number) => void;
+    reloadUser: () => void;
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -38,6 +39,25 @@ export function UserProvider({children}: {children: ReactNode}) {
         setRole(membership.role);
     };
 
+    const loadUserInfo = async () => {
+        const userInfo = await fetchCurrentUser(apiFetch);
+
+        if (userInfo) {
+            setRole(userInfo.role);
+            setSchoolId(userInfo.schoolId);
+            setMemberships(userInfo.memberships);
+            configureSchoolId(userInfo.schoolId);
+        } else {
+            setError('Failed to load user info');
+        }
+        setIsLoading(false);
+    };
+
+    const reloadUser = () => {
+        setIsLoading(true);
+        loadUserInfo();
+    };
+
     useEffect(() => {
         if (!isSignedIn) {
             setRole(null);
@@ -48,26 +68,12 @@ export function UserProvider({children}: {children: ReactNode}) {
             return;
         }
 
-        const loadUserInfo = async () => {
-            const userInfo = await fetchCurrentUser(apiFetch);
-
-            if (userInfo) {
-                setRole(userInfo.role);
-                setSchoolId(userInfo.schoolId);
-                setMemberships(userInfo.memberships);
-                configureSchoolId(userInfo.schoolId);
-            } else {
-                setError('Failed to load user info');
-            }
-            setIsLoading(false);
-        };
-
         loadUserInfo();
     },
         [isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <UserContext.Provider value={{role, schoolId, memberships, isLoading, error, switchSchool}}>
+        <UserContext.Provider value={{role, schoolId, memberships, isLoading, error, switchSchool, reloadUser}}>
             {children}
         </UserContext.Provider>
     );
