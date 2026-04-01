@@ -19,14 +19,15 @@ export function configureSchoolId(schoolId: number | null) {
     }
 }
 
-export type ApiFetch = (endpoint: string, options?: RequestInit) => Promise<Response>;
+export type ApiFetch = (endpoint: string, options?: RequestInit, schoolIdOverride?: number) => Promise<Response>;
 
 export function useApi() {
     const { getToken } = useAuth();
 
     async function apiFetch(
         endpoint: string,
-        options: RequestInit = {}) {
+        options: RequestInit = {},
+        schoolIdOverride?: number) {
             const skipSchoolReady = endpoint === "/me/" || endpoint.startsWith("/invitations/");
 
             if (!skipSchoolReady) {
@@ -35,16 +36,19 @@ export function useApi() {
 
             const token = await getToken({ template: "backend" });
 
-            if (currentSchoolId == null && !skipSchoolReady) {
+            const effectiveSchoolId = schoolIdOverride ?? currentSchoolId;
+
+            if (effectiveSchoolId === null && !skipSchoolReady) {
                 console.warn("apiFetch called without school id");
             }
 
             const headers: HeadersInit = {
                 ...(options.headers || {}),
                 "Content-Type": "application/json",
+                "Accept": "application/json",
                 Authorization: `Bearer ${token}`,
-                ...(currentSchoolId != null
-                    ? {"X-School-ID": String(currentSchoolId)}
+                ...(effectiveSchoolId !== null
+                    ? {"X-School-ID": String(effectiveSchoolId)}
                     : {}),
             };
 

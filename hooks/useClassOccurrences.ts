@@ -241,7 +241,6 @@ export function useClassOccurrences() {
         try {
             const response = await apiFetch("/class_occurrences/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
@@ -327,7 +326,6 @@ export function useClassOccurrences() {
         try {
             const response = await apiFetch(`/class_occurrences/${occurrenceId}/edit/`, {
                 method: "PATCH",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (response.ok) {

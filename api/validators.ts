@@ -48,3 +48,37 @@ function hasId(responseData: any, id: number): boolean {
 function hasName(responseData: any, name: string): boolean {
     return typeof responseData === 'object' && responseData !== null && 'name' in responseData && responseData.name === name;
 }
+
+export function isValidCreateSchoolResponse(responseData: any, name: string): boolean {
+    return (
+        isSuccessMessageResponse(responseData, 'School was created successfully') &&
+        'id' in responseData &&
+        hasName(responseData, name)
+    );
+}
+
+export function isValidDeleteSchoolResponse(responseData: any, schoolId: number, schoolName: string): boolean {
+    return (
+        isSuccessMessageResponse(responseData, `School ${schoolName} was deleted successfully`) &&
+        'schoolId' in responseData && responseData.schoolId === schoolId
+    );
+}
+
+export function isValidMembersResponse(data: any): boolean {
+    return typeof data === 'object' && data !== null && Array.isArray(data.members);
+}
+
+export function isValidChangeRoleResponse(data: any, memberId: number, newRole: string): boolean {
+    return (
+        typeof data === 'object' && data !== null &&
+        'membershipId' in data && data.membershipId === memberId &&
+        'role' in data && data.role === newRole
+    );
+}
+
+export function isValidDeleteMemberResponse(data: any, memberId: number): boolean {
+    return (
+        typeof data === 'object' && data !== null &&
+        'membershipId' in data && data.membershipId === memberId
+    );
+}

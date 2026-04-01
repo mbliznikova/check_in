@@ -159,7 +159,6 @@ export function useClassSchedules() {
         try {
             const response = await apiFetch("/schedules/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (!response.ok) {

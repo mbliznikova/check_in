@@ -5,19 +5,20 @@ import { useOrganizationList } from "@clerk/clerk-expo";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
-import { isValidArrayResponse } from "@/api/validators";
+import { isValidArrayResponse, isValidCreateSchoolResponse, isValidEditResponse, isValidDeleteSchoolResponse } from "@/api/validators";
 import { SchoolType } from "@/types/school";
 import ScreenTitle from "./ScreenTitle";
 import CreateSchoolModal from "./CreateSchoolModal";
 import EditSchoolModal from "./EditSchoolModal";
 import DeleteSchoolModal from "./DeleteSchoolModal";
 import InviteUserModal from "./InviteUserModal";
+import StaffModal from "./StaffModal";
 
 const SchoolManagement = () => {
     const { apiFetch } = useApi();
     const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
-    const { switchSchool, schoolId: activeSchoolId, role: activeRole } = useUserRole();
+    const { role: activeRole, switchSchool } = useUserRole();
 
     const [schools, setSchools] = useState<SchoolType[]>([]);
     const [schoolId, setSchoolId] = useState<number | null>(null);
@@ -33,38 +34,11 @@ const SchoolManagement = () => {
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
     const [isDeleteSuccessful, setIsDeleteSuccessful] = useState(false);
 
+    const [isStaffModalVisible, setIsStaffModalVisible] = useState(false);
     const [isInviteModalVisible, setIsInviteModalVisible] = useState(false);
     const [isInviteSuccessful, setIsInviteSuccessful] = useState(false);
     const [inviteLink, setInviteLink] = useState('');
 
-    const isValidCreateSchoolResponse = (responseData: any, name: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === 'School was created successfully' &&
-            'id' in responseData &&
-            'name' in responseData && responseData.name === name
-        );
-    };
-
-    const isValidEditSchoolResponse = (responseData: any, schoolId: number, name: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `School was updated successfully` &&
-            'schoolId' in responseData && responseData.schoolId === schoolId &&
-            'name' in responseData && responseData.name === name
-        );
-    };
-
-    const isValidDeleteSchoolResponse = (responseData: any, schoolId: number, schoolName: string): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `School ${schoolName} was deleted successfully` &&
-            'schoolId' in responseData && responseData.schoolId === schoolId
-        );
-    };
 
     const addSchoolToState = (schoolId: number, name: string, clerkOrgId: string, phone: string, address: string) => {
         const newSchools = [...schools];
@@ -142,7 +116,6 @@ const SchoolManagement = () => {
         try {
             const response = await apiFetch("/schools/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
 
@@ -177,20 +150,17 @@ const SchoolManagement = () => {
         }
 
         const data = { name: newName, phone: newPhone, address: newAddress };
-        const previousSchoolId = activeSchoolId;
-        switchSchool(schoolId);
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/edit/`, {
                 method: "PATCH",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
 
             if (response.ok) {
                 const responseData = await response.json();
 
-                if (isValidEditSchoolResponse(responseData, schoolId, newName)) {
+                if (isValidEditResponse(responseData, 'School was updated successfully', schoolId, newName)) {
                     console.log('Function editSchool. The response from backend is valid.');
                 } else {
                     console.warn(`Function editSchool. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -203,10 +173,6 @@ const SchoolManagement = () => {
             }
         } catch (error) {
             console.error(`Error while editing school: ${error}`);
-        } finally {
-            if (previousSchoolId !== null) {
-                switchSchool(previousSchoolId);
-            }
         }
     };
 
@@ -215,9 +181,6 @@ const SchoolManagement = () => {
             console.warn("No school selected to delete");
             return;
         }
-
-        const previousSchoolId = activeSchoolId;
-        switchSchool(schoolId);
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/delete/`, {
@@ -240,10 +203,6 @@ const SchoolManagement = () => {
             }
         } catch (error) {
             console.error(`Error while deleting school: ${error}`);
-        } finally {
-            if (previousSchoolId !== null) {
-                switchSchool(previousSchoolId);
-            }
         }
     };
 
@@ -253,15 +212,11 @@ const SchoolManagement = () => {
             return;
         }
 
-        const previousSchoolId = activeSchoolId;
-        switchSchool(schoolId);
-
         try {
             const response = await apiFetch("/invitations/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify({ email, role }),
-            });
+            }, schoolId);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -273,10 +228,6 @@ const SchoolManagement = () => {
             }
         } catch (error) {
             console.error(`Error while sending invitation: ${error}`);
-        } finally {
-            if (previousSchoolId !== null) {
-                switchSchool(previousSchoolId);
-            }
         }
     };
 
@@ -336,10 +287,10 @@ const SchoolManagement = () => {
                                     onPress={() => {
                                         setSchoolId(school.id);
                                         setName(school.name);
-                                        setIsInviteModalVisible(true);
+                                        setIsStaffModalVisible(true);
                                     }}
                                 >
-                                    <Text style={[textStyle, styles.actionButtonText]}>Invite</Text>
+                                    <Text style={[textStyle, styles.actionButtonText]}>Staff</Text>
                                 </Pressable>
                             )}
                         </View>
@@ -386,6 +337,28 @@ const SchoolManagement = () => {
                 oldAddress={address}
                 onEditSchool={editSchool}
                 isSuccess={isEditSuccessful}
+            />
+        );
+    };
+
+    const renderStaffModal = () => {
+        if (!isStaffModalVisible || schoolId === null) {
+            return null;
+        }
+        return (
+            <StaffModal
+                isVisible={isStaffModalVisible}
+                onModalClose={() => {
+                    setIsStaffModalVisible(false);
+                    setSchoolId(null);
+                    setName('');
+                }}
+                schoolId={schoolId}
+                schoolName={name}
+                onInvitePress={() => {
+                    setIsStaffModalVisible(false);
+                    setIsInviteModalVisible(true);
+                }}
             />
         );
     };
@@ -440,6 +413,7 @@ const SchoolManagement = () => {
             {renderCreateModal()}
             {renderEditModal()}
             {renderDeleteModal()}
+            {renderStaffModal()}
             {renderInviteModal()}
         </SafeAreaView>
     );

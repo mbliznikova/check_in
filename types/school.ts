@@ -5,3 +5,11 @@ export type SchoolType = {
     phone: string;
     address: string;
 };
+
+export type StaffMemberType = {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+};

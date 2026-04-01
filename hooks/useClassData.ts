@@ -137,7 +137,6 @@ export function useClassData() {
         try {
             const response = await apiFetch("/prices/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
@@ -160,7 +159,6 @@ export function useClassData() {
         try {
             const response = await apiFetch("/classes/", {
                 method: "POST",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
@@ -210,7 +208,6 @@ export function useClassData() {
         try {
             const response = await apiFetch(`/classes/${classId}/edit/`, {
                 method: "PUT",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(dataToUpdate),
             });
             if (response.ok) {
@@ -261,7 +258,6 @@ export function useClassData() {
         try {
             const response = await apiFetch(`/prices/${priceId}/`, {
                 method: "PATCH",
-                headers: { Accept: "application/json" },
                 body: JSON.stringify(data),
             });
             if (response.ok) {
