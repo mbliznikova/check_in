@@ -40,7 +40,8 @@ export default function InviteAcceptScreen() {
                 reloadUser();
             } else {
                 const data = await response.json().catch(() => ({}));
-                setError(data.message ?? `Failed to accept invitation (${response.status})`);
+                console.error(`Error accepting invitation: ${response.status}`, data);
+                setError(data.message ?? 'Failed to accept invitation. Please try again.');
             }
         } catch (err) {
             setError('Something went wrong. Please try again.');
