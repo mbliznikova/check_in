@@ -18,7 +18,7 @@ const SchoolManagement = () => {
     const { apiFetch } = useApi();
     const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
-    const { role: activeRole, switchSchool } = useUserRole();
+    const { role: activeRole } = useUserRole();
 
     const [schools, setSchools] = useState<SchoolType[]>([]);
     const [schoolId, setSchoolId] = useState<number | null>(null);
