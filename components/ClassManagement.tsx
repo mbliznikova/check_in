@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { router } from "expo-router";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useClassData } from "@/hooks/useClassData";
 import { useClassSchedules } from "@/hooks/useClassSchedules";
-import { useClassOccurrences } from "@/hooks/useClassOccurrences";
 import { SelectedClassState } from "@/types/class";
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
 import DeleteClassModal from "./DeleteClassModal";
 import EditClassModal from "./EditClassModal";
 import ClassScheduleModal from "./ClassScheduleModal";
-import ClassOccurrenceModal from "./ClassOccurrencesModal";
 
 const INITIAL_SELECTED_CLASS: SelectedClassState = {
     id: null,
@@ -27,7 +26,6 @@ const ClassManagement = () => {
 
     const classData = useClassData();
     const classSchedules = useClassSchedules();
-    const classOccurrences = useClassOccurrences();
 
     const [selectedClass, setSelectedClass] = useState<SelectedClassState>(INITIAL_SELECTED_CLASS);
 
@@ -39,6 +37,14 @@ const ClassManagement = () => {
             <ScreenTitle titleText={'Class management'} />
 
             <View style={styles.headerRow}>
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.button,
+                        pressed ? styles.primaryButtonPressed : styles.secondaryButtonUnpressed,
+                    ]}
+                    onPress={() => router.push('/occurrences')}>
+                    <Text style={[textStyle]}>All occurrences</Text>
+                </Pressable>
                 <View style={{ marginLeft: 'auto' }}>
                     <Pressable
                         style={({ pressed }) => [
@@ -73,15 +79,7 @@ const ClassManagement = () => {
                         <View style={{ flexDirection: 'row' }}>
                             <Pressable
                                 onPress={() => {
-                                    setSelectedClass({
-                                        ...INITIAL_SELECTED_CLASS,
-                                        id: cls.id,
-                                        name: cls.name,
-                                        duration: cls.durationMinutes,
-                                        isRecurring: cls.isRecurring,
-                                    });
-                                    classOccurrences.fetchClassOccurrences(cls.id);
-                                    classOccurrences.openOccurrenceModal();
+                                    router.push(`/occurrences?classId=${cls.id}&className=${encodeURIComponent(cls.name)}`);
                                 }}>
                                 <Text style={[textStyle, styles.actionButton]}>See occurrences</Text>
                             </Pressable>
@@ -212,26 +210,6 @@ const ClassManagement = () => {
                 />
             )}
 
-            {classOccurrences.isOccurrenceModalVisible && (
-                <ClassOccurrenceModal
-                    isVisible={classOccurrences.isOccurrenceModalVisible}
-                    onModalClose={() => {
-                        classOccurrences.closeOccurrenceModal();
-                        resetSelectedClass();
-                    }}
-                    onRequestingTimeIntervals={classOccurrences.fetchAvailableTimeIntervalsOccurrence}
-                    onCreateOccurrence={classOccurrences.createClassOccurrence}
-                    onEditOccurrence={classOccurrences.editClassOccurrence}
-                    onDeleteOccurrence={classOccurrences.deleteClassOccurrence}
-                    onUniquenessCheck={classOccurrences.checkIfOccurrenceUnique}
-                    occurrenceIdTimebyDate={classOccurrences.currentClassOccurrenceMap}
-                    allOccurrenceDataById={classOccurrences.allOccurrencesMap}
-                    classId={selectedClass.id}
-                    className={selectedClass.name}
-                    classDuration={selectedClass.duration}
-                    isCreateOccurrenceSuccess={classOccurrences.isCreateOccurrenceSuccess}
-                />
-            )}
         </SafeAreaView>
     );
 };
@@ -273,6 +251,10 @@ const styles = StyleSheet.create({
     },
     primaryButtonUnpressed: {
         backgroundColor: 'blue',
+        borderRadius: 8,
+    },
+    secondaryButtonUnpressed: {
+        backgroundColor: '#444',
         borderRadius: 8,
     },
 });
