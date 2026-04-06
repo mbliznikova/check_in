@@ -282,8 +282,8 @@ export function useClassOccurrences() {
         }
     };
 
-    const fetchAvailableTimeIntervalsOccurrence = async (date: string, classDurationToFit: number): Promise<string[]> => {
-        let intervals: string[] = [];
+    const fetchAvailableTimeIntervalsOccurrence = async (date: string, classDurationToFit: number): Promise<[string, string][]> => {
+        let intervals: [string, string][] = [];
         try {
             const response = await apiFetch(`/available_occurrence_time/?date=${date}&duration=${classDurationToFit}`, { method: "GET" });
             if (response.ok) {

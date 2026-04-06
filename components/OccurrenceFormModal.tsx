@@ -36,7 +36,7 @@ type OccurrenceFormModalProps = {
     ) => void;
     onDeleteOccurrence: (occurrenceId: number, className: string, date: string, time: string) => void;
     // Shared
-    onRequestingTimeIntervals: (date: string, duration: number) => Promise<string[]>;
+    onRequestingTimeIntervals: (date: string, duration: number) => Promise<[string, string][]>;
     onUniquenessCheck: (date: string, time: string) => boolean;
 };
 
@@ -68,14 +68,14 @@ const OccurrenceFormModal = ({
     const [selectedClass, setSelectedClass] = useState<ClassType | null>(null);
 
     // Edit state
-    const [editDate, setEditDate] = useState<string>('');
-    const [editTime, setEditTime] = useState<string>('');
-    const [editDuration, setEditDuration] = useState<number>(0);
-    const [editIsCancelled, setEditIsCancelled] = useState<boolean>(false);
-    const [editNotes, setEditNotes] = useState<string>('');
+    const [editDate, setEditDate] = useState<string>(occurrence?.actualDate ?? '');
+    const [editTime, setEditTime] = useState<string>(occurrence?.actualStartTime.slice(0, 5) ?? '');
+    const [editDuration, setEditDuration] = useState<number>(occurrence?.actualDuration ?? 0);
+    const [editIsCancelled, setEditIsCancelled] = useState<boolean>(occurrence?.isCancelled ?? false);
+    const [editNotes, setEditNotes] = useState<string>(occurrence?.notes ?? '');
 
     // Shared state
-    const [intervals, setIntervals] = useState<string[]>([]);
+    const [intervals, setIntervals] = useState<[string, string][]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
@@ -104,7 +104,7 @@ const OccurrenceFormModal = ({
             const duration = selectedClass?.durationMinutes ?? createDuration;
             onRequestingTimeIntervals(createDate, duration).then(result => {
                 setIntervals(result);
-                setIsIntervalsOpen(result.length > 0);
+                setIsIntervalsOpen(true);
             });
         }
     }, [createDate, createDuration, selectedClass, mode]);
@@ -113,7 +113,7 @@ const OccurrenceFormModal = ({
         if (mode === 'edit' && editDate && editDuration > 0) {
             onRequestingTimeIntervals(editDate, editDuration).then(result => {
                 setIntervals(result);
-                setIsIntervalsOpen(result.length > 0);
+                setIsIntervalsOpen(true);
             });
         }
     }, [editDate, editDuration, mode]);
@@ -121,7 +121,7 @@ const OccurrenceFormModal = ({
     const renderDateInput = (value: string, onChange: (v: string) => void) => {
         if (Platform.OS === 'web') {
             return (
-                <View style={{ padding: 10 }}>
+                <View>
                     {/* @ts-ignore react-native-web date input */}
                     <input
                         type="date"
@@ -138,7 +138,7 @@ const OccurrenceFormModal = ({
     const renderTimeInput = (value: string, onChange: (v: string) => void) => {
         if (Platform.OS === 'web') {
             return (
-                <View style={{ padding: 10 }}>
+                <View>
                     {/* @ts-ignore react-native-web time input */}
                     <input
                         type="time"
@@ -152,20 +152,35 @@ const OccurrenceFormModal = ({
         return <View><Text style={textStyle}>Under construction</Text></View>;
     };
 
+    const isTimeWithinIntervals = (time: string): boolean => {
+        return intervals.some(([start, end]) => time >= start && time <= end);
+    };
+
     const renderAvailableIntervals = (durationLabel: number) => {
-        if (!isIntervalsOpen || intervals.length === 0) return null;
+        if (!isIntervalsOpen) return null;
         return (
-            <View style={{ padding: 10 }}>
-                <Text style={[textStyle, { fontWeight: 'bold' }]}>
-                    {`Available intervals (for ${durationLabel} mins):`}
-                </Text>
-                <View style={{ alignItems: 'center', padding: 10 }}>
-                    {intervals.map((interval) => (
-                        <View key={`${interval[0]}-${interval[1]}`} style={{ padding: 3 }}>
-                            <Text style={{ color: 'green' }}>{`${interval[0]} - ${interval[1]}`}</Text>
-                        </View>
-                    ))}
+            <View style={styles.row}>
+                <Text style={[textStyle, styles.label]}>Pick start time within:</Text>
+                <View>
+                    {intervals.length === 0
+                        ? <Text style={{ color: 'grey', fontStyle: 'italic' }}>No available time for {durationLabel} minutes</Text>
+                        : intervals.map(([start, end]) => (
+                            <Text key={`${start}-${end}`} style={{ color: 'green', paddingVertical: 2 }}>
+                                {`${start} – ${end}`}
+                            </Text>
+                        ))
+                    }
                 </View>
+            </View>
+        );
+    };
+
+    const renderTimeWarning = (time: string) => {
+        if (!time || !isIntervalsOpen || intervals.length === 0 || isTimeWithinIntervals(time)) return null;
+        return (
+            <View style={styles.row}>
+                <View style={{ width: 130 }} />
+                <Text style={{ color: 'orange', fontSize: 12 }}>Outside available intervals</Text>
             </View>
         );
     };
@@ -211,7 +226,12 @@ const OccurrenceFormModal = ({
 
                 {!classId && renderClassPicker()}
 
-                <View style={[styles.row]}>
+                <View style={styles.row}>
+                    <Text style={[textStyle, styles.label]}>Date:</Text>
+                    {renderDateInput(createDate, setCreateDate)}
+                </View>
+
+                <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Duration (mins):</Text>
                     <TextInput
                         style={[textStyle, styles.shortInput]}
@@ -221,17 +241,13 @@ const OccurrenceFormModal = ({
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Date:</Text>
-                    {renderDateInput(createDate, setCreateDate)}
-                </View>
-
                 {renderAvailableIntervals(effectiveDuration)}
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Time:</Text>
                     {renderTimeInput(createTime, setCreateTime)}
                 </View>
+                {renderTimeWarning(createTime)}
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Notes:</Text>
@@ -313,13 +329,6 @@ const OccurrenceFormModal = ({
                     {renderDateInput(editDate, setEditDate)}
                 </View>
 
-                {renderAvailableIntervals(editDuration)}
-
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Time:</Text>
-                    {renderTimeInput(editTime, setEditTime)}
-                </View>
-
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Duration (mins):</Text>
                     <TextInput
@@ -329,6 +338,14 @@ const OccurrenceFormModal = ({
                         keyboardType="numeric"
                     />
                 </View>
+
+                {renderAvailableIntervals(editDuration)}
+
+                <View style={styles.row}>
+                    <Text style={[textStyle, styles.label]}>Time:</Text>
+                    {renderTimeInput(editTime, setEditTime)}
+                </View>
+                {renderTimeWarning(editTime)}
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Cancelled?</Text>
@@ -446,7 +463,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
     modalView: {
-        width: '60%',
+        width: '90%',
+        maxWidth: 440,
         maxHeight: '80%',
         backgroundColor: 'black',
         borderRadius: 20,
