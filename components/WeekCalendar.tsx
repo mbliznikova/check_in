@@ -149,8 +149,8 @@ const WeekCalendar = ({
         const startMins = timeToMinutes(occ.actualStartTime);
         const top = (startMins - START_HOUR * 60) * (HOUR_HEIGHT / 60);
         const height = Math.max(occ.actualDuration * (HOUR_HEIGHT / 60), 22);
-        const blockWidth = (dayWidth / totalCols) - 3;
-        const left = col * (dayWidth / totalCols) + 1;
+        const blockWidth = (dayWidth / totalCols) - 4;
+        const left = col * (dayWidth / totalCols) + 2;
         const color = getClassColor(occ.fallbackClassName);
 
         return (
@@ -201,7 +201,7 @@ const WeekCalendar = ({
                         />
                     ))}
                     {/* Occurrence blocks */}
-                    {layout.map(item => renderOccurrenceBlock(item, DAY_COL_WIDTH - 2))}
+                    {layout.map(item => renderOccurrenceBlock(item, DAY_COL_WIDTH))}
                 </View>
             </View>
         );
@@ -211,16 +211,22 @@ const WeekCalendar = ({
         <View style={styles.container}>
             {/* Navigation header */}
             <View style={styles.navRow}>
-                <Pressable style={styles.navButton} onPress={onPrevWeek}>
-                    <Text style={styles.navText}>{'← Previous'}</Text>
-                </Pressable>
-                <Text style={styles.weekLabel}>{formatWeekRange(weekStartDate)}</Text>
-                <Pressable style={styles.todayButton} onPress={onToday}>
-                    <Text style={styles.navText}>This week</Text>
-                </Pressable>
-                <Pressable style={styles.navButton} onPress={onNextWeek}>
-                    <Text style={styles.navText}>{'Next →'}</Text>
-                </Pressable>
+                <View style={styles.navSide}>
+                    <Pressable style={styles.navButton} onPress={onPrevWeek}>
+                        <Text style={styles.navText}>{'← Previous'}</Text>
+                    </Pressable>
+                </View>
+                <View style={styles.navCenter}>
+                    <Text style={styles.weekLabel}>{formatWeekRange(weekStartDate)}</Text>
+                </View>
+                <View style={[styles.navSide, styles.navSideRight]}>
+                    <Pressable style={styles.todayButton} onPress={onToday}>
+                        <Text style={styles.navText}>This week</Text>
+                    </Pressable>
+                    <Pressable style={styles.navButton} onPress={onNextWeek}>
+                        <Text style={styles.navText}>{'Next →'}</Text>
+                    </Pressable>
+                </View>
             </View>
 
             {/* Day name headers */}
@@ -279,10 +285,21 @@ const styles = StyleSheet.create({
     navRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
         paddingVertical: 10,
         paddingHorizontal: 16,
-        gap: 12,
+    },
+    navSide: {
+        flex: 1,
+        alignItems: 'flex-start',
+    },
+    navSideRight: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 8,
+    },
+    navCenter: {
+        flex: 1,
+        alignItems: 'center',
     },
     navButton: {
         paddingVertical: 5,
@@ -360,6 +377,7 @@ const styles = StyleSheet.create({
         color: '#888',
         fontSize: 11,
         textAlign: 'right',
+        paddingRight: 6,
     },
     occBlock: {
         position: 'absolute',

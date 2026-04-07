@@ -139,7 +139,8 @@ export default function OccurrencesScreen() {
                 style={styles.fab}
                 onPress={() => handleAddPress(new Date().toISOString().slice(0, 10))}
             >
-                <Text style={styles.fabText}>+</Text>
+                <View style={styles.fabIconH} />
+                <View style={styles.fabIconV} />
             </Pressable>
 
             {/* Create / Edit modal */}
@@ -239,12 +240,18 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.4,
         shadowRadius: 4,
     },
-    fabText: {
-        color: '#fff',
-        fontSize: 30,
-        fontWeight: '200',
-        lineHeight: 34,
-        textAlignVertical: 'center',
-        includeFontPadding: false,
+    fabIconH: {
+        position: 'absolute',
+        width: 22,
+        height: 2,
+        borderRadius: 1,
+        backgroundColor: '#fff',
+    },
+    fabIconV: {
+        position: 'absolute',
+        width: 2,
+        height: 22,
+        borderRadius: 1,
+        backgroundColor: '#fff',
     },
 });
