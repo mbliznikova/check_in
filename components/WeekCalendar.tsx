@@ -212,11 +212,11 @@ const WeekCalendar = ({
             {/* Navigation header */}
             <View style={styles.navRow}>
                 <Pressable style={styles.navButton} onPress={onPrevWeek}>
-                    <Text style={styles.navText}>{'← Prev'}</Text>
+                    <Text style={styles.navText}>{'← Previous'}</Text>
                 </Pressable>
                 <Text style={styles.weekLabel}>{formatWeekRange(weekStartDate)}</Text>
                 <Pressable style={styles.todayButton} onPress={onToday}>
-                    <Text style={styles.navText}>Today</Text>
+                    <Text style={styles.navText}>This week</Text>
                 </Pressable>
                 <Pressable style={styles.navButton} onPress={onNextWeek}>
                     <Text style={styles.navText}>{'Next →'}</Text>
