@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, ActivityIndicator, Alert, Platform} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
@@ -317,7 +317,9 @@ const CheckInConfirmation = () => {
                         disabled={!ifStudentsToConfirm}
                         onPress={() => {
                             sendConfirmation();
-                            alert('Students have been confirmed');
+                            Platform.OS === 'web'
+                                ? alert('Students have been confirmed')
+                                : Alert.alert('Success', 'Students have been confirmed');
                         }}
                     >
                         <Text>Confirm</Text>

@@ -1,4 +1,4 @@
-import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, Platform } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useEffect, useRef, useState } from "react";
@@ -165,7 +165,9 @@ const ClassScheduleModal = ({
                                                         setTimeSlots(await slots);
                                                     }
                                             } else {
-                                                alert('Such schedule is already taken');
+                                                Platform.OS === 'web'
+                                                    ? alert('Such schedule is already taken')
+                                                    : Alert.alert('Conflict', 'Such schedule is already taken');
                                                 console.log(`There is already a class scheduled to ${dayToSchedule}(${DAY_NAMES[dayToSchedule]}), ${timeToSchedule}`);
                                             }
                                         }

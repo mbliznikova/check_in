@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput, ScrollView, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { modalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
@@ -173,7 +173,9 @@ const CreateScheduleClass = ({
                                                 const slots = onRequestingTimeSlots(selectedDayName, newClassDuration);
                                                 setTimeSlots(await slots);
                                         } else {
-                                            alert('Such schedule is already taken');
+                                            Platform.OS === 'web'
+                                                ? alert('Such schedule is already taken')
+                                                : Alert.alert('Conflict', 'Such schedule is already taken');
                                             console.log(`There is already a class scheduled to ${selectedDayName}, ${time}`);
                                         }
                                     }
@@ -328,9 +330,21 @@ const CreateScheduleClass = ({
                         onPress={() => {
                             if (newClassDuration !== defaultClassDuration) {
                                 console.log(`isRecurring is ${isRecurring}`)
-                                onClassUniquenessCheck(className) ? onCreateClass(className, classPrice, newClassDuration, isRecurring) : alert('Class with such name already exists');
+                                if (onClassUniquenessCheck(className)) {
+                                    onCreateClass(className, classPrice, newClassDuration, isRecurring);
+                                } else if (Platform.OS === 'web') {
+                                    alert('Class with such name already exists');
+                                } else {
+                                    Alert.alert('Conflict', 'Class with such name already exists');
+                                }
                             } else {
-                                onClassUniquenessCheck(className) ? onCreateClass(className, classPrice, undefined, isRecurring) : alert('Class with such name already exists');
+                                if (onClassUniquenessCheck(className)) {
+                                    onCreateClass(className, classPrice, undefined, isRecurring);
+                                } else if (Platform.OS === 'web') {
+                                    alert('Class with such name already exists');
+                                } else {
+                                    Alert.alert('Conflict', 'Class with such name already exists');
+                                }
                             }
                             setClassName("");
                         }}

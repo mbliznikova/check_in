@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable, Alert, Platform } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { modalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
@@ -206,9 +206,13 @@ const EditClassModal = ({
 
                                 if (classChanged) {
                                     // TODO: add ability to edit only duration or recurrence
-                                    onClassUniquenessCheck(newClassName) ? onEditClass(
-                                        newClassName, newClassDuration, newClassRecurrence
-                                    ) : alert('Class with such name already exists');
+                                    if (onClassUniquenessCheck(newClassName)) {
+                                        onEditClass(newClassName, newClassDuration, newClassRecurrence);
+                                    } else if (Platform.OS === 'web') {
+                                        alert('Class with such name already exists');
+                                    } else {
+                                        Alert.alert('Conflict', 'Class with such name already exists');
+                                    }
                                     // set the newcClassName to the oldClassName if not unique
                                 }
                                 if (priceChanged) {

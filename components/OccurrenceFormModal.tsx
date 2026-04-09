@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Pressable, Text, TextInput, Modal, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, Text, TextInput, Modal, Platform, ScrollView, Alert } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import Checkbox from './Checkbox';
 import { ClassOccurrenceType, ClassType } from '@/types/class';
@@ -263,11 +263,15 @@ const OccurrenceFormModal = ({
                         style={styles.confirmButton}
                         onPress={() => {
                             if (!effectiveClassName) {
-                                alert('Please select a class');
+                                Platform.OS === 'web'
+                                    ? alert('Please select a class')
+                                    : Alert.alert('Required', 'Please select a class');
                                 return;
                             }
                             if (!createTime) {
-                                alert('Please enter a time');
+                                Platform.OS === 'web'
+                                    ? alert('Please enter a time')
+                                    : Alert.alert('Required', 'Please enter a time');
                                 return;
                             }
                             if (onUniquenessCheck(createDate, createTime)) {
@@ -282,7 +286,9 @@ const OccurrenceFormModal = ({
                                 );
                                 onClose();
                             } else {
-                                alert('That date and time are already taken');
+                                Platform.OS === 'web'
+                                    ? alert('That date and time are already taken')
+                                    : Alert.alert('Conflict', 'That date and time are already taken');
                             }
                         }}
                     >
@@ -372,14 +378,18 @@ const OccurrenceFormModal = ({
                         onPress={() => {
                             const changes = getChanges();
                             if (Object.keys(changes).length === 0) {
-                                alert('No changes detected');
+                                Platform.OS === 'web'
+                                    ? alert('No changes detected')
+                                    : Alert.alert('Info', 'No changes detected');
                                 return;
                             }
                             const newDate = changes.actualDate ?? occurrence.actualDate;
                             const newTime = changes.actualStartTime ?? occurrence.actualStartTime.slice(0, 5);
                             const dateOrTimeChanged = 'actualDate' in changes || 'actualStartTime' in changes;
                             if (dateOrTimeChanged && !onUniquenessCheck(newDate, newTime)) {
-                                alert('That date and time are already taken');
+                                Platform.OS === 'web'
+                                    ? alert('That date and time are already taken')
+                                    : Alert.alert('Conflict', 'That date and time are already taken');
                                 return;
                             }
                             onEditOccurrence(

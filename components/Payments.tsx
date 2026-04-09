@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
@@ -582,7 +582,9 @@ const Payments = () => {
             closeModal();
         } catch (error) {
             console.error('Could not complete action: ', error);
-            alert('Could not complete action.');
+            Platform.OS === 'web'
+                ? alert('Could not complete action.')
+                : Alert.alert('Error', 'Could not complete action.');
         }
     };
 

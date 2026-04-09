@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView} from 'react-native';
+import {View, StyleSheet, Pressable, FlatList, Text, SafeAreaView, Alert, Platform} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { commonStyles } from '@/constants/commonStyles';
 
@@ -148,7 +148,9 @@ const ConfirmationDetails = ({
                             style={styles.confirmButton}
                             onPress={() => {
                               sendConfirmation();
-                              alert('Students have been confirmed');
+                              Platform.OS === 'web'
+                                ? alert('Students have been confirmed')
+                                : Alert.alert('Success', 'Students have been confirmed');
                             }}
                           >
                             <Text style={{ color: '#fff' }}>Confirm</Text>

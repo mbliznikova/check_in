@@ -1,6 +1,6 @@
 import * as React from 'react';  
 import { useEffect, useState } from 'react';
-import {View, StyleSheet, Pressable, Text,TextInput, Modal, Platform, ScrollView} from 'react-native';
+import {View, StyleSheet, Pressable, Text,TextInput, Modal, Platform, ScrollView, Alert} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import Checkbox from './Checkbox';
@@ -190,7 +190,9 @@ const ClassOccurrenceModal = ({
                                         onCreateOccurrence(className ?? 'No name class', dateToCreate, timeToCreate, plannedClassDuration, classId ?? undefined, undefined, notes);
                                         setIsAddOccurrenceOpen(false);
                                     } else {
-                                        alert('Such date and time have been already taken');
+                                        Platform.OS === 'web'
+                                            ? alert('Such date and time have been already taken')
+                                            : Alert.alert('Conflict', 'Such date and time have been already taken');
                                         console.log(`There is already an occurrence at ${dateToCreate} - ${timeToCreate}`);
                                     }
                                 }}
@@ -533,7 +535,9 @@ const ClassOccurrenceModal = ({
                                     const updatedData = getUpdatedOccurrenceData();
 
                                     if (Object.keys(updatedData).length === 0) {
-                                        alert('No changes detected in the occurrence');
+                                        Platform.OS === 'web'
+                                            ? alert('No changes detected in the occurrence')
+                                            : Alert.alert('Info', 'No changes detected in the occurrence');
                                     } else {
                                         const {
                                             actualDate,
@@ -547,7 +551,9 @@ const ClassOccurrenceModal = ({
                                             onEditOccurrence(selectedOccurrenceId, actualDate, actualStartTime, actualDuration, isCancelled, notes);
                                             setIsEditDeleteOpen(false);
                                         } else {
-                                            alert('Such date and time have been already taken');
+                                            Platform.OS === 'web'
+                                                ? alert('Such date and time have been already taken')
+                                                : Alert.alert('Conflict', 'Such date and time have been already taken');
                                             console.log(`There is already an occurrence at ${actualDateToEdit} - ${actualTimeToEdit}`);
                                         }
                                     }

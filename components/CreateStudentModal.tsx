@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { commonStyles } from '@/constants/commonStyles';
 
@@ -94,7 +94,9 @@ const CreateStudentModal = ({
                             if (onUniquenessCheck(firstName, lastName)) {
                                 onCreateStudent(firstName, lastName, isLiabilityFormChecked, emergencyContact);
                             } else {
-                                alert('There is already a student with the same name')
+                                Platform.OS === 'web'
+                                    ? alert('There is already a student with the same name')
+                                    : Alert.alert('Conflict', 'There is already a student with the same name')
                                 console.log(`There is already a student with name ${firstName} ${lastName}`);
                             }
                             setFirstName("");
