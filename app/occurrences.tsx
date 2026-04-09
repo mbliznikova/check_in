@@ -40,7 +40,7 @@ export default function OccurrencesScreen() {
     const visibleOccurrences = useMemo(() => {
         if (filterClassId === null) return occurrences.allOccurrencesMap;
         // Collect IDs returned by the server-side class filter, look them up in allOccurrencesMap
-        const filtered = new Map<number, import('@/types/class').ClassOccurrenceType>();
+        const filtered = new Map<number, ClassOccurrenceType>();
         occurrences.currentClassOccurrenceMap.forEach(entries => {
             entries.forEach(([id]) => {
                 const occ = occurrences.allOccurrencesMap.get(id);
