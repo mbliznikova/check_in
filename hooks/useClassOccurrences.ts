@@ -72,8 +72,6 @@ export function useClassOccurrences() {
     const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
     const [currentClassOccurrenceMap, setCurrentClassOccurrenceMap] = useState<Map<string, [number, string][]>>(new Map());
-    const [occurrenceModal, setOccurrenceModal] = useState({ isVisible: false, isCreateSuccess: false, isEditSuccess: false });
-
     useEffect(() => {
         fetchAllClassOccurrences();
     }, []);
@@ -254,7 +252,6 @@ export function useClassOccurrences() {
                 console.log(`Function createClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
             const occurrenceId = responseData.occurrenceId;
-            setOccurrenceModal(prev => ({ ...prev, isCreateSuccess: true }));
             addOccurrenceToState(occurrenceId, className, plannedDate, plannedTime, duration, classId, scheduleId, notes);
             addOccurrenceToUniqueness(plannedDate, plannedTime);
         } catch (error) {
@@ -401,7 +398,6 @@ export function useClassOccurrences() {
                         addOccurrenceToUniqueness(newActualDate, newActualStartTime);
                     }
 
-                    setOccurrenceModal(prev => ({ ...prev, isEditSuccess: true }));
                 } else {
                     console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -417,21 +413,9 @@ export function useClassOccurrences() {
         return !occurrencesSet.has(`${date}-${time}`);
     };
 
-    const openOccurrenceModal = () => setOccurrenceModal(prev => ({ ...prev, isVisible: true }));
-    const closeOccurrenceModal = () => {
-        setOccurrenceModal({ isVisible: false, isCreateSuccess: false, isEditSuccess: false });
-        setCurrentClassOccurrenceMap(new Map());
-    };
-
     return {
-        // Read-only state
         allOccurrencesMap,
         currentClassOccurrenceMap,
-        isOccurrenceModalVisible: occurrenceModal.isVisible,
-        isCreateOccurrenceSuccess: occurrenceModal.isCreateSuccess,
-        // Actions
-        openOccurrenceModal,
-        closeOccurrenceModal,
         fetchClassOccurrences,
         createClassOccurrence,
         editClassOccurrence,
