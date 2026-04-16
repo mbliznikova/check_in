@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import ScreenTitle from './ScreenTitle';
@@ -19,17 +19,13 @@ const StudentReport = ({
             <ScreenTitle titleText={(firstName ?? UNKNOWN_NAME) + ` ` + (lastName ?? UNKNOWN_NAME)} />
             <View style={styles.separator} />
 
-            <ScreenTitle titleText='Attendance'></ScreenTitle>
+            <ScreenTitle titleText='Attendance' />
 
-            <FlatList
-                data={attendanceList}
-                keyExtractor={(item) => Array.from(item.keys())[0]}
-                renderItem={({ item }) => {
-                    const [classData] = [...item];
-                    const [className, attendance]  = classData;
-
-                    return (
-                    <View style={styles.reportRow}>
+            {attendanceList.map((item) => {
+                const [classData] = [...item];
+                const [className, attendance] = classData;
+                return (
+                    <View key={className} style={styles.reportRow}>
                         <Text style={[styles.className, textStyle]}>
                             {className}
                         </Text>
@@ -37,17 +33,14 @@ const StudentReport = ({
                             {attendance[0]} ({attendance[1]})
                         </Text>
                     </View>
-                    )
-                }}
-            />
-
+                );
+            })}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 10,
         alignSelf: 'stretch',
     },

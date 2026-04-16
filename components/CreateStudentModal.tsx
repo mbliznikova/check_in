@@ -161,7 +161,8 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     modalView: {
-        width: '50%',
+        width: '85%',
+        maxWidth: 360,
         height: '40%',
         backgroundColor: 'black', //TODO: make it adjustable
         borderRadius: 20,

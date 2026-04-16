@@ -144,7 +144,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
       },
       modalView: {
-        margin: 20,
+        width: '85%',
+        maxWidth: 360,
         backgroundColor: 'white',
         padding: 35,
         borderRadius: 20,

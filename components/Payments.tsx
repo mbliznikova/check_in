@@ -744,8 +744,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalView: {
-        width: '50%',
-        height: '40%',
+        width: '85%',
+        maxWidth: 360,
         backgroundColor: 'black', //TODO: make it adjustable
         borderRadius: 20,
         padding: 20,

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator} from 'react-native';
+import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
 
 import { useApi } from "@/api/client";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
@@ -30,6 +30,7 @@ const Attendance = () => {
 
     const colorScheme = useColorScheme();
     const textStyle = useThemeTextStyle();
+    const { height: screenHeight } = useWindowDimensions();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
 
@@ -353,13 +354,13 @@ const Attendance = () => {
                                                     >
                                                         <View style={modalStyles.modalContainer}>
                                                             <View style={modalStyles.modalView}>
-                                                                <StudentReport
-                                                                    firstName={student.firstName}
-                                                                    lastName={student.lastName}
-                                                                    classesInfo={
-                                                                        student.classesInfo
-                                                                    }
-                                                                />
+                                                                <ScrollView style={{ maxHeight: screenHeight * 0.55, alignSelf: 'stretch' }}>
+                                                                    <StudentReport
+                                                                        firstName={student.firstName}
+                                                                        lastName={student.lastName}
+                                                                        classesInfo={student.classesInfo}
+                                                                    />
+                                                                </ScrollView>
                                                                 <Pressable
                                                                     style={modalStyles.modalCancelButton}
                                                                     onPress={() => setIsModalVisible(false)}
