@@ -596,7 +596,7 @@ const Payments = () => {
             <Modal
                 visible={isModalVisible}
                 transparent={true}
-                onRequestClose={() => closeModal}
+                onRequestClose={closeModal}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
@@ -619,7 +619,7 @@ const Payments = () => {
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
-                                onPress={() => closeModal}
+                                onPress={closeModal}
                             >
                                 <Text style={[textStyle]}>Cancel</Text>
                             </Pressable>
@@ -757,10 +757,10 @@ const styles = StyleSheet.create({
     },
     modalButtonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         padding: 20,
         alignItems: 'center',
-        width: '30%',
+        gap: 16,
     },
     modalConfirmButton: {
         alignItems: 'center',

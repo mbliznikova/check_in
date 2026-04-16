@@ -394,15 +394,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 20,
         alignItems: 'center',
-        width: '30%',
+        gap: 16,
     },
     modalSingleButtonContainer: {
          justifyContent: 'center',
     },
     modalManyButtonsContainer: {
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         flexDirection: 'row',
-        width: '100%',
     },
     timeButton: {
         borderRadius: 10,

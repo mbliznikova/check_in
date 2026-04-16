@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 20,
         alignItems: 'center',
-        width: '30%',
     },
     modalManyButtonsContainer: {
         justifyContent: 'center',
