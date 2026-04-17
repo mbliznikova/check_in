@@ -4,7 +4,7 @@ import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressabl
 
 import { useApi } from "@/api/client";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 import { isValidArrayResponse } from '@/api/validators';
 import ClassName from './ClassName';
@@ -30,6 +30,7 @@ const Attendance = () => {
 
     const colorScheme = useColorScheme();
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
     const { height: screenHeight } = useWindowDimensions();
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);

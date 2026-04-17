@@ -1,6 +1,19 @@
 import { StyleSheet } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
-export const modalStyles = StyleSheet.create({
+export function useModalStyles() {
+    const colorScheme = useColorScheme() ?? 'light';
+    return {
+        ...staticModalStyles,
+        modalView: {
+            ...staticModalStyles.modalView,
+            backgroundColor: Colors[colorScheme].background,
+        },
+    };
+}
+
+const staticModalStyles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -9,7 +22,6 @@ export const modalStyles = StyleSheet.create({
     modalView: {
         width: '85%',
         maxWidth: 360,
-        backgroundColor: 'black',
         borderRadius: 20,
         padding: 20,
         alignItems: 'center',

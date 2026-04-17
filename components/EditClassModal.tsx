@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Pressable, Alert, Platform } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import Checkbox from './Checkbox';
@@ -39,6 +39,7 @@ const EditClassModal = ({
 }: EditClassModalProps) => {
 
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);

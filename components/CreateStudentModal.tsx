@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
@@ -23,6 +25,7 @@ const CreateStudentModal = ({
     isCreateSuccess
 }: StudentCreationModalProps) => {
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -32,7 +35,7 @@ const CreateStudentModal = ({
 
     const renderCreateForm = () => {
         return (
-            <View style={styles.modalContainer}>
+            <View style={[styles.modalContainer, { backgroundColor: Colors[colorScheme].background }]}>
                 <ScreenTitle titleText='Add new student'/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
@@ -123,7 +126,7 @@ const CreateStudentModal = ({
     const renderSuccessConfirmation = () => {
         return (
             <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             {`Student was added successfully!`}

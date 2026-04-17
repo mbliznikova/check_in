@@ -1,5 +1,7 @@
 import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, Platform } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 import { useEffect, useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
@@ -33,6 +35,7 @@ const ClassScheduleModal = ({
 }: ClassScheduleModalProps) => {
 
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
 
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
@@ -259,7 +262,7 @@ const ClassScheduleModal = ({
         const { scheduleId, day, time } = pendingDelete;
 
         return (
-            <View style={styles.modalView}>
+            <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                 <View style={styles.modalInfo}>
                     <Text style={[textStyle, {fontWeight: "bold"}]}>
                         Do you want to delete this schedule?
@@ -291,7 +294,7 @@ const ClassScheduleModal = ({
     const renderSchedule = () => {
         return(
             <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             {`Schedule for the class ${className}`}
@@ -316,7 +319,7 @@ const ClassScheduleModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             Class was scheduled successfully!

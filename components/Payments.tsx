@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
@@ -39,6 +41,7 @@ const Payments = () => {
     const { apiFetch } = useApi();
 
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -599,7 +602,7 @@ const Payments = () => {
                 onRequestClose={closeModal}
             >
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
+                    <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                         <View style={styles.modalInfo}>
                             <Text style={[textStyle, {fontWeight: "bold"}]}>
                                 {paymentAction === 'add'

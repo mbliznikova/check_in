@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from "./ScreenTitle";
@@ -28,6 +28,7 @@ const EditSchoolModal = ({
 }: EditSchoolModalProps) => {
 
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
 
     const [newName, setNewName] = useState(oldName);
     const [newPhone, setNewPhone] = useState(oldPhone);

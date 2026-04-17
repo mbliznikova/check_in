@@ -4,7 +4,7 @@ import { useApi } from '@/api/client';
 import { isValidMembersResponse, isValidChangeRoleResponse, isValidDeleteMemberResponse } from '@/api/validators';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { StaffMemberType } from '@/types/school';
 
 const ROLES = ['kiosk', 'teacher', 'admin', 'owner'] as const;
@@ -21,6 +21,7 @@ type StaffModalProps = {
 const StaffModal = ({ isVisible, onModalClose, schoolId, schoolName, onInvitePress }: StaffModalProps) => {
     const { apiFetch } = useApi();
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
     const cardBackground = useThemeColor({}, 'background');
 
     const [members, setMembers] = useState<StaffMemberType[]>([]);

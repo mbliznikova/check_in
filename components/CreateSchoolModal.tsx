@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
@@ -21,6 +21,7 @@ const CreateSchoolModal = ({
     isCreateSuccess,
 }: CreateSchoolModalProps) => {
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
 
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");

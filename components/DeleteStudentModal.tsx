@@ -1,6 +1,6 @@
 import { Modal, View, Text, StyleSheet, Pressable } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 
 type DeleteStudentModalProps = {
     isVisible: boolean;
@@ -21,6 +21,7 @@ const DeleteStudentModal = ({
 }: DeleteStudentModalProps) => {
 
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
 
     const renderModalDelete = () => {
         return (

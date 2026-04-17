@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import {View, StyleSheet, Pressable, Text, Modal} from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 import Checkbox from './Checkbox';
 import { StudentType } from '@/types/student';
@@ -35,6 +37,8 @@ const ClassSelectionModal = ({
     student,
     allClassOccurrencesList: allClassOccurrencesList
 }: ClassSelectionModalProps) => {
+
+    const colorScheme = useColorScheme() ?? 'light';
 
     const [classSelectionState, setClassSelectionState] = useState(() => {
         return new Map(allClassOccurrencesList.map(cls => [cls.id, false]))
@@ -100,7 +104,7 @@ const ClassSelectionModal = ({
             }}
         >
             <View style={styles.modalContainer}>
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                      <Text style={styles.modalTitle}>Check in {student?.firstName} {student?.lastName}</Text>
                      <View style={styles.modalList}>
                         {allClassOccurrencesList.map((cls) => ( // TODO: check/make it scrollable?

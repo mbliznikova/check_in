@@ -2,7 +2,9 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput, ScrollView, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
@@ -44,6 +46,8 @@ const CreateScheduleClass = ({
     isSheduleSuccess = false,
 }: ClassCreationModalProps) => {
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
+    const modalStyles = useModalStyles();
 
     const [className, setClassName] = useState("");
     const [newClassDuration, setNewClassDuration] = useState(defaultClassDuration);
@@ -436,7 +440,7 @@ const CreateScheduleClass = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background }}>
                 {isConfirmationOpen && (
                     <View style={styles.successOverlay}>
                         {renderSuccessConfirmation()}

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, Modal, Platform, ScrollView, Alert } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 import Checkbox from './Checkbox';
 import { ClassOccurrenceType, ClassType } from '@/types/class';
 
@@ -57,6 +59,7 @@ const OccurrenceFormModal = ({
     onUniquenessCheck,
 }: OccurrenceFormModalProps) => {
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
 
     // Create state
     const [createDate, setCreateDate] = useState<string>(
@@ -424,7 +427,7 @@ const OccurrenceFormModal = ({
         if (!occurrence) return null;
         return (
             <View style={styles.overlay}>
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                     <Text style={[textStyle, { fontWeight: 'bold', marginBottom: 20 }]}>
                         Delete this occurrence?
                     </Text>
@@ -456,7 +459,7 @@ const OccurrenceFormModal = ({
     return (
         <Modal visible={isVisible} transparent={true} onRequestClose={onClose}>
             <View style={styles.container}>
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
                     {mode === 'create' ? renderCreateForm() : renderEditForm()}
                     {isDeleteConfirmOpen && renderDeleteConfirm()}
                 </View>

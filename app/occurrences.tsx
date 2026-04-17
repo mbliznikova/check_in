@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
@@ -18,6 +20,9 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 export default function OccurrencesScreen() {
+    const colorScheme = useColorScheme() ?? 'light';
+    const C = Colors[colorScheme];
+
     const params = useLocalSearchParams<{ classId?: string; className?: string }>();
     const paramClassId = params.classId ? Number(params.classId) : null;
     const paramClassName = params.className ?? null;
@@ -92,11 +97,11 @@ export default function OccurrencesScreen() {
         : null;
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: C.background }]}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: C.border }]}>
                 <Pressable
-                    style={styles.backButton}
+                    style={[styles.backButton, { borderColor: C.border }]}
                     onPress={() => {
                         if (router.canGoBack()) {
                             router.back();
@@ -105,9 +110,9 @@ export default function OccurrencesScreen() {
                         }
                     }}
                 >
-                    <Text style={styles.backText}>{'← Back'}</Text>
+                    <Text style={[styles.backText, { color: C.text }]}>{'← Back'}</Text>
                 </Pressable>
-                <Text style={styles.title}>Occurrences</Text>
+                <Text style={[styles.title, { color: C.text }]}>Occurrences</Text>
                 <View style={{ width: 70 }} />
             </View>
 
@@ -169,7 +174,6 @@ export default function OccurrencesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
     },
     header: {
         flexDirection: 'row',
@@ -178,22 +182,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#222',
     },
     backButton: {
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#555',
         width: 70,
     },
     backText: {
-        color: '#fff',
         fontSize: 13,
     },
     title: {
-        color: '#fff',
         fontSize: 18,
         fontWeight: '700',
     },

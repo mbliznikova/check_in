@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput, Share } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { modalStyles } from '@/constants/modalStyles';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 import ScreenTitle from './ScreenTitle';
 
@@ -24,6 +24,7 @@ const InviteUserModal = ({
     inviteLink,
 }: InviteUserModalProps) => {
     const textStyle = useThemeTextStyle();
+    const modalStyles = useModalStyles();
 
     const [email, setEmail] = useState('');
     const [selectedRole, setSelectedRole] = useState('');
