@@ -128,7 +128,7 @@ const WeekCalendar = ({
     const { width: screenWidth } = useWindowDimensions();
     const DAY_COL_WIDTH = Math.floor((screenWidth - TIME_COL_WIDTH) / 7);
     const colorScheme = useColorScheme() ?? 'light';
-    const C = Colors[colorScheme];
+    const themeColors = Colors[colorScheme];
 
     const scrollRef = useRef<ScrollView>(null);
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -197,11 +197,11 @@ const WeekCalendar = ({
         return (
             <View key={dateStr} style={{ width: DAY_COL_WIDTH }}>
                 {/* Grid lines background */}
-                <View style={[styles.dayCol, { width: DAY_COL_WIDTH, borderLeftColor: C.border }, isToday && styles.todayCol]}>
+                <View style={[styles.dayCol, { width: DAY_COL_WIDTH, borderLeftColor: themeColors.border }, isToday && styles.todayCol]}>
                     {HOURS.map(h => (
                         <View
                             key={h}
-                            style={[styles.hourLine, { top: (h - START_HOUR) * HOUR_HEIGHT, backgroundColor: C.border }]}
+                            style={[styles.hourLine, { top: (h - START_HOUR) * HOUR_HEIGHT, backgroundColor: themeColors.border }]}
                         />
                     ))}
                     {/* Occurrence blocks */}
@@ -216,25 +216,25 @@ const WeekCalendar = ({
             {/* Navigation header */}
             <View style={styles.navRow}>
                 <View style={styles.navSide}>
-                    <Pressable style={[styles.navButton, { borderColor: C.border }]} onPress={onPrevWeek}>
-                        <Text style={[styles.navText, { color: C.text }]}>{'← Previous'}</Text>
+                    <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onPrevWeek}>
+                        <Text style={[styles.navText, { color: themeColors.text }]}>{'← Previous'}</Text>
                     </Pressable>
                 </View>
                 <View style={styles.navCenter}>
-                    <Text style={[styles.weekLabel, { color: C.text }]}>{formatWeekRange(weekStartDate)}</Text>
+                    <Text style={[styles.weekLabel, { color: themeColors.text }]}>{formatWeekRange(weekStartDate)}</Text>
                 </View>
                 <View style={[styles.navSide, styles.navSideRight]}>
                     <Pressable style={styles.todayButton} onPress={onToday}>
                         <Text style={styles.navText}>This week</Text>
                     </Pressable>
-                    <Pressable style={[styles.navButton, { borderColor: C.border }]} onPress={onNextWeek}>
-                        <Text style={[styles.navText, { color: C.text }]}>{'Next →'}</Text>
+                    <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onNextWeek}>
+                        <Text style={[styles.navText, { color: themeColors.text }]}>{'Next →'}</Text>
                     </Pressable>
                 </View>
             </View>
 
             {/* Day name headers */}
-            <View style={[styles.dayHeaderRow, { borderBottomColor: C.border }]}>
+            <View style={[styles.dayHeaderRow, { borderBottomColor: themeColors.border }]}>
                 <View style={{ width: TIME_COL_WIDTH }} />
                 {weekDates.map((date, i) => {
                     const isToday = toDateStr(date) === todayStr;
@@ -244,10 +244,10 @@ const WeekCalendar = ({
                             style={[styles.dayHeader, isToday && styles.todayHeader, { width: DAY_COL_WIDTH }]}
                             onPress={() => onAddPress(toDateStr(date))}
                         >
-                            <Text style={[styles.dayName, { color: C.textMuted }, isToday && styles.todayText]}>
+                            <Text style={[styles.dayName, { color: themeColors.textMuted }, isToday && styles.todayText]}>
                                 {DAY_NAMES[i]}
                             </Text>
-                            <Text style={[styles.dayDate, { color: C.textMuted }, isToday && styles.todayText]}>
+                            <Text style={[styles.dayDate, { color: themeColors.textMuted }, isToday && styles.todayText]}>
                                 {formatMonthDay(date)}
                             </Text>
                         </Pressable>
@@ -265,7 +265,7 @@ const WeekCalendar = ({
                                 key={h}
                                 style={[styles.timeLabel, { top: (h - START_HOUR) * HOUR_HEIGHT - 8 }]}
                             >
-                                <Text style={[styles.timeLabelText, { color: C.textMuted }]}>
+                                <Text style={[styles.timeLabelText, { color: themeColors.textMuted }]}>
                                     {h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`}
                                 </Text>
                             </View>

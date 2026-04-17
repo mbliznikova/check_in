@@ -128,8 +128,8 @@ const EditClassModal = ({
     const renderEditForm = () => {
         return (
             <View style={modalStyles.modalContainer}>
-                <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
                 <View style={modalStyles.modalView}>
+                <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
                             style={[textStyle, styles.itemContainer]}
@@ -137,7 +137,7 @@ const EditClassModal = ({
                             Edit class name:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newClassName}
                             onChangeText={(updatedClassName) => {
                                 setNewClassName(updatedClassName)
@@ -152,7 +152,7 @@ const EditClassModal = ({
                             Edit class duration:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newClassDuration?.toString()}
                             onChangeText={(updatedClassDuration) => {
                                 setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
@@ -181,7 +181,7 @@ const EditClassModal = ({
                             Edit class price:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newClassPrice?.toString()}
                             onChangeText={(updatedClassPrice) => {
                                 setNewClassPrice(Number(updatedClassPrice)) // TODO: better handling and type conversion & validation. Number picker?
@@ -269,7 +269,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     itemRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     createButton: {
         padding: 10,

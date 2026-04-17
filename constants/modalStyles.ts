@@ -6,6 +6,10 @@ export function useModalStyles() {
     const colorScheme = useColorScheme() ?? 'light';
     return {
         ...staticModalStyles,
+        modalContainer: {
+            ...staticModalStyles.modalContainer,
+            backgroundColor: Colors[colorScheme].background,
+        },
         modalView: {
             ...staticModalStyles.modalView,
             backgroundColor: Colors[colorScheme].background,

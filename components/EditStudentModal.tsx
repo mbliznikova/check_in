@@ -75,8 +75,8 @@ const EditStudentModal = ({
     const renderEditForm = () => {
         return (
             <View style={modalStyles.modalContainer}>
-                <ScreenTitle titleText={`Edit student ${oldFirstName} ${oldLastName}`}/>
                 <View style={modalStyles.modalView}>
+                <ScreenTitle titleText={`Edit student ${oldFirstName} ${oldLastName}`}/>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text
                             style={[textStyle, styles.itemContainer]}
@@ -84,7 +84,7 @@ const EditStudentModal = ({
                             Edit first name:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newFirstName}
                             onChangeText={(newFirstName) => {
                                 setNewFirstName(newFirstName)
@@ -99,7 +99,7 @@ const EditStudentModal = ({
                             Edit last name:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newLastName}
                             onChangeText={(newLastName) => {
                                 setNewLastName(newLastName)
@@ -128,7 +128,7 @@ const EditStudentModal = ({
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newEmergencyContact}
                             onChangeText={(newContact) => {
                                 setNewEmergencyContact(newContact)
@@ -202,7 +202,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     itemRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     createButton: {
         padding: 10,

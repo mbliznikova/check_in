@@ -67,14 +67,14 @@ const EditSchoolModal = ({
     const renderEditForm = () => {
         return (
             <View style={modalStyles.modalContainer}>
-                <ScreenTitle titleText={`Edit school ${oldName}`}/>
                 <View style={[modalStyles.modalView, { paddingTop: 16 }]}>
+                <ScreenTitle titleText={`Edit school ${oldName}`}/>
                     <View style={[styles.itemContainer, styles.itemRow]}>
                         <Text style={[textStyle, styles.itemContainer]}>
                             Edit name:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newName}
                             onChangeText={(val) => { setNewName(val); }}
                         />
@@ -84,7 +84,7 @@ const EditSchoolModal = ({
                             Edit phone:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newPhone}
                             onChangeText={(val) => { setNewPhone(val); }}
                         />
@@ -94,7 +94,7 @@ const EditSchoolModal = ({
                             Edit address:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={newAddress}
                             onChangeText={(val) => { setNewAddress(val); }}
                         />
@@ -157,6 +157,9 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
 });
 
