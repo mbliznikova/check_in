@@ -156,7 +156,7 @@ const ClassManagement = () => {
                 />
             )}
 
-            {classData.isEditModalVisible && selectedClass.id !== null && selectedClass.priceId !== null && (
+            {classData.isEditModalVisible && selectedClass.id !== null && (
                 <EditClassModal
                     isVisible={classData.isEditModalVisible}
                     onModalClose={() => {

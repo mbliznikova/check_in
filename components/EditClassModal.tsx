@@ -15,7 +15,7 @@ type EditClassModalProps = {
     oldClassDuration: number;
     oldClassRecurrence: boolean;
     oldClassPrice: number;
-    priceId: number;
+    priceId: number | null;
     onModalClose: () => void;
     onEditClass: (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => void;
     onEditPrice: (priceId: number, newAmount: number, classId: number) => void;
@@ -216,7 +216,7 @@ const EditClassModal = ({
                                     }
                                     // set the newcClassName to the oldClassName if not unique
                                 }
-                                if (priceChanged) {
+                                if (priceChanged && priceId !== null) {
                                     onEditPrice(priceId, newClassPrice, classId);
                                 }
                                 // setNewClassName("");
