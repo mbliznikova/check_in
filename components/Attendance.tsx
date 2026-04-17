@@ -316,6 +316,7 @@ const Attendance = () => {
                 <FlatList
                     ListHeaderComponent={renderHeader}
                     stickyHeaderIndices={[0]}
+                    contentContainerStyle={{ paddingBottom: 80 }}
                     data={Array.from(report.entries())}
                     keyExtractor={([classId]) => classId.toString()}
                     ListEmptyComponent={loading ? <ActivityIndicator size="large" color="#0000ff" /> : null}

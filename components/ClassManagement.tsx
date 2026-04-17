@@ -60,6 +60,7 @@ const ClassManagement = () => {
             <FlatList
                 data={classData.classes}
                 keyExtractor={(cls) => cls.id.toString()}
+                contentContainerStyle={{ paddingBottom: 80 }}
                 renderItem={({ item: cls }) => (
                     <View style={styles.classesList}>
                         <Pressable

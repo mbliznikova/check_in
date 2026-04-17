@@ -256,6 +256,7 @@ const SchoolManagement = () => {
             <FlatList
                 data={schools}
                 keyExtractor={(school) => school.id.toString()}
+                contentContainerStyle={{ paddingBottom: 80 }}
                 renderItem={({ item: school }) => (
                     <View style={styles.schoolList}>
                         <Text style={[textStyle, styles.schoolName]}>

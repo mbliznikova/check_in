@@ -389,6 +389,7 @@ const StudentManagement = () => {
             <FlatList
                 data={students}
                 keyExtractor={(std) => std.id.toString()}
+                contentContainerStyle={{ paddingBottom: 80 }}
                 renderItem={({ item: std }) => (
                     <View style={styles.studentList}>
                         <Pressable

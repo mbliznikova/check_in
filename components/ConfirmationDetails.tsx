@@ -142,6 +142,7 @@ const ConfirmationDetails = ({
                 <FlatList
                     data={Object.entries(occurrences)}
                     keyExtractor={([occurrenceId, _occurrenceInfo]) => occurrenceId.toString()}
+                    contentContainerStyle={{ paddingBottom: 80 }}
                     ListFooterComponent={
                         <View style={styles.confirmButtonContainer}>
                           <Pressable

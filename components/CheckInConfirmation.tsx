@@ -265,6 +265,7 @@ const CheckInConfirmation = () => {
                     // data={classList} // TODO: update with calss occurrences!
                     data={classOccurrenceList}
                     keyExtractor={cls => cls.id.toString()}
+                    contentContainerStyle={{ paddingBottom: 80 }}
                     renderItem={({ item: cls }) => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
                         return (

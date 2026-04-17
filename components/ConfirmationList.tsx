@@ -79,6 +79,7 @@ const ConfirmationList = () => {
             <FlatList
                 data={attendances}
                 keyExtractor={att => att.date.toString()}
+                contentContainerStyle={{ paddingBottom: 80 }}
                 renderItem={({ item: att }) => <ConfirmationDetails date={att.date} occurrences={att.occurrences}/>}
             />
         </SafeAreaView>

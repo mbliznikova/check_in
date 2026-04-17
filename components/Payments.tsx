@@ -685,7 +685,7 @@ const Payments = () => {
             </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ScrollView horizontal={true}>
-                    <View style={{minWidth: screenWidth }}>
+                    <View style={{minWidth: screenWidth, paddingBottom: 80 }}>
                         {renderHeaderRow()}
                         {renderTableBody()}
                         {renderModal()}
