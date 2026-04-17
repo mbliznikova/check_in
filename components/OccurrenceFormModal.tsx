@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     },
     longInput: {
         height: 30,
-        width: 200,
+        flex: 1,
         borderWidth: 1,
         borderColor: 'gray',
         padding: 8,

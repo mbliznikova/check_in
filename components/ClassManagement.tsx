@@ -64,7 +64,7 @@ const ClassManagement = () => {
                 renderItem={({ item: cls }) => (
                     <View style={styles.classesList}>
                         <Pressable
-                            style={{ padding: 10 }}
+                            style={{ padding: 10, flex: 1 }}
                             onPress={() => {
                                 setSelectedClass({
                                     ...INITIAL_SELECTED_CLASS,
@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     classesList: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 10,
     },
     className: {

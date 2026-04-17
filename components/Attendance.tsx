@@ -272,8 +272,8 @@ const Attendance = () => {
                 {renderSelector()}
             </View>
             <View style={styles.headerRow}>
-                <Text style={[styles.columnHeadersText, textStyle]}>Student</Text>
-                <Text style={[styles.columnHeadersText, textStyle]}>Attendance (24 hrs policy if applicable)</Text>
+                <Text style={[styles.columnHeadersText, textStyle, { flex: 1 }]}>Student</Text>
+                <Text style={[styles.columnHeadersText, textStyle, { flex: 1, textAlign: 'right' }]}>Attendance (24 hrs policy if applicable)</Text>
             </View>
         </View>
     );
@@ -281,29 +281,27 @@ const Attendance = () => {
     const renderSelector = () => {
         return (
             <View style={styles.selector}>
-                <View style={{paddingRight: 20}}>
-                    <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
+                <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
+                <View style={styles.selectorInputRow}>
+                    <TextInput
+                        style={[textStyle, styles.dateInput]}
+                        value={monthInput}
+                        onChangeText={(newMonth) => {readMonth(newMonth)}}
+                    />
+                    <View style={{width: 10}}></View>
+                    <TextInput
+                        style={[textStyle, styles.dateInput]}
+                        value={yearInput}
+                        onChangeText={(newYear) => {readYear(newYear)}}
+                    />
+                    <View style={{width: 10}}></View>
+                    <Pressable
+                        onPress={() => { submitMonthYearSelection(); }}
+                        style={[styles.paymentButton, styles.selectorButtonColor]}
+                    >
+                        <Text style={textStyle}>Show</Text>
+                    </Pressable>
                 </View>
-                <TextInput
-                    style={[textStyle, styles.dateInput]}
-                    value={monthInput}
-                    onChangeText={(newMonth) => {readMonth(newMonth)}}
-                />
-                <View style={{width: 10}}></View>
-                <TextInput
-                    style={[textStyle, styles.dateInput]}
-                    value={yearInput}
-                    onChangeText={(newYear) => {readYear(newYear)}}
-                />
-                <View style={{width: 10}}></View>
-                <Pressable
-                    onPress = {() => {
-                        submitMonthYearSelection();
-                    }}
-                    style={[styles.paymentButton, styles.selectorButtonColor]}
-                >
-                    <Text style={textStyle}>Show</Text>
-                </Pressable>
             </View>
         );
     };
@@ -434,7 +432,7 @@ const styles = StyleSheet.create({
         // paddingBottom: 20,
     },
     columnHeadersText: {
-        fontSize: 20, 
+        fontSize: 14,
         fontWeight: 'bold',
     },
     regularRow: {
@@ -459,9 +457,12 @@ const styles = StyleSheet.create({
     selector: {
         paddingVertical: 20,
         paddingHorizontal: 20,
-        flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+    },
+    selectorInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
     },
     selectorText: {
         paddingHorizontal: 10,

@@ -2,8 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput, Alert, Platform } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
@@ -25,7 +24,7 @@ const CreateStudentModal = ({
     isCreateSuccess
 }: StudentCreationModalProps) => {
     const textStyle = useThemeTextStyle();
-    const colorScheme = useColorScheme() ?? 'light';
+    const modalStyles = useModalStyles();
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -35,7 +34,8 @@ const CreateStudentModal = ({
 
     const renderCreateForm = () => {
         return (
-            <View style={[styles.modalContainer, { backgroundColor: Colors[colorScheme].background }]}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                 <ScreenTitle titleText='Add new student'/>
                 <View style={[styles.itemContainer, styles.itemRow]}>
                     <Text
@@ -44,7 +44,7 @@ const CreateStudentModal = ({
                         First name:
                     </Text>
                     <TextInput
-                    style={[textStyle, commonStyles.inputField]}
+                    style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                     value={firstName}
                     onChangeText={(newFirstName) => {setFirstName(newFirstName)}}
                 />
@@ -56,7 +56,7 @@ const CreateStudentModal = ({
                         Last name:
                     </Text>
                     <TextInput
-                        style={[textStyle, commonStyles.inputField]}
+                        style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                         value={lastName}
                         onChangeText={(newLastName) => {setLastName(newLastName)}}
                     />
@@ -83,7 +83,7 @@ const CreateStudentModal = ({
                             Emergency contact:
                         </Text>
                         <TextInput
-                            style={[textStyle, commonStyles.inputField]}
+                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                             value={emergencyContact}
                             onChangeText={(newContact) => {
                                 setEmergencyContact(newContact)
@@ -119,14 +119,15 @@ const CreateStudentModal = ({
                             <Text style={textStyle}>Cancel</Text>
                         </Pressable>
                 </View>
+                </View>
             </View>
         );
     };
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={styles.modalContainer}>
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, {fontWeight: "bold"}]}>
                             {`Student was added successfully!`}
@@ -157,22 +158,6 @@ const CreateStudentModal = ({
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 10,
-    },
-    modalView: {
-        width: '85%',
-        maxWidth: 360,
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     modalInfo: {
         padding: 20,
     },
@@ -181,15 +166,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     itemRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     createButton: {
+        alignItems: 'center',
+        minWidth: 90,
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
         backgroundColor: 'green',
     },
     disabledButton: {
+        alignItems: 'center',
+        minWidth: 90,
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
@@ -198,6 +190,7 @@ const styles = StyleSheet.create({
     },
     modalCancelButton: {
         alignItems: 'center',
+        minWidth: 90,
         padding: 10,
         borderRadius: 10,
         borderWidth: 1,
@@ -220,7 +213,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flexDirection: 'row',
         width: '100%',
-        gap: 60,
+        gap: 16,
     },
     modalSingleButtonContainer: {
         justifyContent: 'center'

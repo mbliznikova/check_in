@@ -432,11 +432,11 @@ const Payments = () => {
         return (
         <View>
             <View style={[styles.headerRow, styles.whiteBorderLine]}>
-                <Text style={{paddingRight: 150}}></Text>
+                <View style={{width: 120}} />
                 {priceArray.map(([classId, classInfo]) => {
                     const className = classInfo.className;
                     return (
-                        <Text key={classId} style={[textStyle, {fontWeight: "bold"}]}>
+                        <Text key={classId} style={[textStyle, {fontWeight: "bold", width: 100, textAlign: 'center'}]}>
                             {className}
                         </Text>
                     );
@@ -645,29 +645,27 @@ const Payments = () => {
     const renderSelector = () => {
         return (
             <View style={styles.selector}>
-                <View style={{paddingRight: 20}}>
-                    <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
+                <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
+                <View style={styles.selectorInputRow}>
+                    <TextInput
+                        style={[textStyle, styles.inputFeld]}
+                        value={monthInput}
+                        onChangeText={(newMonth) => {readMonth(newMonth)}}
+                    />
+                    <View style={{width: 10}}></View>
+                    <TextInput
+                        style={[textStyle, styles.inputFeld]}
+                        value={yearInput}
+                        onChangeText={(newYear) => {readYear(newYear)}}
+                    />
+                    <View style={{width: 10}}></View>
+                    <Pressable
+                        onPress={() => { submitMonthYearSelection(); }}
+                        style={[styles.paymentButton, styles.selectorButtonColor]}
+                    >
+                        <Text style={textStyle}>Show</Text>
+                    </Pressable>
                 </View>
-                <TextInput
-                    style={[textStyle, styles.inputFeld]}
-                    value={monthInput}
-                    onChangeText={(newMonth) => {readMonth(newMonth)}}
-                />
-                <View style={{width: 10}}></View>
-                <TextInput
-                    style={[textStyle, styles.inputFeld]}
-                    value={yearInput}
-                    onChangeText={(newYear) => {readYear(newYear)}}
-                />
-                <View style={{width: 10}}></View>
-                <Pressable
-                    onPress = {() => {
-                        submitMonthYearSelection();
-                    }}
-                    style={[styles.paymentButton, styles.selectorButtonColor]}
-                >
-                    <Text style={textStyle}>Show</Text>
-                </Pressable>
             </View>
         );
     };
@@ -800,9 +798,12 @@ const styles = StyleSheet.create({
     selector: {
         paddingVertical: 20,
         paddingHorizontal: 20,
-        flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+    },
+    selectorInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
     },
     selectorText: {
         paddingHorizontal: 10,

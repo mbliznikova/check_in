@@ -217,7 +217,7 @@ const WeekCalendar = ({
             <View style={styles.navRow}>
                 <View style={styles.navSide}>
                     <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onPrevWeek}>
-                        <Text style={[styles.navText, { color: themeColors.text }]}>{'← Previous'}</Text>
+                        <Text style={[styles.navText, { color: themeColors.text }]}>{'←'}</Text>
                     </Pressable>
                 </View>
                 <View style={styles.navCenter}>
@@ -228,7 +228,7 @@ const WeekCalendar = ({
                         <Text style={styles.navText}>This week</Text>
                     </Pressable>
                     <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onNextWeek}>
-                        <Text style={[styles.navText, { color: themeColors.text }]}>{'Next →'}</Text>
+                        <Text style={[styles.navText, { color: themeColors.text }]}>{'→'}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -293,7 +293,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     navSide: {
-        flex: 1,
         alignItems: 'flex-start',
     },
     navSideRight: {
@@ -323,7 +322,6 @@ const styles = StyleSheet.create({
     weekLabel: {
         fontSize: 14,
         fontWeight: '600',
-        flex: 1,
         textAlign: 'center',
     },
     dayHeaderRow: {

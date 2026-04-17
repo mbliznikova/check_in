@@ -147,7 +147,7 @@ const CreateScheduleClass = ({
 
                             <View style={{paddingTop: 20}}>
                                 <TextInput
-                                    style={[textStyle, commonStyles.inputField]}
+                                    style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                                     value={time}
                                     onChangeText={(timeStr) => {setTime(timeStr)}}
                                 />
@@ -279,7 +279,7 @@ const CreateScheduleClass = ({
                         Class name:
                     </Text>
                     <TextInput
-                        style={[textStyle, commonStyles.inputField]}
+                        style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                         value={className}
                         onChangeText={(createdClassName) => {setClassName(createdClassName)}}
                     />
@@ -292,7 +292,7 @@ const CreateScheduleClass = ({
                         Class duration:
                     </Text>
                     <TextInput
-                        style={[textStyle, commonStyles.inputField]}
+                        style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                         value={newClassDuration?.toString()}
                         onChangeText={(updatedClassDuration) => {
                             setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
@@ -321,7 +321,7 @@ const CreateScheduleClass = ({
                         Price:
                     </Text>
                     <TextInput
-                        style={[textStyle, commonStyles.inputField]}
+                        style={[textStyle, commonStyles.inputField, { flex: 1 }]}
                         value={(classPrice.toString())}
                         onChangeText={(classPriceAmount) => {
                             setClassPrice(Number(classPriceAmount))
@@ -462,7 +462,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     itemRow: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     scheduleRowContainder: {
         padding: 10,
@@ -503,6 +506,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'green',
     },
     disabledButton: {
+        alignItems: 'center',
+        minWidth: 90,
         paddingVertical: 5,
         paddingHorizontal: 10,
         marginVertical: 10,
@@ -536,9 +541,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     modalManyButtonsContainer: {
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         flexDirection: 'row',
         width: '100%',
+        gap: 16,
     },
     modalSingleButtonContainer: {
          justifyContent: 'center'

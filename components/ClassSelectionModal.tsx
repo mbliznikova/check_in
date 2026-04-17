@@ -39,6 +39,7 @@ const ClassSelectionModal = ({
 }: ClassSelectionModalProps) => {
 
     const colorScheme = useColorScheme() ?? 'light';
+    const themeColors = Colors[colorScheme];
 
     const [classSelectionState, setClassSelectionState] = useState(() => {
         return new Map(allClassOccurrencesList.map(cls => [cls.id, false]))
@@ -104,18 +105,17 @@ const ClassSelectionModal = ({
             }}
         >
             <View style={styles.modalContainer}>
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
-                     <Text style={styles.modalTitle}>Check in {student?.firstName} {student?.lastName}</Text>
+                <View style={[styles.modalView, { backgroundColor: themeColors.background }]}>
+                     <Text style={[styles.modalTitle, { color: themeColors.text }]}>Check in {student?.firstName} {student?.lastName}</Text>
                      <View style={styles.modalList}>
                         {allClassOccurrencesList.map((cls) => ( // TODO: check/make it scrollable?
                                 <Checkbox
                                     key={cls.id}
                                     label={`${cls.fallbackClassName} - ${cls.actualStartTime.slice(0, 5)}`}
                                     checked={classSelectionState?.get(cls.id) ?? false}
-                                    onChange={() => {
-                                        toggleClass(cls.id)
-                                        }}>
-                                </Checkbox>
+                                    onChange={() => toggleClass(cls.id)}
+                                    labelStyle={{ color: themeColors.text }}
+                                />
                             ))}
                      </View>
 
@@ -150,7 +150,6 @@ const styles = StyleSheet.create({
       modalView: {
         width: '85%',
         maxWidth: 360,
-        backgroundColor: 'white',
         padding: 35,
         borderRadius: 20,
         alignItems: 'center',
