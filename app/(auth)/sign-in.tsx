@@ -192,11 +192,12 @@ const styles = StyleSheet.create({
       flexDirection: 'row'
   },
   inputFeld: {
-      height: 30,
-      width: 200,
+      width: '80%',
+      maxWidth: 400,
       borderWidth: 1,
       borderColor: 'gray',
-      padding: 10,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
       borderRadius: 15,
       margin: 10,
   },
