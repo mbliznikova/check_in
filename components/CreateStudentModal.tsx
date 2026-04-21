@@ -107,14 +107,14 @@ const CreateStudentModal = ({
                             setIsLiabilityFormChecked(false);
                             setEmergencyContact("");
                         }}
-                        style={[(firstName === "" || lastName === "") ? styles.disabledButton : styles.createButton]}
+                        style={[modalStyles.modalConfirmButton, (firstName === "" || lastName === "") && { opacity: 0.5 }]}
                         disabled={firstName === "" || lastName === ""}
                         >
                             <Text style={textStyle}>Create</Text>
                         </Pressable>
                         <Pressable
                             onPress={onModalClose}
-                            style={[styles.modalCancelButton]}
+                            style={modalStyles.modalCancelButton}
                         >
                             <Text style={textStyle}>Cancel</Text>
                         </Pressable>
@@ -135,7 +135,7 @@ const CreateStudentModal = ({
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                         <Pressable
-                            style={styles.modalConfirmButton}
+                            style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
                                 <Text style={[textStyle]}>OK</Text>
@@ -171,39 +171,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    createButton: {
-        alignItems: 'center',
-        minWidth: 90,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'green',
-    },
-    disabledButton: {
-        alignItems: 'center',
-        minWidth: 90,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        opacity: 0.5,
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        minWidth: 90,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'grey',
-    },
-   modalConfirmButton: {
-       alignItems: 'center',
-       paddingVertical: 5,
-       paddingHorizontal: 10,
-       marginVertical: 10,
-       borderRadius: 15,
-       backgroundColor: 'green',
-   },
     modalButtonsContainer: {
         flexDirection: 'row',
         padding: 20,

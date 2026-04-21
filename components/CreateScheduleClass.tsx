@@ -352,7 +352,7 @@ const CreateScheduleClass = ({
                             }
                             setClassName("");
                         }}
-                        style={className ? styles.createButton : styles.disabledButton}
+                        style={[modalStyles.modalConfirmButton, !className && { opacity: 0.5 }]}
                         disabled={!className}
                     >
                         <Text style={textStyle}>Create</Text>
@@ -495,26 +495,6 @@ const styles = StyleSheet.create({
         top: '100%',
         borderWidth: 1,
         borderRadius: 10,
-    },
-    createButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        borderWidth: 1,
-        backgroundColor: 'green',
-    },
-    disabledButton: {
-        alignItems: 'center',
-        minWidth: 90,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        borderWidth: 1,
-        borderColor: 'grey',
-        opacity: 0.5,
     },
     timeButton: {
         borderRadius: 10,

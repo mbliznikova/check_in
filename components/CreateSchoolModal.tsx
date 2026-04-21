@@ -69,14 +69,14 @@ const CreateSchoolModal = ({
                             setPhone("");
                             setAddress("");
                         }}
-                        style={[name === "" ? styles.disabledButton : styles.createButton]}
+                        style={[modalStyles.modalConfirmButton, name === "" && { opacity: 0.5 }]}
                         disabled={name === ""}
                     >
                         <Text style={textStyle}>Create</Text>
                     </Pressable>
                     <Pressable
                         onPress={onModalClose}
-                        style={[styles.modalCancelButton]}
+                        style={modalStyles.modalCancelButton}
                     >
                         <Text style={textStyle}>Cancel</Text>
                     </Pressable>
@@ -134,26 +134,6 @@ const styles = StyleSheet.create({
     },
     itemRow: {
         flexDirection: 'row',
-    },
-    createButton: {
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'green',
-    },
-    disabledButton: {
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        opacity: 0.5,
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'grey',
     },
     modalButtonsContainer: {
         flexDirection: 'row',
