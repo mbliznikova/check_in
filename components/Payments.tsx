@@ -288,10 +288,10 @@ const Payments = () => {
 
             if (response.ok) {
                 const responseData = await response.json();
-                if (isGeneralValidResponse(responseData, "response")) {
+                if (isGeneralValidResponse(responseData, "summary")) {
                     console.log("Function fetchSummary at Payments.tsx. The response from backend is valid.")
 
-                    const summary: number = responseData.response.summary ?? 0.0;
+                    const summary: number = responseData.summary ?? 0.0;
 
                     setSummary(summary);
                 }
