@@ -284,13 +284,13 @@ const Attendance = () => {
                 <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 <View style={styles.selectorInputRow}>
                     <TextInput
-                        style={[textStyle, styles.dateInput]}
+                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
                         value={monthInput}
                         onChangeText={(newMonth) => {readMonth(newMonth)}}
                     />
                     <View style={{width: 10}}></View>
                     <TextInput
-                        style={[textStyle, styles.dateInput]}
+                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
                         value={yearInput}
                         onChangeText={(newYear) => {readYear(newYear)}}
                     />
@@ -470,14 +470,6 @@ const styles = StyleSheet.create({
     },
     selectorButtonColor: {
         borderColor: 'grey',
-    },
-    dateInput: {
-        width: 100,
-        borderWidth: 1,
-        borderColor: 'gray',
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 15,
     },
     paymentButton: {
         paddingVertical: 7,

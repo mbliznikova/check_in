@@ -10,6 +10,7 @@ import { isValidArrayResponse } from '@/api/validators';
 import { StudentType } from '@/types/student';
 import { PaymentType } from '@/types/payment';
 import ScreenTitle from './ScreenTitle';
+import { commonStyles } from '@/constants/commonStyles';
 
 type RawPriceType = {
     [classId: string]: {
@@ -648,13 +649,13 @@ const Payments = () => {
                 <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
                 <View style={styles.selectorInputRow}>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
                         value={monthInput}
                         onChangeText={(newMonth) => {readMonth(newMonth)}}
                     />
                     <View style={{width: 10}}></View>
                     <TextInput
-                        style={[textStyle, styles.inputFeld]}
+                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
                         value={yearInput}
                         onChangeText={(newYear) => {readYear(newYear)}}
                     />
@@ -812,14 +813,6 @@ const styles = StyleSheet.create({
     selectorButtonColor: {
         borderColor: 'grey',
     },
-    inputFeld: {
-        width: 100,
-        borderWidth: 1,
-        borderColor: 'gray',
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 15,
-      },
 })
 
 export default Payments;

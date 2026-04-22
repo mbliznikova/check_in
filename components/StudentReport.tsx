@@ -5,6 +5,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import ScreenTitle from './ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
 import { StudentAttendanceDetailsType } from '@/types/attendance';
+import { commonStyles } from '@/constants/commonStyles';
 
 const StudentReport = ({
     firstName,
@@ -17,7 +18,7 @@ const StudentReport = ({
     return (
         <View style={styles.container}>
             <ScreenTitle titleText={(firstName ?? UNKNOWN_NAME) + ` ` + (lastName ?? UNKNOWN_NAME)} />
-            <View style={styles.separator} />
+            <View style={commonStyles.separator} />
 
             <ScreenTitle titleText='Attendance' />
 
@@ -57,11 +58,6 @@ const styles = StyleSheet.create({
     record: {
         fontSize: 20,
         fontWeight: 'bold',
-    },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
     },
 });
 

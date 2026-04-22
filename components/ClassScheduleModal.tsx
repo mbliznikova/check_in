@@ -5,6 +5,7 @@ import { Colors } from '@/constants/Colors';
 
 import { useEffect, useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
+import { commonStyles } from '@/constants/commonStyles';
 
 type ClassScheduleModalProps = {
     isVisible: boolean;
@@ -136,7 +137,7 @@ const ClassScheduleModal = ({
 
                             <View style={{paddingTop: 20}}>
                                 <TextInput
-                                    style={[textStyle, styles.inputFeld]}
+                                    style={[textStyle, commonStyles.inputField]}
                                     value={timeToSchedule}
                                     onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
                                 />
@@ -448,14 +449,6 @@ const styles = StyleSheet.create({
     deleteTimeButton: {
         textAlign: 'right',
         paddingRight: 5, color: 'red',
-    },
-    inputFeld: {
-        width: 200,
-        borderWidth: 1,
-        borderColor: 'gray',
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 15,
     },
     itemContainer: {
         padding: 10,

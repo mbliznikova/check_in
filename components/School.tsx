@@ -8,6 +8,7 @@ import { StudentType } from '@/types/student';
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
+import { commonStyles } from '@/constants/commonStyles';
 
 type ClassOccurrenceType = {
     id: number;
@@ -331,7 +332,7 @@ const School = () => {
                 />
             </View>
 
-            <View style={styles.separator} />
+            <View style={commonStyles.separator} />
 
             <ClassSelectionModal
                 isVisible={isModalVisible}
@@ -365,11 +366,6 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 20,
-    },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
     },
     students: {
         flexDirection: 'row',

@@ -12,6 +12,7 @@ import ClassName from './ClassName';
 import CurrentDate from '@/components/CurrentDate';
 import ScreenTitle from '@/components/ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
+import { commonStyles } from '@/constants/commonStyles';
 
 type StudentAttendanceType = {
     id: number;
@@ -270,7 +271,7 @@ const CheckInConfirmation = () => {
                         const studentsAtClass = students.filter(student => student.classes.has(cls.id));
                         return (
                             <View>
-                                <View style={styles.separator} />
+                                <View style={commonStyles.separator} />
                                 <ClassName
                                     id={cls.id}
                                     // name={cls.name}
@@ -366,11 +367,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 15,
         backgroundColor: 'blue',
-      },
-    separator: {
-        height: 1,
-        backgroundColor: 'gray',
-        marginVertical: 10,
       },
   });
 
