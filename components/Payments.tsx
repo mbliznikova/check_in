@@ -813,11 +813,11 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
     },
     inputFeld: {
-        height: 30,
         width: 100,
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
         borderRadius: 15,
       },
 })

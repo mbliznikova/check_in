@@ -2,11 +2,11 @@ import { StyleSheet } from 'react-native';
 
 export const commonStyles = StyleSheet.create({
     inputField: {
-        height: 30,
         width: 200,
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
         borderRadius: 15,
     },
     separator: {

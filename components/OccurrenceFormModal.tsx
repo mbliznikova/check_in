@@ -194,7 +194,6 @@ const OccurrenceFormModal = ({
                     style={styles.compactPicker}
                     value={timeObj}
                     mode="time"
-                    is24Hour={true}
                     display="compact"
                     onChange={(_, selected) => {
                         if (selected) {
@@ -569,19 +568,19 @@ const styles = StyleSheet.create({
         width: 130,
     },
     shortInput: {
-        height: 30,
         width: 60,
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         borderRadius: 10,
     },
     longInput: {
-        height: 30,
         flex: 1,
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         borderRadius: 10,
     },
     buttonRow: {

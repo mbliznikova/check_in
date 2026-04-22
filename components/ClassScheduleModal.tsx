@@ -450,11 +450,11 @@ const styles = StyleSheet.create({
         paddingRight: 5, color: 'red',
     },
     inputFeld: {
-        height: 30,
         width: 200,
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
         borderRadius: 15,
     },
     itemContainer: {
