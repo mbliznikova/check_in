@@ -146,7 +146,7 @@ const ClassScheduleModal = ({
     };
 
     const renderTimeSlots = () => (
-        <View>
+        <View style={styles.timeSlotsContainer}>
             {timeSlots.map((sl, index) => (
                 <Pressable
                     key={sl}
@@ -228,9 +228,7 @@ const ClassScheduleModal = ({
                         <View>
                             <Text style={[textStyle, styles.itemContainer]}>{label}</Text>
                             <View style={[styles.itemContainer]}>
-                                <View style={styles.timeSlotsContainer}>
-                                    {renderTimeSlots()}
-                                </View>
+                                {renderTimeSlots()}
                                 <View style={{paddingTop: 20}}>
                                     <TextInput
                                         style={[textStyle, commonStyles.inputField]}
@@ -249,9 +247,7 @@ const ClassScheduleModal = ({
         return (
             <View style={{paddingHorizontal: 10, paddingVertical: 10}}>
                 <Text style={[textStyle, {paddingBottom: 10, paddingLeft: 5}]}>{label}</Text>
-                <View style={styles.timeSlotsContainerMobile}>
-                    {renderTimeSlots()}
-                </View>
+                {renderTimeSlots()}
                 <View style={{paddingTop: 10, marginLeft: 5}}>
                     <TextInput
                         style={[textStyle, commonStyles.inputField, {width: '100%'}]}
@@ -608,13 +604,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         marginVertical: 10,
     },
-    timeSlotsContainerMobile: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "flex-start",
-        marginVertical: 10,
-    },
-    timeSlot: {
+timeSlot: {
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
