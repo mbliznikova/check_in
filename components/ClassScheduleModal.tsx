@@ -1,4 +1,4 @@
-import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, Platform } from "react-native";
+import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, Platform, ViewStyle, PlatformIOSStatic } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
@@ -6,6 +6,15 @@ import { Colors } from '@/constants/Colors';
 import { useEffect, useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
 import { commonStyles } from '@/constants/commonStyles';
+
+const isIpad = Platform.OS === 'ios' && (Platform as PlatformIOSStatic).isPad;
+
+const percentageStyles = {
+    modalViewWeb: { maxWidth: 360, height: '40%', alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+    modalViewPad: { maxHeight: '85%' } as ViewStyle,
+    modalViewPhone: { width: '95%', maxHeight: '85%' } as ViewStyle,
+    dropdown: { position: 'absolute', top: '100%', borderWidth: 1, borderRadius: 10 } as ViewStyle,
+};
 
 type ClassScheduleModalProps = {
     isVisible: boolean;
@@ -75,12 +84,39 @@ const ClassScheduleModal = ({
     };
 
     const renderAddDayView = () => {
+        if (Platform.OS === 'web') {
+            return (
+                <View>
+                    {getRemainedDays().map((dayIndex) => (
+                        <Pressable
+                            key={dayIndex}
+                            style={styles.dayContainer}
+                            onPress={async () => {
+                                console.log(`Selected ${DAY_NAMES[dayIndex]}`);
+                                setIsAddDayOpen(false);
+                                setIsAddTimeOpen(true);
+                                setDayToSchedule(dayIndex);
+                                if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
+                                    const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
+                                    setTimeSlots(await slots);
+                                }
+                            }}
+                        >
+                            <Text style={[textStyle, styles.dayText]}>
+                                {DAY_NAMES[dayIndex]}
+                            </Text>
+                        </Pressable>
+                    ))}
+                </View>
+            );
+        }
+
         return (
-            <View>
+            <View style={styles.pickerContainer}>
                 {getRemainedDays().map((dayIndex) => (
                     <Pressable
                         key={dayIndex}
-                        style={styles.dayContainer}
+                        style={styles.pickerItem}
                         onPress={async () => {
                             console.log(`Selected ${DAY_NAMES[dayIndex]}`);
                             setIsAddDayOpen(false);
@@ -97,159 +133,219 @@ const ClassScheduleModal = ({
                         </Text>
                     </Pressable>
                 ))}
+                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                    <Pressable
+                        style={styles.cancelButton}
+                        onPress={() => setIsAddDayOpen(false)}
+                    >
+                        <Text style={[textStyle]}>Cancel</Text>
+                    </Pressable>
+                </View>
             </View>
         );
     };
 
+    const renderTimeSlots = () => (
+        <View>
+            {timeSlots.map((sl, index) => (
+                <Pressable
+                    key={sl}
+                    onPress={() => {
+                        setSelectedSlotIndex(index);
+                        setTimeToSchedule(sl);
+                    }}
+                >
+                    <Text
+                        style={[
+                            textStyle,
+                            styles.timeSlot,
+                            selectedSlotIndex === index
+                                ? [styles.selectedTimeSlotBorders, {borderColor: Colors[colorScheme].text}]
+                                : styles.notSelectedTimeSlotBorders
+                        ]}
+                    >
+                        {sl}
+                    </Text>
+                </Pressable>
+            ))}
+        </View>
+    );
+
+    const renderTimeButtons = (onSchedule: () => void) => (
+        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+            <Pressable
+                style={styles.modalConfirmButton}
+                onPress={onSchedule}
+            >
+                <Text style={[textStyle]}>Schedule</Text>
+            </Pressable>
+            <Pressable
+                style={styles.cancelButton}
+                onPress={() => {setIsAddTimeOpen(false)}}
+            >
+                <Text style={[textStyle]}>Cancel</Text>
+            </Pressable>
+        </View>
+    );
+
+    const handleSchedulePress = async () => {
+        console.log(
+            `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${DAY_NAMES[dayToSchedule!]}, time ${timeToSchedule}`);
+        setTimeToSchedule("");
+        if (
+            initialClassId.current === null ||
+            initialClassName.current === null ||
+            dayToSchedule === null ||
+            timeToSchedule === null ||
+            !timeToSchedule
+        ){
+            console.warn('Missing data: cannot schedule.');
+            return;
+        } else {
+            if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
+                onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, DAY_NAMES[dayToSchedule], timeToSchedule);
+                setIsAddTimeOpen(false);
+                if (DAY_NAMES[dayToSchedule] !== null && classDuration !== null){
+                    const slots = onRequestingTimeSlots(DAY_NAMES[dayToSchedule], classDuration);
+                    setTimeSlots(await slots);
+                }
+            } else {
+                Platform.OS === 'web'
+                    ? alert('Such schedule is already taken')
+                    : Alert.alert('Conflict', 'Such schedule is already taken');
+                console.log(`There is already a class scheduled to ${dayToSchedule}(${DAY_NAMES[dayToSchedule]}), ${timeToSchedule}`);
+            }
+        }
+    };
+
     const renderAddTimeView = () => {
+        const label = `Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`;
+
+        if (Platform.OS === 'web') {
+            return (
+                <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
+                    <ScrollView style={{maxHeight: 200}}>
+                        <View>
+                            <Text style={[textStyle, styles.itemContainer]}>{label}</Text>
+                            <View style={[styles.itemContainer]}>
+                                <View style={styles.timeSlotsContainer}>
+                                    {renderTimeSlots()}
+                                </View>
+                                <View style={{paddingTop: 20}}>
+                                    <TextInput
+                                        style={[textStyle, commonStyles.inputField]}
+                                        value={timeToSchedule}
+                                        onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
+                                    />
+                                </View>
+                            </View>
+                            {renderTimeButtons(handleSchedulePress)}
+                        </View>
+                    </ScrollView>
+                </View>
+            );
+        }
+
         return (
-            <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
-                <ScrollView style={{maxHeight: 200}}>
-                    <View>
-                        <Text
-                            style={[textStyle, styles.itemContainer]}
-                        >
-                            {`Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`}
-                        </Text>
-                        <View style={[styles.itemContainer]}>
-
-                            <View style={styles.timeSlotsContainer}>
-                                {timeSlots.map((sl, index) => (
-                                    <Pressable
-                                        key={sl}
-                                        onPress={() => {
-                                            setSelectedSlotIndex(index);
-                                            setTimeToSchedule(sl);
-                                        }}
-                                    >
-                                        <Text
-                                            style={[
-                                                textStyle,
-                                                styles.timeSlot,
-                                                selectedSlotIndex === index ? styles.selectedTimeSlotBorders : styles.notSelectedTimeSlotBorders
-                                            ]}
-                                        >
-                                            {sl}
-                                        </Text>
-                                    </Pressable>
-                                ))}
-                            </View>
-
-                            <View style={{paddingTop: 20}}>
-                                <TextInput
-                                    style={[textStyle, commonStyles.inputField]}
-                                    value={timeToSchedule}
-                                    onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
-                                />
-                            </View>
-                        </View>
-
-                        <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
-                            <Pressable
-                                style={styles.modalConfirmButton}
-                                onPress={async () => {
-                                    console.log(
-                                        `Class id ${initialClassId.current}, class name ${initialClassName.current}, day ${DAY_NAMES[dayToSchedule!]}, time ${timeToSchedule}`);
-                                        setTimeToSchedule("");
-                                        if (
-                                            initialClassId.current === null ||
-                                            initialClassName.current === null ||
-                                            dayToSchedule === null ||
-                                            timeToSchedule === null ||
-                                            !timeToSchedule
-                                        ){
-                                            console.warn('Missing data: cannot schedule.');
-                                            return;
-                                        } else {
-                                            if (onUniquenessCheck(dayToSchedule, timeToSchedule)) {
-                                                    onScheduleClass(initialClassId.current?.toString(), initialClassName.current, dayToSchedule, DAY_NAMES[dayToSchedule], timeToSchedule);
-                                                    setIsAddTimeOpen(false);
-                                                    if (DAY_NAMES[dayToSchedule] !== null && classDuration !== null){
-                                                        const slots = onRequestingTimeSlots(DAY_NAMES[dayToSchedule], classDuration);
-                                                        setTimeSlots(await slots);
-                                                    }
-                                            } else {
-                                                Platform.OS === 'web'
-                                                    ? alert('Such schedule is already taken')
-                                                    : Alert.alert('Conflict', 'Such schedule is already taken');
-                                                console.log(`There is already a class scheduled to ${dayToSchedule}(${DAY_NAMES[dayToSchedule]}), ${timeToSchedule}`);
-                                            }
-                                        }
-                                }}
-                            >
-                                <Text style={[textStyle]}>Schedule</Text>
-                            </Pressable>
-                            <Pressable
-                                style={styles.cancelButton}
-                                onPress={() => {setIsAddTimeOpen(false)}}
-                                >
-                                    <Text style={[textStyle]}>Cancel</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </ScrollView>
+            <View style={{paddingHorizontal: 10, paddingVertical: 10}}>
+                <Text style={[textStyle, {paddingBottom: 10, paddingLeft: 5}]}>{label}</Text>
+                <View style={styles.timeSlotsContainerMobile}>
+                    {renderTimeSlots()}
+                </View>
+                <View style={{paddingTop: 10, marginLeft: 5}}>
+                    <TextInput
+                        style={[textStyle, commonStyles.inputField, {width: '100%'}]}
+                        value={timeToSchedule}
+                        onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
+                    />
+                </View>
+                {renderTimeButtons(handleSchedulePress)}
             </View>
         );
     };
 
     // TODO: think about handling of time when seconds part is missing (rather BE refactor and no need of slice()??)
     const renderSchedules = (schedule: Map<number, [number, string][]>) => {
+        const isWeb = Platform.OS === 'web';
         return (
             <View style={styles.scheduleRowContainder}>
                 {[...schedule].map(([day, times]) => (
-                    <View
-                        key={day}
-                        style={styles.scheduleRow}>
-                            <View style={styles.dayContainer}>
-                                <Text style={[textStyle, styles.dayText]}>
-                                    {DAY_NAMES[day]}
-                                </Text>
-                            </View>
-                            {times.map(([scheduleId, time]) => (
-                                <View
-                                    key={scheduleId}>
+                    <View key={day} style={styles.scheduleRow}>
+                        <View style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}>
+                            <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>
+                                {DAY_NAMES[day]}
+                            </Text>
+                        </View>
+                        {isWeb ? (
+                            <View style={styles.timesRowWeb}>
+                                {times.map(([scheduleId, time]) => (
                                     <Pressable
+                                        key={scheduleId}
                                         style={styles.timeButton}
-                                        onPress={() => {
-                                            setPendingDelete({scheduleId, day, time});
-                                        }}
+                                        onPress={() => setPendingDelete({scheduleId, day, time})}
                                     >
-                                        <Text style={[textStyle, styles.deleteTimeButton]}>
-                                        x
-                                        </Text>
-                                        <Text style={[textStyle, styles.timeText]}>
-                                            {time.slice(0,5)}
-                                        </Text>
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
+                                        <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
                                     </Pressable>
+                                ))}
+                                <Pressable
+                                    onPress={async () => {
+                                        setDayToSchedule(day);
+                                        if (DAY_NAMES[day] !== null && classDuration !== null) {
+                                            const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
+                                            setTimeSlots(await slots);
+                                        }
+                                        setIsAddTimeOpen(true);
+                                    }}
+                                    style={styles.addTimeButton}
+                                >
+                                    <Text style={[textStyle]}>+</Text>
+                                </Pressable>
                             </View>
-                            ))}
-                            <Pressable
-                                onPress={async () => {
-                                    setDayToSchedule(day); // TODO: something more reliable in case when the state var has not set yet?
-                                    if (DAY_NAMES[day] !== null && classDuration !== null) {
-                                        const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
-                                        setTimeSlots(await slots);
-                                    }
-                                    setIsAddTimeOpen(true);
-                                }}
-                                style={styles.addTimeButton}
+                        ) : (
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.timesScrollNative}
+                                contentContainerStyle={styles.timesRowNative}
                             >
-                                <Text style={[textStyle]}>+</Text>
-                            </Pressable>
+                                {times.map(([scheduleId, time]) => (
+                                    <Pressable
+                                        key={scheduleId}
+                                        style={styles.timeButton}
+                                        onPress={() => setPendingDelete({scheduleId, day, time})}
+                                    >
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
+                                        <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
+                                    </Pressable>
+                                ))}
+                                <Pressable
+                                    onPress={async () => {
+                                        setDayToSchedule(day);
+                                        if (DAY_NAMES[day] !== null && classDuration !== null) {
+                                            const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
+                                            setTimeSlots(await slots);
+                                        }
+                                        setIsAddTimeOpen(true);
+                                    }}
+                                    style={styles.addTimeButton}
+                                >
+                                    <Text style={[textStyle]}>+</Text>
+                                </Pressable>
+                            </ScrollView>
+                        )}
                     </View>
                 ))}
                 <View style={styles.scheduleRow}>
-                    <View style={{position: 'relative'}}>
+                    <View style={isWeb ? {position: 'relative'} : undefined}>
                         <Pressable
-                            style={styles.dayContainer}
-                            onPress={() => {
-                                setIsAddDayOpen(!isAddDayOpen);
-                            }}
+                            style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}
+                            onPress={() => setIsAddDayOpen(!isAddDayOpen)}
                         >
-                            <Text style={[textStyle, styles.dayText]}>+ Add day</Text>
+                            <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>+ Add day</Text>
                         </Pressable>
-                        {isAddDayOpen ? <View style={styles.dropdown}>{renderAddDayView()}</View> : null}
-                        {isAddTimeOpen ? <View style={[styles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View> : null}
+                        {isWeb && isAddDayOpen && <View style={percentageStyles.dropdown}>{renderAddDayView()}</View>}
+                        {isWeb && isAddTimeOpen && <View style={[percentageStyles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View>}
                     </View>
                 </View>
             </View>
@@ -292,27 +388,42 @@ const ClassScheduleModal = ({
         );
     };
 
+    const renderScheduleContent = () => (
+        <View>
+            <View style={styles.modalInfo}>
+                <Text style={[textStyle, {fontWeight: "bold"}]}>
+                    {`Schedule for the class ${className}`}
+                </Text>
+            </View>
+
+            {renderSchedules(scheduleData)}
+
+            {Platform.OS !== 'web' && isAddDayOpen && renderAddDayView()}
+            {Platform.OS !== 'web' && isAddTimeOpen && renderAddTimeView()}
+
+            <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
+                <Pressable
+                    style={styles.modalConfirmButton}
+                    onPress={isAddDayOpen ? undefined : onModalClose}
+                    disabled={isAddDayOpen}
+                >
+                    <Text style={[textStyle]}>OK</Text>
+                </Pressable>
+            </View>
+        </View>
+    );
+
     const renderSchedule = () => {
         return(
             <View style={styles.modalContainer}>
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
-                    <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
-                            {`Schedule for the class ${className}`}
-                        </Text>
-                    </View>
+                <View style={[styles.modalView, Platform.OS === 'web'
+                    ? percentageStyles.modalViewWeb :
+                    (isIpad ? percentageStyles.modalViewPad : percentageStyles.modalViewPhone), { backgroundColor: Colors[colorScheme].background }]}>
 
-                    {renderSchedules(scheduleData)}
-
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
-                        <Pressable
-                            style={styles.modalConfirmButton}
-                            onPress={isAddDayOpen ? undefined : onModalClose}
-                            disabled={isAddDayOpen}
-                        >
-                            <Text style={[textStyle]}>OK</Text>
-                        </Pressable>
-                    </View>
+                    {Platform.OS === 'web'
+                        ? renderScheduleContent()
+                        : <ScrollView contentContainerStyle={styles.modalScrollContent}>{renderScheduleContent()}</ScrollView>
+                    }
                 </View>
             </View>
         );
@@ -348,7 +459,7 @@ const ClassScheduleModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, backgroundColor: (Platform.OS === 'ios' && !isIpad) ? Colors[colorScheme].background : undefined}}>
                 {isConfirmationOpen && (
                     <View style={styles.confirmationOverlay}>
                         {renderSuccessConfirmation()}
@@ -375,25 +486,29 @@ const styles = StyleSheet.create({
     },
     modalView: {
         width: '85%',
-        maxWidth: 360,
-        height: '40%',
         backgroundColor: 'black', //TODO: make it adjustable
         borderRadius: 20,
         padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
+    },
+    modalScrollContent: {
+        alignItems: 'stretch',
     },
     modalInfo: {
         padding: 20,
     },
     dayContainer: {
-        width: 150,
         justifyContent: 'center',
         marginRight: 10,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'grey',
         paddingVertical: 3,
+    },
+    dayContainerWeb: {
+        width: 150,
+    },
+    dayContainerNative: {
+        width: 120,
     },
     modalButtonsContainer: {
         flexDirection: 'row',
@@ -428,6 +543,8 @@ const styles = StyleSheet.create({
     dayText: {
         fontWeight: "bold",
         padding: 10,
+    },
+    dayTextWeb: {
         paddingHorizontal: 20,
     },
     modalConfirmButton: {
@@ -443,8 +560,31 @@ const styles = StyleSheet.create({
     },
     scheduleRow: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
         padding: 5,
+    },
+    timesRowWeb: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    timesScrollNative: {
+        flex: 1,
+    },
+    timesRowNative: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    pickerContainer: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+    },
+    pickerItem: {
+        alignSelf: 'flex-start' as const,
+        minWidth: 120,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        marginVertical: 4,
     },
     deleteTimeButton: {
         textAlign: 'right',
@@ -457,18 +597,18 @@ const styles = StyleSheet.create({
     itemRow: {
         flexDirection: 'row'
     },
-    dropdown: {
-        position: 'absolute',
-        top: '100%',
-        borderWidth: 1,
-        borderRadius: 10,
-    },
     hiddenButton: {
         opacity: 0,
         width: 0,
         overflow: 'hidden',
     },
     timeSlotsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        marginVertical: 10,
+    },
+    timeSlotsContainerMobile: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "flex-start",
@@ -484,7 +624,6 @@ const styles = StyleSheet.create({
     },
     selectedTimeSlotBorders: {
         borderWidth: 3,
-        borderColor: "white",
     },
     notSelectedTimeSlotBorders: {
         borderWidth: 1,
