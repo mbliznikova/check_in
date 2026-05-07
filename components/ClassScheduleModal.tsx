@@ -112,26 +112,27 @@ const ClassScheduleModal = ({
         }
 
         return (
-            <View style={styles.pickerContainer}>
+            <View style={{marginTop: -4}}>
                 {getRemainedDays().map((dayIndex) => (
-                    <Pressable
-                        key={dayIndex}
-                        style={styles.pickerItem}
-                        onPress={async () => {
-                            console.log(`Selected ${DAY_NAMES[dayIndex]}`);
-                            setIsAddDayOpen(false);
-                            setIsAddTimeOpen(true);
-                            setDayToSchedule(dayIndex);
-                            if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
-                                const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
-                                setTimeSlots(await slots);
-                            }
-                        }}
-                    >
-                        <Text style={[textStyle, styles.dayText]}>
-                            {DAY_NAMES[dayIndex]}
-                        </Text>
-                    </Pressable>
+                    <View key={dayIndex} style={styles.pickerRow}>
+                        <Pressable
+                            style={[styles.dayContainer, styles.dayContainerNative]}
+                            onPress={async () => {
+                                console.log(`Selected ${DAY_NAMES[dayIndex]}`);
+                                setIsAddDayOpen(false);
+                                setIsAddTimeOpen(true);
+                                setDayToSchedule(dayIndex);
+                                if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
+                                    const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
+                                    setTimeSlots(await slots);
+                                }
+                            }}
+                        >
+                            <Text style={[textStyle, styles.dayText]}>
+                                {DAY_NAMES[dayIndex]}
+                            </Text>
+                        </Pressable>
+                    </View>
                 ))}
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                     <Pressable
@@ -344,6 +345,8 @@ const ClassScheduleModal = ({
                         {isWeb && isAddTimeOpen && <View style={[percentageStyles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View>}
                     </View>
                 </View>
+                {!isWeb && isAddDayOpen && renderAddDayView()}
+                {!isWeb && isAddTimeOpen && renderAddTimeView()}
             </View>
         );
     };
@@ -393,9 +396,6 @@ const ClassScheduleModal = ({
             </View>
 
             {renderSchedules(scheduleData)}
-
-            {Platform.OS !== 'web' && isAddDayOpen && renderAddDayView()}
-            {Platform.OS !== 'web' && isAddTimeOpen && renderAddTimeView()}
 
             <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                 <Pressable
@@ -569,6 +569,11 @@ const styles = StyleSheet.create({
     timesRowNative: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    pickerRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 5,
+        marginVertical: 1,
     },
     pickerContainer: {
         paddingHorizontal: 10,
