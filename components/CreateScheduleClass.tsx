@@ -89,7 +89,7 @@ const CreateScheduleClass = ({
             return (
                 <View>
                     {getRemainedDays().map((dayIndex) => (
-                        <Pressable key={dayIndex} style={styles.dayContainer} onPress={() => onDayPress(dayIndex)}>
+                        <Pressable key={dayIndex} style={[styles.dayContainer, styles.dayContainerWeb]} onPress={() => onDayPress(dayIndex)}>
                             <Text style={[textStyle, styles.dayText]}>{DAY_NAMES[dayIndex]}</Text>
                         </Pressable>
                     ))}

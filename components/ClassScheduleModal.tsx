@@ -90,7 +90,7 @@ const ClassScheduleModal = ({
                     {getRemainedDays().map((dayIndex) => (
                         <Pressable
                             key={dayIndex}
-                            style={styles.dayContainer}
+                            style={[styles.dayContainer, styles.dayContainerWeb]}
                             onPress={async () => {
                                 console.log(`Selected ${DAY_NAMES[dayIndex]}`);
                                 setIsAddDayOpen(false);
