@@ -337,7 +337,10 @@ const ClassScheduleModal = ({
                     <View style={isWeb ? {position: 'relative'} : undefined}>
                         <Pressable
                             style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}
-                            onPress={() => setIsAddDayOpen(!isAddDayOpen)}
+                            onPress={() => {
+                                setIsAddDayOpen(!isAddDayOpen);
+                                setIsAddTimeOpen(false);
+                            }}
                         >
                             <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>+ Add day</Text>
                         </Pressable>
