@@ -222,29 +222,6 @@ const ClassScheduleModal = ({
     const renderAddTimeView = () => {
         const label = `Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`;
 
-        if (Platform.OS === 'web') {
-            return (
-                <View style={{padding: 20, alignItems: 'center', position: 'relative'}}>
-                    <ScrollView style={{maxHeight: 200}}>
-                        <View>
-                            <Text style={[textStyle, styles.itemContainer]}>{label}</Text>
-                            <View style={[styles.itemContainer]}>
-                                {renderTimeSlots()}
-                                <View style={{paddingTop: 20}}>
-                                    <TextInput
-                                        style={[textStyle, commonStyles.inputField]}
-                                        value={timeToSchedule}
-                                        onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
-                                    />
-                                </View>
-                            </View>
-                            {renderTimeButtons(handleSchedulePress)}
-                        </View>
-                    </ScrollView>
-                </View>
-            );
-        }
-
         return (
             <View style={{paddingHorizontal: 10, paddingVertical: 10}}>
                 <Text style={[textStyle, {paddingBottom: 10, paddingLeft: 5}]}>{label}</Text>
@@ -345,11 +322,10 @@ const ClassScheduleModal = ({
                             <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>+ Add day</Text>
                         </Pressable>
                         {isWeb && isAddDayOpen && <View style={percentageStyles.dropdown}>{renderAddDayView()}</View>}
-                        {isWeb && isAddTimeOpen && <View style={[percentageStyles.dropdown, {borderColor: 'grey'}]}>{renderAddTimeView()}</View>}
                     </View>
                 </View>
                 {!isWeb && isAddDayOpen && renderAddDayView()}
-                {!isWeb && isAddTimeOpen && renderAddTimeView()}
+                {isAddTimeOpen && renderAddTimeView()}
             </View>
         );
     };
