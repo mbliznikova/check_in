@@ -30,7 +30,7 @@ const isValidDeleteOccurrenceResponse = (responseData: any, occurrenceId: number
     return (
         typeof responseData === 'object' &&
         responseData !== null &&
-        'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time} was deleted successfully` &&
+        'message' in responseData && responseData.message === `Occurrence for ${className} at ${date} ${time}:00 was deleted successfully` &&
         'occurrenceId' in responseData && responseData.occurrenceId === occurrenceId
     );
 };
@@ -268,6 +268,11 @@ export function useClassOccurrences() {
                     console.log(`Function deleteClassOccurrence. The response from backend is valid.`);
                     removeOccurrenceFromState(occurrenceId, date);
                     removeOccurrenceFromUniqueness(date, time);
+                    setAllOccurrencesMap(prev => {
+                        const tmpMap = new Map(prev);
+                        tmpMap.delete(occurrenceId);
+                        return tmpMap;
+                    });
                 } else {
                     console.warn(`Function deleteClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
