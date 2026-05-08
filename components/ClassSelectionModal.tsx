@@ -119,22 +119,27 @@ const ClassSelectionModal = ({
                             ))}
                      </View>
 
-                     <Pressable
-                        style={styles.modalConfirmButton}
-                        onPress={() => {
-                            const selected = getSelectedOccurrenceIds(classSelectionState)
-                            onConfirm(selected);
-                            closeModal();
-                        }}
-                    >
-                        <Text style={styles.modalText}>Confirm</Text>
-                    </Pressable>
+                     <View style={styles.modalButtonRow}>
+                        <Pressable
+                            style={styles.modalCancelButton}
+                            onPress={() => {
+                                closeModal();
+                            }}
+                        >
+                            <Text style={styles.modalText}>Cancel</Text>
+                        </Pressable>
 
-                     <Pressable style={styles.modalCancelButton} onPress={() => {
-                        closeModal();
-                     }}>
-                        <Text style={styles.modalText}>Cancel</Text>
-                    </Pressable>
+                        <Pressable
+                            style={styles.modalConfirmButton}
+                            onPress={() => {
+                                const selected = getSelectedOccurrenceIds(classSelectionState)
+                                onConfirm(selected);
+                                closeModal();
+                            }}
+                        >
+                            <Text style={styles.modalText}>Confirm</Text>
+                        </Pressable>
+                     </View>
                 </View>
             </View>
         </Modal>
@@ -165,21 +170,22 @@ const styles = StyleSheet.create({
       modalListItem: {
         paddingVertical: 10,
       },
+      modalButtonRow: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 10,
+      },
       modalConfirmButton: {
-        // width: '100%',
-        // flex: 1,
         alignItems: 'center',
         paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 15,
         backgroundColor: 'blue',
       },
       modalCancelButton: {
         alignItems: 'center',
         paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 15,
         backgroundColor: 'grey',
       },
