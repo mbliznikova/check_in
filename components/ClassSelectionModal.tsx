@@ -120,16 +120,7 @@ const ClassSelectionModal = ({
                      </View>
 
                      <View style={styles.modalButtonRow}>
-                        <Pressable
-                            style={styles.modalCancelButton}
-                            onPress={() => {
-                                closeModal();
-                            }}
-                        >
-                            <Text style={styles.modalText}>Cancel</Text>
-                        </Pressable>
-
-                        <Pressable
+                     <Pressable
                             style={styles.modalConfirmButton}
                             onPress={() => {
                                 const selected = getSelectedOccurrenceIds(classSelectionState)
@@ -138,6 +129,15 @@ const ClassSelectionModal = ({
                             }}
                         >
                             <Text style={styles.modalText}>Confirm</Text>
+                        </Pressable>
+
+                        <Pressable
+                            style={styles.modalCancelButton}
+                            onPress={() => {
+                                closeModal();
+                            }}
+                        >
+                            <Text style={styles.modalText}>Cancel</Text>
                         </Pressable>
                      </View>
                 </View>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 20,
         borderRadius: 15,
-        backgroundColor: 'blue',
+        backgroundColor: 'green',
       },
       modalCancelButton: {
         alignItems: 'center',
