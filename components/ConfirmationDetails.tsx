@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         marginVertical: 10,
-        borderRadius: 15,
+        borderRadius: 8,
         backgroundColor: 'blue',
     },
     footerContainer: {
