@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
@@ -30,6 +30,10 @@ const ClassManagement = () => {
     const [selectedClass, setSelectedClass] = useState<SelectedClassState>(INITIAL_SELECTED_CLASS);
 
     const resetSelectedClass = () => setSelectedClass(INITIAL_SELECTED_CLASS);
+
+    if (classData.loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

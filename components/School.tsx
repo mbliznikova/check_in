@@ -170,10 +170,11 @@ const School = () => {
             }
         }
 
-        fetchClassOccurrences();
-        fetchStudents();
-        fetchAttendedStudents();
-        setLoading(false);
+        Promise.all([
+            fetchClassOccurrences(),
+            fetchStudents(),
+            fetchAttendedStudents(),
+        ]).finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {

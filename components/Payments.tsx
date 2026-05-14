@@ -410,11 +410,12 @@ const Payments = () => {
     };
 
     useEffect(() => {
-        fetchPrices();
-        fetchStudents();
-        fetchPayments();
-        fetchSummary();
-        setLoading(false);
+        Promise.all([
+            fetchPrices(),
+            fetchStudents(),
+            fetchPayments(),
+            fetchSummary(),
+        ]).finally(() => setLoading(false));
     },
     []);
 

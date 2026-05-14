@@ -142,9 +142,10 @@ const Attendance = () => {
            }
        }
 
-        fetchAttendances();
-        fetchPayments();
-        setLoading(false);
+        Promise.all([
+            fetchAttendances(),
+            fetchPayments(),
+        ]).finally(() => setLoading(false));
     },
     []);
 

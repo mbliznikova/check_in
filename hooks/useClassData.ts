@@ -68,6 +68,7 @@ const isValidCreatePriceResponse = (responseData: any, classId: number, amount: 
 export function useClassData() {
     const { apiFetch } = useApi();
 
+    const [loading, setLoading] = useState(true);
     const [classes, setClasses] = useState<ClassType[]>([]);
     const [classesSet, setClassesSet] = useState<Set<string>>(new Set());
     const [prices, setPrices] = useState<PriceMap>(new Map());
@@ -77,8 +78,10 @@ export function useClassData() {
     const [deleteModal, setDeleteModal] = useState({ isVisible: false, isSuccess: false });
 
     useEffect(() => {
-        fetchClasses();
-        fetchPrices();
+        Promise.all([
+            fetchClasses(),
+            fetchPrices(),
+        ]).finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {
@@ -300,6 +303,7 @@ export function useClassData() {
 
     return {
         // Read-only state
+        loading,
         classes,
         prices,
         createdClassId,

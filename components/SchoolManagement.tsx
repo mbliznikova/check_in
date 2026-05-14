@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pressable, SafeAreaView, View, Text, StyleSheet, FlatList } from "react-native";
+import { Pressable, SafeAreaView, View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useOrganizationList } from "@clerk/clerk-expo";
 
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
@@ -20,6 +20,7 @@ const SchoolManagement = () => {
     const textStyle = useThemeTextStyle();
     const { role: activeRole } = useUserRole();
 
+    const [loading, setLoading] = useState(true);
     const [schools, setSchools] = useState<SchoolType[]>([]);
     const [schoolId, setSchoolId] = useState<number | null>(null);
     const [name, setName] = useState("");
@@ -87,6 +88,8 @@ const SchoolManagement = () => {
             }
         } catch (err) {
             console.error("Error while fetching the list of schools: ", err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -404,6 +407,10 @@ const SchoolManagement = () => {
             />
         );
     };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

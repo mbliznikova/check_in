@@ -61,11 +61,12 @@ const ConfirmationList = () => {
                 }
             } catch (err) {
                 console.error("Error while fetching the list of attendances: ", err)
+            } finally {
+                setLoading(false);
             }
         }
 
         fetchAttendances();
-        setLoading(false);
     },
     []);
 

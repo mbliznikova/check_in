@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable } from "react-native";
+import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable, ActivityIndicator } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
@@ -15,6 +15,7 @@ const StudentManagement = () => {
 
     const textStyle = useThemeTextStyle();
 
+    const [loading, setLoading] = useState(true);
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -239,6 +240,8 @@ const StudentManagement = () => {
             }
         } catch (err) {
             console.error("Error while fetching the list of students: ", err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -505,6 +508,10 @@ const StudentManagement = () => {
             />
         );
     };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
