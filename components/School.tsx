@@ -374,6 +374,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     rowWrapper: {
+        flex: 1,
         width: screenWidth * 0.5,
         alignSelf: 'center',
     },
