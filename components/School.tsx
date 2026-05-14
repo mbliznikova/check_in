@@ -182,13 +182,12 @@ const School = () => {
 
         const attendanceMap = new Map(attendance.map(att => [att.id, att]));
 
-        setStudents(prevStudents => {
-            const updatedStudents = prevStudents.map(student =>
+        setStudents(prevStudents =>
+            prevStudents.map(student =>
                 attendanceMap.has(student.id) ? attendanceMap.get(student.id)! : student
-            );
-            setStudentsUpdated(true);
-            return updatedStudents;
-        });
+            )
+        );
+        setStudentsUpdated(true);
 
     }, [attendance]);
 
