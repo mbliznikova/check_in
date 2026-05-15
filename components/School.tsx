@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
-import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions } from 'react-native';
+import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions, Platform } from 'react-native';
 
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from '@/api/validators';
@@ -26,6 +26,7 @@ type ClassOccurrenceType = {
 };
 
 const screenWidth = Dimensions.get('window').width;
+const isLargeScreen = Platform.OS === 'web' || Platform.isPad;
 
 
 const School = () => {
@@ -357,8 +358,8 @@ const styles = StyleSheet.create({
     },
     rowWrapper: {
         flex: 1,
-        width: screenWidth * 0.5,
-        alignSelf: 'center',
+        width: isLargeScreen ? screenWidth * 0.5 : undefined,
+        alignSelf: isLargeScreen ? 'center' as const : undefined,
     },
   });
 
