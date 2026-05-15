@@ -272,21 +272,14 @@ const School = () => {
     }
 
     function checkIn(studentId: number, occurrenceIds: number[]) {
-        setStudents(prevStudents => {
-            const updatesStudents = prevStudents.map(student => {
-                if (student.id === studentId) {
-                    student.classes = new Set();
-                    student.occurrences = new Set();
-                    occurrenceIds.forEach(cls => {
-                        student.occurrences?.add(cls)
-                    })
-                }
-                return student;
-            });
-
-            return updatesStudents;
-        });
-        submitCheckInRequest(studentId=studentId, occurrenceIds=occurrenceIds);
+        setStudents(prevStudents =>
+            prevStudents.map(student =>
+                student.id === studentId
+                    ? { ...student, classes: new Set(), occurrences: new Set(occurrenceIds) }
+                    : student
+            )
+        );
+        submitCheckInRequest(studentId, occurrenceIds);
     }
 
     if (loading) {
