@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 
 import { useApi } from "@/api/client";
@@ -37,15 +37,13 @@ const School = () => {
 
     const [attendance, setAttendance] = useState<StudentType[]>([]);
 
-    const [checkedInStudents, setCheckedInStudents] = useState(() => assignStudentsToOccurrences());
-
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const [currentStudent, setCurrentStudent] = useState<StudentType | null>(null);
 
     const [loading, setLoading] = useState(true);
 
-    const [studentsUpdated, setStudentsUpdated] = useState(false);
+    const checkedInStudents = useMemo(() => assignStudentsToOccurrences(), [students, classOccurrenceList]);
 
     useEffect(() => {
         const fetchClassOccurrences = async () => {
@@ -187,16 +185,8 @@ const School = () => {
                 attendanceMap.has(student.id) ? attendanceMap.get(student.id)! : student
             )
         );
-        setStudentsUpdated(true);
-
     }, [attendance]);
 
-    useEffect(() => {
-        if (!studentsUpdated) return;
-        setCheckedInStudents(assignStudentsToOccurrences());
-        setStudentsUpdated(false);
-
-    }, [studentsUpdated]);
 
     function assignStudentsToOccurrences() {
         // Add students who attends a certain class to the class map: [classId, [student1, student2]]
@@ -296,7 +286,6 @@ const School = () => {
 
             return updatesStudents;
         });
-        setCheckedInStudents(assignStudentsToOccurrences);
         submitCheckInRequest(studentId=studentId, occurrenceIds=occurrenceIds);
     }
 
