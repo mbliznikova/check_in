@@ -3,7 +3,6 @@ export type StudentType = {
     id: number;
     firstName: string;
     lastName: string;
-    classes?: Set<number>;
     occurrences?: Set<number>;
 };
 

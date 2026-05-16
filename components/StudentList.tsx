@@ -33,7 +33,7 @@ const StudentList = ({
                     ]}
                     onPress={() => onStudentPress(item)}>
                     <Text style={styles.primaryButtonText}>
-                        {item.classes?.size !== 0 ? '+ Add class' : 'Check in'}
+                        {(item.occurrences?.size ?? 0) > 0 ? '+ Add class' : 'Check in'}
                     </Text>
                 </Pressable>
             </View>

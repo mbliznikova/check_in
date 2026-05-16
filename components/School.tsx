@@ -148,7 +148,6 @@ const School = () => {
                                 id:  Number(att.id),
                                 firstName: att.firstName,
                                 lastName: att.lastName,
-                                classes: new Set(att.classes),
                                 occurrences: new Set(att.occurrences),
                             }));
 
@@ -278,7 +277,7 @@ const School = () => {
         setStudents(prevStudents =>
             prevStudents.map(student =>
                 student.id === studentId
-                    ? { ...student, classes: new Set(), occurrences: new Set(occurrenceIds) }
+                    ? { ...student, occurrences: new Set(occurrenceIds) }
                     : student
             )
         );
