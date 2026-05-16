@@ -9,6 +9,7 @@ import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
 import { commonStyles } from '@/constants/commonStyles';
+import { mixpanel } from '@/utils/mixpanel';
 
 type ClassOccurrenceType = {
     id: number;
@@ -26,7 +27,7 @@ type ClassOccurrenceType = {
 };
 
 const screenWidth = Dimensions.get('window').width;
-const isLargeScreen = Platform.OS === 'web' || Platform.isPad;
+const isLargeScreen = Platform.OS === 'web' || (Platform.OS === 'ios' && Platform.isPad);
 
 
 const School = () => {
@@ -263,6 +264,7 @@ const School = () => {
                 Array.isArray(responseData.checkedOut)
             ) {
                 console.log('Function submitCheckInRequest. The response from backend is valid. ');
+                mixpanel.track('Student check-in');
             } else {
                 console.warn('Function submitCheckInRequest. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
