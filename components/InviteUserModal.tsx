@@ -85,12 +85,12 @@ const InviteUserModal = ({
                     onPress={() => {
                         onSendInvitation(email.trim(), selectedRole);
                     }}
-                    style={[canSubmit ? styles.sendButton : styles.disabledButton]}
+                    style={[modalStyles.modalConfirmButton, !canSubmit && styles.disabledButton]}
                     disabled={!canSubmit}
                 >
                     <Text style={textStyle}>Send Invitation</Text>
                 </Pressable>
-                <Pressable onPress={handleClose} style={styles.cancelButton}>
+                <Pressable onPress={handleClose} style={modalStyles.modalCancelButton}>
                     <Text style={textStyle}>Cancel</Text>
                 </Pressable>
             </View>
@@ -174,24 +174,8 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         justifyContent: 'center',
     },
-    sendButton: {
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'green',
-    },
     disabledButton: {
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
         opacity: 0.5,
-    },
-    cancelButton: {
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'grey',
     },
     successInfo: {
         padding: 20,
