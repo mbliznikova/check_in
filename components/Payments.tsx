@@ -608,7 +608,7 @@ const Payments = () => {
                         <View style={styles.modalInfo}>
                             <Text style={[textStyle, {fontWeight: "bold"}]}>
                                 {paymentAction === 'add'
-                                    ? `Do you want to add ${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
+                                    ? `Do you want to add $${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
                                     : paymentAction === 'delete'
                                         ? `Do you want to delete ${selectedPaymentAmount} for ${selectedStudentName}, ${selectedClassName} class?`
                                         : null
