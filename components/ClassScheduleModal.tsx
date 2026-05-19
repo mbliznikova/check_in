@@ -2,6 +2,7 @@ import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert,
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import ScreenTitle from './ScreenTitle';
 
 import { useEffect, useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
@@ -368,11 +369,7 @@ const ClassScheduleModal = ({
 
     const renderScheduleContent = () => (
         <View>
-            <View style={styles.modalInfo}>
-                <Text style={[textStyle, {fontWeight: "bold"}]}>
-                    {`Schedule for the class ${className}`}
-                </Text>
-            </View>
+            <ScreenTitle titleText={`Schedule for the class ${className}`} />
 
             {renderSchedules(scheduleData)}
 
