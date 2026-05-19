@@ -97,6 +97,8 @@ const ClassScheduleModal = ({
                                 setIsAddDayOpen(false);
                                 setIsAddTimeOpen(true);
                                 setDayToSchedule(dayIndex);
+                                setTimeToSchedule("");
+                                setSelectedSlotIndex(-1);
                                 if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
                                     const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
                                     setTimeSlots(await slots);
@@ -123,6 +125,8 @@ const ClassScheduleModal = ({
                                 setIsAddDayOpen(false);
                                 setIsAddTimeOpen(true);
                                 setDayToSchedule(dayIndex);
+                                setTimeToSchedule("");
+                                setSelectedSlotIndex(-1);
                                 if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
                                     const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
                                     setTimeSlots(await slots);
@@ -266,6 +270,8 @@ const ClassScheduleModal = ({
                                 <Pressable
                                     onPress={async () => {
                                         setDayToSchedule(day);
+                                        setTimeToSchedule("");
+                                        setSelectedSlotIndex(-1);
                                         if (DAY_NAMES[day] !== null && classDuration !== null) {
                                             const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
                                             setTimeSlots(await slots);
@@ -297,6 +303,8 @@ const ClassScheduleModal = ({
                                 <Pressable
                                     onPress={async () => {
                                         setDayToSchedule(day);
+                                        setTimeToSchedule("");
+                                        setSelectedSlotIndex(-1);
                                         if (DAY_NAMES[day] !== null && classDuration !== null) {
                                             const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
                                             setTimeSlots(await slots);
