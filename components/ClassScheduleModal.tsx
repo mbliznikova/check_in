@@ -2,6 +2,7 @@ import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert,
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { useModalStyles } from '@/constants/modalStyles';
 import ScreenTitle from './ScreenTitle';
 
 import { useEffect, useRef, useState } from "react";
@@ -47,6 +48,7 @@ const ClassScheduleModal = ({
 
     const textStyle = useThemeTextStyle();
     const colorScheme = useColorScheme() ?? 'light';
+    const modalStyles = useModalStyles();
 
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
@@ -346,15 +348,15 @@ const ClassScheduleModal = ({
         const { scheduleId, day, time } = pendingDelete;
 
         return (
-            <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
+            <View style={modalStyles.modalView}>
                 <View style={styles.modalInfo}>
                     <Text style={[textStyle, {fontWeight: "bold"}]}>
                         Do you want to delete this schedule?
                     </Text>
                 </View>
-                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, { width: '50%' }]}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
-                        style={styles.modalConfirmButton}
+                        style={modalStyles.modalConfirmButton}
                         onPress={() => {
                             onScheduleDelete(scheduleId, day, time);
                             setPendingDelete(null);
@@ -363,10 +365,8 @@ const ClassScheduleModal = ({
                         <Text style={[textStyle]}>Delete</Text>
                     </Pressable>
                     <Pressable
-                        style={styles.cancelButton}
-                        onPress={() => {
-                            setPendingDelete(null);
-                        }}
+                        style={modalStyles.modalCancelButton}
+                        onPress={() => setPendingDelete(null)}
                     >
                         <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
@@ -411,25 +411,25 @@ const ClassScheduleModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
-                    <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
-                            Class was scheduled successfully!
-                        </Text>
-                    </View>
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
-                        <Pressable
-                            style={styles.modalConfirmButton}
-                            onPress={() => {
-                                setIsAddTimeOpen(false);
-                                setIsConfirmationOpen(false);
-                                setSelectedSlotIndex(-1);
-                            }}
-                        >
-                                <Text style={[textStyle]}>OK</Text>
-                        </Pressable>
-                    </View>
+            <View style={modalStyles.modalView}>
+                <View style={styles.modalInfo}>
+                    <Text style={[textStyle, {fontWeight: "bold"}]}>
+                        Class was scheduled successfully!
+                    </Text>
                 </View>
+                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                    <Pressable
+                        style={modalStyles.modalConfirmButton}
+                        onPress={() => {
+                            setIsAddTimeOpen(false);
+                            setIsConfirmationOpen(false);
+                            setSelectedSlotIndex(-1);
+                        }}
+                    >
+                        <Text style={[textStyle]}>OK</Text>
+                    </Pressable>
+                </View>
+            </View>
         );
     };
 
@@ -439,20 +439,18 @@ const ClassScheduleModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            <View style={{flex: 1, backgroundColor: (Platform.OS === 'ios' && !isIpad) ? Colors[colorScheme].background : undefined}}>
+            <View style={{flex: 1, height: '100%', backgroundColor: (Platform.OS === 'ios' && !isIpad) ? Colors[colorScheme].background : undefined}}>
+                {renderSchedule()}
                 {isConfirmationOpen && (
                     <View style={styles.confirmationOverlay}>
                         {renderSuccessConfirmation()}
                     </View>
                 )}
-
                 {pendingDelete && (
                     <View style={styles.confirmationOverlay}>
                         {renderDeleteChoice()}
                     </View>
                 )}
-
-                {renderSchedule()}
             </View>
         </Modal>
     );
