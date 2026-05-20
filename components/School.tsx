@@ -263,7 +263,7 @@ const School = () => {
                 Array.isArray(responseData.checkedOut)
             ) {
                 console.log('Function submitCheckInRequest. The response from backend is valid. ');
-                mixpanel.track('Student check-in');
+                mixpanel.track('Student checked in');
             } else {
                 console.warn('Function submitCheckInRequest. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }

@@ -9,6 +9,7 @@ import ScreenTitle from "./ScreenTitle";
 import CreateStudentModal from "./CreateStudentModal";
 import DeleteStudentModal from "./DeleteStudentModal";
 import EditStudentModal from "./EditStudentModal";
+import { mixpanel } from '@/utils/mixpanel';
 
 const StudentManagement = () => {
     const { apiFetch } = useApi();
@@ -277,6 +278,7 @@ const StudentManagement = () => {
                     console.log('Function createStudent. The response from backend is valid.');
 
                     setIsCreateSuccessful(true);
+                    mixpanel.track('Student created');
 
                     addStudentToState(
                         responseData.studentId,
@@ -323,6 +325,7 @@ const StudentManagement = () => {
                 }
 
                 setIsEditSuccessful(true);
+                mixpanel.track('Student edited');
 
                 if (firstName !== newFirstName || lastName !== newLastName) {
                     console.log(`Updating uniqueness with ${newFirstName} ${newLastName}`);
@@ -360,6 +363,7 @@ const StudentManagement = () => {
                 }
 
                 setIsDeleteSuccessful(true);
+                mixpanel.track('Student deleted');
 
                 removeStudentFromState(studentId);
 

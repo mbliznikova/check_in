@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors';
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
 import { ClassOccurrenceType } from '@/types/class';
+import { mixpanel } from '@/utils/mixpanel';
 import WeekCalendar from '@/components/WeekCalendar';
 import OccurrenceFormModal from '@/components/OccurrenceFormModal';
 
@@ -29,6 +30,10 @@ export default function OccurrencesScreen() {
 
     const occurrences = useClassOccurrences();
     const classData = useClassData();
+
+    useEffect(() => {
+        mixpanel.track(paramClassId !== null ? 'Class occurrences viewed by class' : 'Class occurrences viewed');
+    }, []);
 
     const [weekStartDate, setWeekStartDate] = useState<Date>(() => getMondayOfWeek(new Date()));
     const [filterClassId, setFilterClassId] = useState<number | null>(paramClassId);

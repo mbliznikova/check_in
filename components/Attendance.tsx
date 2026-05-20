@@ -12,6 +12,7 @@ import ScreenTitle from './ScreenTitle';
 import StudentReport from './StudentReport';
 import { AttendanceType, StudentAttendanceDetailsType } from '@/types/attendance';
 import { PaymentType } from '@/types/payment';
+import { mixpanel } from '@/utils/mixpanel';
 
 type StudentAttendanceCountType = {
     firstName: string;
@@ -341,6 +342,7 @@ const Attendance = () => {
                                                             const { firstName, lastName } = studentInfo;
                                                             setStudent(setCurrentStudent(studentId, firstName, lastName));
                                                             setIsModalVisible(true);
+                                                            mixpanel.track('Student attendance viewed');
                                                         }}
                                                     >
                                                         <Text style={[textStyle, styles.studentName]}>{studentName}</Text>

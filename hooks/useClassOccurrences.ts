@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
 import { ClassOccurrenceType } from "@/types/class";
+import { mixpanel } from '@/utils/mixpanel';
 
 const isValidCreateOccurrenceResponse = (
     responseData: any,
@@ -254,6 +255,7 @@ export function useClassOccurrences() {
             const occurrenceId = responseData.occurrenceId;
             addOccurrenceToState(occurrenceId, className, plannedDate, plannedTime, duration, classId, scheduleId, notes);
             addOccurrenceToUniqueness(plannedDate, plannedTime);
+            mixpanel.track('Class occurrence created');
         } catch (error) {
             console.error(`Error while sending the data to the server when creating class occurrence: ${error}`);
         }
@@ -273,6 +275,7 @@ export function useClassOccurrences() {
                         tmpMap.delete(occurrenceId);
                         return tmpMap;
                     });
+                    mixpanel.track('Class occurrence deleted');
                 } else {
                     console.warn(`Function deleteClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
@@ -402,6 +405,7 @@ export function useClassOccurrences() {
                         removeOccurrenceFromUniqueness(oldActualDate, oldActualStartTime);
                         addOccurrenceToUniqueness(newActualDate, newActualStartTime);
                     }
+                    mixpanel.track('Class occurrence edited');
 
                 } else {
                     console.warn(`Function editClassOccurrence. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);

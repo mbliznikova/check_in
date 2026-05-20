@@ -11,6 +11,7 @@ import Checkbox from './Checkbox';
 import ClassName from './ClassName';
 import ScreenTitle from '@/components/ScreenTitle';
 import { UNKNOWN_NAME } from '@/constants/ui';
+import { mixpanel } from '@/utils/mixpanel';
 
 type ConfirmationMap =
     Map<number,
@@ -149,6 +150,7 @@ const ConfirmationDetails = ({
                             style={styles.confirmButton}
                             onPress={() => {
                               sendConfirmation();
+                              mixpanel.track('Attendances confirmed');
                               Platform.OS === 'web'
                                 ? alert('Students have been confirmed')
                                 : Alert.alert('Success', 'Students have been confirmed');

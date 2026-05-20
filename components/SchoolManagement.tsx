@@ -13,6 +13,7 @@ import EditSchoolModal from "./EditSchoolModal";
 import DeleteSchoolModal from "./DeleteSchoolModal";
 import InviteUserModal from "./InviteUserModal";
 import StaffModal from "./StaffModal";
+import { mixpanel } from '@/utils/mixpanel';
 
 const SchoolManagement = () => {
     const { apiFetch } = useApi();
@@ -138,6 +139,7 @@ const SchoolManagement = () => {
                     responseData.phone ?? phone,
                     responseData.address ?? address,
                 );
+                mixpanel.track('School created');
             } else {
                 console.warn(`Function createSchool. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
@@ -171,6 +173,7 @@ const SchoolManagement = () => {
 
                 setIsEditSuccessful(true);
                 editSchoolInState(schoolId, newName, newPhone, newAddress);
+                mixpanel.track('School edited');
             } else {
                 console.warn(`Function editSchool. Request was unsuccessful: ${response.status}, ${response.statusText}`);
             }
@@ -201,6 +204,7 @@ const SchoolManagement = () => {
 
                 setIsDeleteSuccessful(true);
                 removeSchoolFromState(schoolId);
+                mixpanel.track('School deleted');
             } else {
                 console.warn(`Function deleteSchool. Request was unsuccessful: ${response.status}, ${response.statusText}`);
             }
@@ -226,6 +230,7 @@ const SchoolManagement = () => {
                 console.log('Function sendInvitation. Invitation sent successfully.');
                 setInviteLink(responseData.inviteLink ?? '');
                 setIsInviteSuccessful(true);
+                mixpanel.track('Staff invited');
             } else {
                 console.warn(`Function sendInvitation. Request was unsuccessful: ${response.status}, ${response.statusText}`);
             }

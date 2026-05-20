@@ -6,6 +6,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useModalStyles } from '@/constants/modalStyles';
 import { StaffMemberType } from '@/types/school';
+import { mixpanel } from '@/utils/mixpanel';
 
 const ROLES = ['kiosk', 'teacher', 'admin', 'owner'] as const;
 
@@ -78,6 +79,7 @@ const StaffModal = ({ isVisible, onModalClose, schoolId, schoolName, onInvitePre
                 }
                 setMembers(prev => prev.map(m => m.id === memberId ? { ...m, role: newRole } : m));
                 setEditingMemberId(null);
+                mixpanel.track('Staff role changed');
             } else {
                 console.warn(`Failed to change role: ${response.status}`);
             }
@@ -103,6 +105,7 @@ const StaffModal = ({ isVisible, onModalClose, schoolId, schoolName, onInvitePre
                 }
                 setMembers(prev => prev.filter(m => m.id !== memberId));
                 setPendingRemoveMemberId(null);
+                mixpanel.track('Staff member removed');
             } else {
                 console.warn(`Failed to remove member: ${response.status}`);
             }

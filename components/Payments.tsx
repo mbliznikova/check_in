@@ -11,6 +11,7 @@ import { StudentType } from '@/types/student';
 import { PaymentType } from '@/types/payment';
 import ScreenTitle from './ScreenTitle';
 import { commonStyles } from '@/constants/commonStyles';
+import { mixpanel } from '@/utils/mixpanel';
 
 type RawPriceType = {
     [classId: string]: {
@@ -496,8 +497,8 @@ const Payments = () => {
                                                     setSelectedPaymentId(paymentId);
                                                     setSelectedPaymentAmount(price); // assuming 1 payment === class price
                                                     setPaymentAction('delete');
-
                                                     setIsModalVisible(true);
+                                                    mixpanel.track('Payment removed');
                                                 }}
                                             >
                                                 <Text style={[isPaid? styles.paidText : styles.unpaidText]}>-</Text>
@@ -513,6 +514,7 @@ const Payments = () => {
 
                                                     setPaymentAction('add');
                                                     setIsModalVisible(true);
+                                                    mixpanel.track('Payment added');
                                                 }}>
                                                 <Text style={[balanceTextStyle]}>{balanceText}</Text>
                                             </Pressable>
@@ -527,6 +529,7 @@ const Payments = () => {
 
                                                     setPaymentAction('add');
                                                     setIsModalVisible(true);
+                                                    mixpanel.track('Payment added');
                                                 }}>
                                                 <Text style={[isPaid? styles.paidText : styles.unpaidText]}>+</Text>
                                             </Pressable>
@@ -610,7 +613,7 @@ const Payments = () => {
                                 {paymentAction === 'add'
                                     ? `Do you want to add $${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
                                     : paymentAction === 'delete'
-                                        ? `Do you want to delete ${selectedPaymentAmount} for ${selectedStudentName}, ${selectedClassName} class?`
+                                        ? `Do you want to delete $${selectedPaymentAmount} for ${selectedStudentName}, ${selectedClassName} class?`
                                         : null
                                 }
                             </Text>

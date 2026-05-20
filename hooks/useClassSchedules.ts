@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
 import { ScheduleType } from "@/types/class";
+import { mixpanel } from '@/utils/mixpanel';
 
 const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
     return (
@@ -175,6 +176,7 @@ export function useClassSchedules() {
             setScheduleModal(prev => ({ ...prev, isSuccess: true }));
             addScheduleToState(scheduleId, dayId, time);
             addScheduleToUniqueness(dayId, time);
+            mixpanel.track('Class scheduled');
         } catch (error) {
             console.error(`Error while sending the data to the server when scheduling class: ${error}`);
         }
@@ -189,6 +191,7 @@ export function useClassSchedules() {
                     console.log(`Function deleteClassSchedule. The response from backend is valid.`);
                     removeScheduleFromState(scheduleId, day);
                     removeScheduleFromUniqueness(day, time);
+                    mixpanel.track('Class schedule deleted');
                 } else {
                     console.warn(`Function deleteClassSchedule. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }

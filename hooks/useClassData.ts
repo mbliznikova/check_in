@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
 import { isValidArrayResponse } from "@/api/validators";
 import { ClassType, PriceItem, PriceMap } from "@/types/class";
+import { mixpanel } from '@/utils/mixpanel';
 
 const isValidCreateResponse = (responseData: any, className: string, classDuration: number, isRecurring: boolean): boolean => {
     return (
@@ -182,6 +183,7 @@ export function useClassData() {
                 setCreatedClassId(responseData.id);
                 setClasses(prevClasses => [...prevClasses, newClass]);
                 createClassPrice(responseData.id, price);
+                mixpanel.track('Class created');
             } else {
                 console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
@@ -228,6 +230,7 @@ export function useClassData() {
                             : cls
                     )
                 );
+                mixpanel.track('Class edited');
             } else {
                 console.warn(`Function editClass. Request was unsuccessful: ${response.status, response.statusText}`);
             }
@@ -248,6 +251,7 @@ export function useClassData() {
                 }
                 setDeleteModal(prev => ({ ...prev, isSuccess: true }));
                 setClasses(prevClasses => prevClasses.filter(cls => cls.id !== classId));
+                mixpanel.track('Class deleted');
             } else {
                 console.warn(`Function deleteClass. Request was unsuccessful: ${response.status, response.statusText}`);
             }
