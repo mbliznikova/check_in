@@ -33,6 +33,13 @@ function timeToMinutes(time: string): number {
     return h * 60 + m;
 }
 
+function addMinutes(time: string, minutes: number): string {
+    const total = timeToMinutes(time) + minutes;
+    const h = Math.floor(total / 60) % 24;
+    const m = total % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function getWeekDates(weekStartDate: Date): Date[] {
     return Array.from({ length: 7 }, (_, i) => {
         const d = new Date(weekStartDate);
@@ -156,6 +163,8 @@ const WeekCalendar = ({
         const blockWidth = (dayWidth / totalCols) - 4;
         const left = col * (dayWidth / totalCols) + 2;
         const color = getClassColor(occ.fallbackClassName);
+        const endTime = addMinutes(occ.actualStartTime, occ.actualDuration);
+        const showEndTime = blockWidth >= 75;
 
         return (
             <Pressable
@@ -181,7 +190,13 @@ const WeekCalendar = ({
                 {height >= 28 && (
                     <Text style={styles.occTime}>
                         {occ.actualStartTime.slice(0, 5)}
-                        {occ.isCancelled ? ' ✕' : ''}
+                        {showEndTime ? ` - ${endTime}` : ''}
+                        {(showEndTime || height < 44) && occ.isCancelled ? ' ✕' : ''}
+                    </Text>
+                )}
+                {!showEndTime && height >= 44 && (
+                    <Text style={styles.occTime}>
+                        {endTime}{occ.isCancelled ? ' ✕' : ''}
                     </Text>
                 )}
             </Pressable>
