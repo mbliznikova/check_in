@@ -63,6 +63,15 @@ function formatWeekRange(weekStartDate: Date): string {
     return `${weekStartDate.toLocaleDateString('en-US', opts)} – ${end.toLocaleDateString('en-US', { ...opts, year: 'numeric' })}`;
 }
 
+function formatDayLabel(dateStr: string): string {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function parseDateStr(dateStr: string): Date {
+    return new Date(dateStr + 'T00:00:00');
+}
+
 type LayoutItem = {
     occ: ClassOccurrenceType;
     col: number;
@@ -117,23 +126,31 @@ type WeekCalendarProps = {
     occurrences: Map<number, ClassOccurrenceType>;
     weekStartDate: Date;
     onOccurrencePress: (occurrence: ClassOccurrenceType) => void;
-    onAddPress: (date: string) => void;
     onPrevWeek: () => void;
     onNextWeek: () => void;
     onToday: () => void;
+    viewMode?: 'week' | 'day';
+    selectedDay?: string;
+    onPrevDay?: () => void;
+    onNextDay?: () => void;
 };
 
 const WeekCalendar = ({
     occurrences,
     weekStartDate,
     onOccurrencePress,
-    onAddPress,
     onPrevWeek,
     onNextWeek,
     onToday,
+    viewMode = 'week',
+    selectedDay,
+    onPrevDay,
+    onNextDay,
 }: WeekCalendarProps) => {
     const { width: screenWidth } = useWindowDimensions();
-    const DAY_COL_WIDTH = Math.floor((screenWidth - TIME_COL_WIDTH) / 7);
+    const DAY_COL_WIDTH = viewMode === 'day'
+        ? screenWidth - TIME_COL_WIDTH
+        : Math.floor((screenWidth - TIME_COL_WIDTH) / 7);
     const colorScheme = useColorScheme() ?? 'light';
     const themeColors = Colors[colorScheme];
 
@@ -141,11 +158,11 @@ const WeekCalendar = ({
     const todayStr = new Date().toISOString().slice(0, 10);
     const weekDates = getWeekDates(weekStartDate);
 
-    // Scroll to ~8am on mount / week change
+    // Scroll to ~8am on mount / week or day change
     useEffect(() => {
         const scrollTo = (8 - START_HOUR) * HOUR_HEIGHT;
         scrollRef.current?.scrollTo({ y: scrollTo, animated: false });
-    }, [weekStartDate]);
+    }, [weekStartDate, selectedDay]);
 
     // Group occurrences by date
     const occsByDate = new Map<string, ClassOccurrenceType[]>();
@@ -226,49 +243,65 @@ const WeekCalendar = ({
         );
     };
 
+    const dayViewDate = selectedDay ? parseDateStr(selectedDay) : new Date();
+    const dayViewDateStr = selectedDay ?? todayStr;
+
     return (
         <View style={styles.container}>
             {/* Navigation header */}
             <View style={styles.navRow}>
                 <View style={styles.navSide}>
-                    <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onPrevWeek}>
+                    <Pressable
+                        style={[styles.navButton, { borderColor: themeColors.border }]}
+                        onPress={viewMode === 'day' ? onPrevDay : onPrevWeek}
+                    >
                         <Text style={[styles.navText, { color: themeColors.text }]}>{'←'}</Text>
                     </Pressable>
                 </View>
                 <View style={styles.navCenter}>
-                    <Text style={[styles.weekLabel, { color: themeColors.text }]}>{formatWeekRange(weekStartDate)}</Text>
+                    {viewMode === 'day' ? (
+                        <Text style={[styles.weekLabel, { color: themeColors.text }]}>
+                            {formatDayLabel(dayViewDateStr)}
+                        </Text>
+                    ) : (
+                        <Text style={[styles.weekLabel, { color: themeColors.text }]}>{formatWeekRange(weekStartDate)}</Text>
+                    )}
                 </View>
                 <View style={[styles.navSide, styles.navSideRight]}>
                     <Pressable style={styles.todayButton} onPress={onToday}>
-                        <Text style={styles.navText}>This week</Text>
+                        <Text style={styles.navText}>{viewMode === 'day' ? 'Today' : 'This week'}</Text>
                     </Pressable>
-                    <Pressable style={[styles.navButton, { borderColor: themeColors.border }]} onPress={onNextWeek}>
+                    <Pressable
+                        style={[styles.navButton, { borderColor: themeColors.border }]}
+                        onPress={viewMode === 'day' ? onNextDay : onNextWeek}
+                    >
                         <Text style={[styles.navText, { color: themeColors.text }]}>{'→'}</Text>
                     </Pressable>
                 </View>
             </View>
 
-            {/* Day name headers */}
-            <View style={[styles.dayHeaderRow, { borderBottomColor: themeColors.border }]}>
-                <View style={{ width: TIME_COL_WIDTH }} />
-                {weekDates.map((date, i) => {
-                    const isToday = toDateStr(date) === todayStr;
-                    return (
-                        <Pressable
-                            key={i}
-                            style={[styles.dayHeader, isToday && styles.todayHeader, { width: DAY_COL_WIDTH }]}
-                            onPress={() => onAddPress(toDateStr(date))}
-                        >
-                            <Text style={[styles.dayName, { color: themeColors.textMuted }, isToday && styles.todayText]}>
-                                {DAY_NAMES[i]}
-                            </Text>
-                            <Text style={[styles.dayDate, { color: themeColors.textMuted }, isToday && styles.todayText]}>
-                                {formatMonthDay(date)}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
+            {/* Day name headers — week mode only; day mode shows the date in the nav row */}
+            {viewMode !== 'day' && (
+                <View style={[styles.dayHeaderRow, { borderBottomColor: themeColors.border }]}>
+                    <View style={{ width: TIME_COL_WIDTH }} />
+                    {weekDates.map((date, i) => {
+                        const isToday = toDateStr(date) === todayStr;
+                        return (
+                            <View
+                                key={i}
+                                style={[styles.dayHeader, isToday && styles.todayHeader, { width: DAY_COL_WIDTH }]}
+                            >
+                                <Text style={[styles.dayName, { color: themeColors.textMuted }, isToday && styles.todayText]}>
+                                    {DAY_NAMES[i]}
+                                </Text>
+                                <Text style={[styles.dayDate, { color: themeColors.textMuted }, isToday && styles.todayText]}>
+                                    {formatMonthDay(date)}
+                                </Text>
+                            </View>
+                        );
+                    })}
+                </View>
+            )}
 
             {/* Scrollable time grid */}
             <ScrollView ref={scrollRef} showsVerticalScrollIndicator={true}>
@@ -289,7 +322,10 @@ const WeekCalendar = ({
 
                     {/* Day columns */}
                     <View style={{ flexDirection: 'row', height: GRID_HEIGHT }}>
-                        {weekDates.map(date => renderDayColumn(date))}
+                        {viewMode === 'day'
+                            ? renderDayColumn(dayViewDate)
+                            : weekDates.map(date => renderDayColumn(date))
+                        }
                     </View>
                 </View>
             </ScrollView>

@@ -6,6 +6,9 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+export const TOGGLE_COLOR = '#1a73e8';
+export const TOGGLE_TEXT = '#fff';
+
 export const Colors = {
   light: {
     text: '#11181C',

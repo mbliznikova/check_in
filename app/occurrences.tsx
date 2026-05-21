@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { Colors, TOGGLE_COLOR, TOGGLE_TEXT } from '@/constants/Colors';
 
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
@@ -10,6 +10,12 @@ import { ClassOccurrenceType } from '@/types/class';
 import { mixpanel } from '@/utils/mixpanel';
 import WeekCalendar from '@/components/WeekCalendar';
 import OccurrenceFormModal from '@/components/OccurrenceFormModal';
+
+function offsetDay(dateStr: string, days: number): string {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+}
 
 function getMondayOfWeek(date: Date): Date {
     const d = new Date(date);
@@ -36,6 +42,8 @@ export default function OccurrencesScreen() {
     }, []);
 
     const [weekStartDate, setWeekStartDate] = useState<Date>(() => getMondayOfWeek(new Date()));
+    const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
+    const [selectedDay, setSelectedDay] = useState<string>(() => new Date().toISOString().slice(0, 10));
     const [filterClassId, setFilterClassId] = useState<number | null>(paramClassId);
     const [filterClassName, setFilterClassName] = useState<string | null>(paramClassName);
 
@@ -83,7 +91,26 @@ export default function OccurrencesScreen() {
         });
     };
 
-    const goToToday = () => setWeekStartDate(getMondayOfWeek(new Date()));
+    const goToToday = () => {
+        if (viewMode === 'day') {
+            setSelectedDay(new Date().toISOString().slice(0, 10));
+        } else {
+            setWeekStartDate(getMondayOfWeek(new Date()));
+        }
+    };
+
+    const prevDay = () => setSelectedDay(prev => offsetDay(prev, -1));
+    const nextDay = () => setSelectedDay(prev => offsetDay(prev, +1));
+
+    const switchViewMode = (mode: 'week' | 'day') => {
+        if (mode === 'day') {
+            setSelectedDay(new Date().toISOString().slice(0, 10));
+        } else {
+            // land week view on the week containing selectedDay
+            setWeekStartDate(getMondayOfWeek(new Date(selectedDay + 'T00:00:00')));
+        }
+        setViewMode(mode);
+    };
 
     const handleOccurrencePress = (occ: ClassOccurrenceType) => {
         setFormModal({ visible: true, mode: 'edit', occurrence: occ, initialDate: null });
@@ -118,7 +145,20 @@ export default function OccurrencesScreen() {
                     <Text style={[styles.backText, { color: C.text }]}>{'← Back'}</Text>
                 </Pressable>
                 <Text style={[styles.title, { color: C.text }]}>Occurrences</Text>
-                <View style={{ width: 70 }} />
+                <View style={styles.viewToggle}>
+                    <Pressable
+                        style={[styles.togglePill, viewMode === 'week' && styles.togglePillActive]}
+                        onPress={() => switchViewMode('week')}
+                    >
+                        <Text style={[styles.toggleText, viewMode === 'week' && styles.toggleTextActive, { color: viewMode === 'week' ? TOGGLE_TEXT : C.text }]}>Week</Text>
+                    </Pressable>
+                    <Pressable
+                        style={[styles.togglePill, viewMode === 'day' && styles.togglePillActive]}
+                        onPress={() => switchViewMode('day')}
+                    >
+                        <Text style={[styles.toggleText, viewMode === 'day' && styles.toggleTextActive, { color: viewMode === 'day' ? TOGGLE_TEXT : C.text }]}>Day</Text>
+                    </Pressable>
+                </View>
             </View>
 
             {/* Class filter pill */}
@@ -138,10 +178,13 @@ export default function OccurrencesScreen() {
                 occurrences={visibleOccurrences}
                 weekStartDate={weekStartDate}
                 onOccurrencePress={handleOccurrencePress}
-                onAddPress={handleAddPress}
                 onPrevWeek={prevWeek}
                 onNextWeek={nextWeek}
                 onToday={goToToday}
+                viewMode={viewMode}
+                selectedDay={selectedDay}
+                onPrevDay={prevDay}
+                onNextDay={nextDay}
             />
 
             {/* FAB: Add occurrence */}
@@ -201,6 +244,29 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '700',
+    },
+    viewToggle: {
+        flexDirection: 'row',
+        borderRadius: 8,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: TOGGLE_COLOR,
+        width: 90,
+    },
+    togglePill: {
+        flex: 1,
+        paddingVertical: 5,
+        alignItems: 'center',
+    },
+    togglePillActive: {
+        backgroundColor: TOGGLE_COLOR,
+    },
+    toggleText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    toggleTextActive: {
+        color: TOGGLE_TEXT,
     },
     filterRow: {
         flexDirection: 'row',
