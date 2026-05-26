@@ -45,6 +45,7 @@ export default function TabLayout() {
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
+          tabBarShowLabel: Platform.OS === 'web' || (Platform.OS === 'ios' && Platform.isPad),
           tabBarStyle: Platform.select({
             ios: {
               // Use a transparent background on iOS to show the blur effect
@@ -59,7 +60,7 @@ export default function TabLayout() {
           options={{
             title: 'Schools',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="building.columns" color={color} />,
           }}
         />
 
@@ -68,7 +69,7 @@ export default function TabLayout() {
           options={{
             title: 'Check-in',
             href: show(["kiosk", "teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="figure.walk.arrival" color={color} />,
           }}
         />
 
@@ -77,7 +78,7 @@ export default function TabLayout() {
           options={{
             title: 'Confirm',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark.circle.fill" color={color} />,
           }}
         />
 
@@ -86,7 +87,7 @@ export default function TabLayout() {
           options={{
             title: 'Attendance',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.clipboard.fill" color={color} />,
           }}
         />
 
@@ -95,7 +96,7 @@ export default function TabLayout() {
           options={{
             title: 'Payments',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="dollarsign.circle.fill" color={color} />,
           }}
         />
 
@@ -104,7 +105,7 @@ export default function TabLayout() {
           options={{
             title: 'Students',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.2.fill" color={color} />,
           }}
         />
 
@@ -113,7 +114,7 @@ export default function TabLayout() {
           options={{
             title: 'Classes',
             href: show(["teacher", "admin", "owner"]) ? undefined : null,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="folder" color={color} />,
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
           }}
         />
 

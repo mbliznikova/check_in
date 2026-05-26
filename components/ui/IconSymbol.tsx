@@ -14,6 +14,13 @@ const MAPPING = {
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'folder': 'folder',
+  'building.columns': 'account-balance',
+  'figure.walk.arrival': 'login',
+  'checkmark.circle.fill': 'check-circle',
+  'list.clipboard.fill': 'assignment',
+  'dollarsign.circle.fill': 'payments',
+  'person.2.fill': 'people',
+  'calendar': 'calendar-today',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
