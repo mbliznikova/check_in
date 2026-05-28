@@ -31,6 +31,11 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+
+# Build artifacts
+build-*.ipa
+build-*.apk
 
 # typescript
 *.tsbuildinfo
