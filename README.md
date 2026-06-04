@@ -10,11 +10,11 @@ The backend (Django + DRF, PostgreSQL) lives in a [separate repository](https://
 
 | Kiosk check-in | Attendance | Payments |
 |---|---|---|
-| ![Kiosk check-in screen](screenshots/check-in.png) | ![Attendance screen](screenshots/attendance.png) | ![Payments screen](screenshots/payments.png) |
+| ![Kiosk check-in screen](screenshots/check-in.png) | <img src="docs/images/Attendance.PNG" width="250" alt="Attendance screen"> | <img src="docs/images/Payments.PNG" width="250" alt="Payments screen"> |
 
 | Classes | Week calendar | Confirm |
 |---|---|---|
-| ![Classes screen](screenshots/classes.png) | ![Week calendar](screenshots/week-calendar.png) | <img src="docs/images/IMG_1966.PNG" width="250" alt="Confirm tab screen"> |
+| <img src="docs/images/Classes.PNG" width="250" alt="Classes screen"> | <img src="docs/images/Occurrences_week_view.PNG" width="250" alt="Week calendar"> | <img src="docs/images/Confirmation.PNG" width="250" alt="Confirm tab screen"> |
 
 ## Features
 
