@@ -1,38 +1,42 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput, ActivityIndicator, Alert, Platform } from 'react-native';
-import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 
-import { useApi } from "@/api/client";
-import { isValidArrayResponse } from '@/api/validators';
-import { StudentType } from '@/types/student';
-import { PaymentType } from '@/types/payment';
+// import { URLSearchParams } from 'node:url'
+
 import ScreenTitle from './ScreenTitle';
-import { commonStyles } from '@/constants/commonStyles';
-import { mixpanel } from '@/utils/mixpanel';
+
+type StudentType = {
+    id: number;
+    firstName: string;
+    lastName: string;
+};
 
 type RawPriceType = {
     [classId: string]: {
-        className: string;
-        amount: number;
-        priceId: number;
-    };
+        [className: string]: number
+    },
 };
 
 type PriceType = Map<number, {
-    className: string;
-    amount: number;
-    priceId: number;
+    [className: string]: number
 }>;
 
 type ClassPaymentType = Map<number, {
     className: string;
     amount: number;
     paid: boolean;
-    lastPaymentId: number | null;
   }>;
+
+type PaymentType = {
+    id: number;
+    studentId: number;
+    classId: number;
+    studentName: string;
+    className: string;
+    amount: number;
+    paymentDate: string;
+};
 
 type PaymentMapType = Map<number, {
     studentName: string;
@@ -40,10 +44,8 @@ type PaymentMapType = Map<number, {
   }>;
 
 const Payments = () => {
-    const { apiFetch } = useApi();
 
-    const textStyle = useThemeTextStyle();
-    const colorScheme = useColorScheme() ?? 'light';
+    const colorScheme = useColorScheme();
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -70,12 +72,6 @@ const Payments = () => {
     const [selectedStudentName, setSelectedStudentName] = useState<string>("");
 
     const [selectedClassName, setSelectedClassName] = useState<string>("");
-
-    const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
-
-    const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number>(0);
-
-    const [paymentAction, setPaymentAction] = useState<'add' | 'delete' | null>(null);
 
     const today = new Date();
     const monthName = today.toLocaleString('default', { month: 'long' });
@@ -113,7 +109,16 @@ const Payments = () => {
         setYearInput(yearString);
     };
 
-    const isGeneralValidResponse = (responseData: any, key: string): boolean => {
+    const isValidArrayResponse = (responseData: any, key: string): Boolean => {
+        return (
+            typeof responseData === "object" &&
+            responseData !== null &&
+            key in responseData &&
+            Array.isArray(responseData[key])
+        );
+    };
+
+    const isGeneralValidResponse = (responseData: any, key: string): Boolean => {
         return (
             typeof responseData === "object" &&
             responseData !== null &&
@@ -121,18 +126,8 @@ const Payments = () => {
         );
     };
 
-    const isValidDeletePaymentResponse = (responseData: any, paymentId: number, paymentAmount: number): boolean => {
-        return (
-            typeof responseData === 'object' &&
-            responseData !== null &&
-            'message' in responseData && responseData.message === `Payment ${paymentId} was deleted successfully` &&
-            'paymentId' in responseData && responseData.paymentId === paymentId &&
-            'paymentAmount' in responseData && responseData.paymentAmount === paymentAmount
-        );
-    };
-
-    const aggregatePayments = (): Map<string, { id: number; amount: number }[]> => {
-        const paidMap: Map<string, { id: number; amount: number }[]> = new Map();
+    const aggregatePayments = ():Map<string, number[]> => {
+        const paidMap: Map<string, number[]> = new Map();
 
         payments.forEach((payment) => {
             const key = `${payment.studentId}-${payment.classId}`;
@@ -141,10 +136,7 @@ const Payments = () => {
                 paidMap.set(key, []);
             }
 
-            paidMap.get(key)!.push({
-                id: payment.id,
-                amount: payment.amount
-              })
+            paidMap.get(key)!.push(payment.amount)
 
         });
 
@@ -161,25 +153,15 @@ const Payments = () => {
             const paymentData: ClassPaymentType = new Map();
 
             prices.forEach((classInfo, classId) => {
-                const className = classInfo.className;
+                const className = Object.keys(classInfo)[0];
                 const key = `${student.id}-${classId}`;
-
-                const paymentsForCell = aggregatedPayments.get(key) ?? [];
-                const amount = paymentsForCell.reduce(
-                    (acc, p) => acc + p.amount,
-                    0
-                );
-                const paid = paymentsForCell.length > 0;
-
-                const lastPaymentId = paymentsForCell.length > 0 // Assuming for now that all payments for the class have the same amount
-                ? paymentsForCell[paymentsForCell.length - 1].id
-                : null;
+                const amount = aggregatedPayments.has(key) ? aggregatedPayments.get(key)!.reduce((acc, curr) => acc + curr, 0) : 0.0;
+                const paid = aggregatedPayments.has(key) ? true : false;
 
                 paymentData.set(Number(classId), {
                     className,
                     amount,
                     paid,
-                    lastPaymentId
                 });
             });
 
@@ -196,26 +178,22 @@ const Payments = () => {
 
     const fetchPrices = async () => {
         try {
-            const response = await apiFetch("/prices/",
-                { method: "GET" }
-            );
-
+            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
-                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid.")
+                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                     const rawPricesObj: RawPriceType = responseData.response;
 
                     const pricesObj: PriceType = new Map(
                         Object.entries(rawPricesObj)
-                            .map(
-                                ([key, value]): [number, { className: string; amount: number; priceId: number }] =>
-                                    [Number(key), value]
-                            )
-                            .sort((a, b) =>
-                                a[1].className.toLowerCase().localeCompare(b[1].className.toLowerCase())
-                            )
+                            .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
+                            .sort((a, b) => {
+                                    const nameA = Object.keys(a[1])[0].toLowerCase();
+                                    const nameB = Object.keys(b[1])[0].toLowerCase();
+                                    return nameA.localeCompare(nameB);
+                                })
                     );
 
                     setPrices(pricesObj);
@@ -230,14 +208,11 @@ const Payments = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await apiFetch("/students/",
-                { method: "GET" }
-            );
-
+            const response = await fetch('http://127.0.0.1:8000/backend/students/');
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid.")
+                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                     const studentList: StudentType[] = responseData.response;
                     studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
@@ -257,14 +232,12 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await apiFetch(`/payments/?${params}`,
-                { method: "GET" }
-            );
+            const response = await fetch(`http://127.0.0.1:8000/backend/payments/?${params}`);
 
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid.")
+                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
                     const paymentList: PaymentType[] = responseData.response;
 
@@ -283,17 +256,14 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-
-            const response = await apiFetch(`/payment_summary/?${params}`,
-                { method: "GET" }
-            );
+            const response = await fetch(`http://127.0.0.1:8000/backend/payment_summary/?${params}`);
 
             if (response.ok) {
                 const responseData = await response.json();
-                if (isGeneralValidResponse(responseData, "summary")) {
-                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid.")
+                if (isGeneralValidResponse(responseData, "response")) {
+                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
 
-                    const summary: number = responseData.summary ?? 0.0;
+                    const summary: number = responseData.response.summary ?? 0.0;
 
                     setSummary(summary);
                 }
@@ -332,13 +302,16 @@ const Payments = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await apiFetch("/payments/", {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await fetch(
+                'http://127.0.0.1:8000/backend/payments/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
 
             if (!response.ok) {
                 const errorMessage = `Function submitPayment. Request was unsuccessful: ${response.status}, ${response.statusText}`;
@@ -354,8 +327,8 @@ const Payments = () => {
                 responseData !== null &&
                 'message' in responseData && responseData.message === 'Payment was successfully created' &&
                 'paymentId' in responseData && typeof responseData.paymentId === 'number' &&
-                // Not checking responseData.classId === classId: student/class may have been deleted,
-                // leaving no FK in Payment on BE. Payment still valid if added retrospectively.
+                // Not checking responseData.classId === classId for the case the student/class was deleted and no such FK in Payment in BE,
+                // but the payment was added (retrospective), in case Payments FE was not refreshed after student/class was deleted?
                 'studentId' in responseData &&
                 'classId' in responseData &&
                 'studentName' in responseData && responseData.studentName === studentName &&
@@ -367,40 +340,13 @@ const Payments = () => {
                 'paymentMonth' in responseData && 'paymentYear' in responseData &&
                 responseData.paymentMonth === todayMonth && responseData.paymentYear === todayYear
             ) {
-                console.log('Function submitPayment. The response from backend is valid.');
+                console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
             } else {
                 console.warn('Function submitPayment. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
 
         } catch (err) {
             console.warn("Error while sending the data to the server at student check-in: ", err);
-        }
-    };
-
-    const deletePayment = async(paymentId: number, paymentAmount: number) => {
-        if (paymentId === null) {
-            console.warn("No payment selected to delete");
-            return null;
-        }
-        try {
-            const response = await apiFetch(`/payments/${paymentId}/delete/`, {
-                method: "DELETE",
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-
-                if (isValidDeletePaymentResponse(responseData, paymentId, paymentAmount)) {
-                    console.log('Function deletePayment. The response from backend is valid.');
-                } else {
-                    console.warn(`Function deletePayment. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
-                }
-
-            } else {
-                console.warn(`Function deletePayment. Request was unsuccessful: ${response.status, response.statusText}`);
-            }
-        } catch(error) {
-            console.error(`Error while deleting the payment: ${error}`);
         }
     };
 
@@ -411,12 +357,10 @@ const Payments = () => {
     };
 
     useEffect(() => {
-        Promise.all([
-            fetchPrices(),
-            fetchStudents(),
-            fetchPayments(),
-            fetchSummary(),
-        ]).finally(() => setLoading(false));
+        fetchPrices();
+        fetchStudents();
+        fetchPayments();
+        fetchSummary();
     },
     []);
 
@@ -435,11 +379,11 @@ const Payments = () => {
         return (
         <View>
             <View style={[styles.headerRow, styles.whiteBorderLine]}>
-                <View style={{width: 120}} />
+                <Text style={{paddingRight: 150}}></Text>
                 {priceArray.map(([classId, classInfo]) => {
-                    const className = classInfo.className;
+                    const className = Object.keys(classInfo)[0];
                     return (
-                        <Text key={classId} style={[textStyle, {fontWeight: "bold", width: 100, textAlign: 'center'}]}>
+                        <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                             {className}
                         </Text>
                     );
@@ -460,7 +404,7 @@ const Payments = () => {
                 return (
                     <View key={student.id} style={styles.spaceBetweenRow}>
                         <View style={{ width: 120 }}>
-                            <Text key={student.id} style={[textStyle, {fontWeight: "bold"}]}>
+                            <Text key={student.id} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                                 {studentData.studentName}
                             </Text>
                         </View>
@@ -471,38 +415,16 @@ const Payments = () => {
                             const isPaid: boolean = classInfo.paid ?? false;
 
                             const classPrice = prices.get(Number(classId));
-                            const className = classPrice ? classPrice.className : "Undefined";
-                            const price = classPrice ? classPrice.amount : 0.0;
-                            const paymentId = classInfo.lastPaymentId;
-
-                            const balanceTextStyle = isPaid ? styles.paidText : styles.unpaidText;
-                            const balanceText = isPaid ? `$${amount - price}` : `-$${price}`;
+                            const className = classPrice ? Object.keys(classPrice)[0] : "Undefined";
+                            const price = classPrice && className ? classPrice[className] : 0.0;
 
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
                                         <Text style={[isPaid? styles.paidText : styles.unpaidText, { fontWeight: "bold" }]}>
-                                            {`Price: $${price}`}
+                                            {isPaid ? amount + " - Paid" : price}
                                         </Text>
                                         <View style={styles.paymentButtonContainer}>
-                                            <Pressable
-                                                style={{paddingRight: 10}}
-                                                onPress={() => {
-                                                    if (!paymentId) return;
-                                                    setSelectedStudentId(student.id);
-                                                    setSelectedClassId(classId);
-                                                    setSelectedStudentName(studentData.studentName);
-                                                    setSelectedClassName(className);
-
-                                                    setSelectedPaymentId(paymentId);
-                                                    setSelectedPaymentAmount(price); // assuming 1 payment === class price
-                                                    setPaymentAction('delete');
-                                                    setIsModalVisible(true);
-                                                    mixpanel.track('Payment removed');
-                                                }}
-                                            >
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>-</Text>
-                                            </Pressable>
                                             <Pressable
                                                 style={[styles.paymentButton, isPaid? styles.paidBorder : styles.unpaidBorder]}
                                                 onPress={() => {
@@ -511,27 +433,9 @@ const Payments = () => {
                                                     setSelectedStudentName(studentData.studentName);
                                                     setSelectedClassName(className);
                                                     setSelectedPrice(price);
-
-                                                    setPaymentAction('add');
                                                     setIsModalVisible(true);
-                                                    mixpanel.track('Payment added');
                                                 }}>
-                                                <Text style={[balanceTextStyle]}>{balanceText}</Text>
-                                            </Pressable>
-                                            <Pressable
-                                                style={{paddingLeft: 10}}
-                                                onPress={() => {
-                                                    setSelectedStudentId(student.id);
-                                                    setSelectedClassId(classId);
-                                                    setSelectedStudentName(studentData.studentName);
-                                                    setSelectedClassName(className);
-                                                    setSelectedPrice(price);
-
-                                                    setPaymentAction('add');
-                                                    setIsModalVisible(true);
-                                                    mixpanel.track('Payment added');
-                                                }}>
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>+</Text>
+                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? "Pay more?" : "Pay"}</Text>
                                             </Pressable>
                                         </View>
                                     </View>
@@ -545,57 +449,6 @@ const Payments = () => {
         );
     };
 
-    const closeModal = () => {
-        setIsModalVisible(false);
-
-        setPaymentAction(null);
-        setSelectedPaymentId(null);
-        setSelectedPaymentAmount(0);
-
-        setSelectedStudentId(null);
-        setSelectedClassId(null);
-        setSelectedStudentName("");
-        setSelectedClassName("");
-        setSelectedPrice(0);
-      };
-
-    const handleConfirm = async () => {
-        if (
-            !paymentAction ||
-            selectedStudentId === null ||
-            selectedClassId === null
-            ) {
-            return;
-        }
-        try {
-            if (paymentAction === 'add') {
-                await submitPayment(
-                    selectedStudentId,
-                    selectedClassId,
-                    selectedStudentName,
-                    selectedClassName,
-                    selectedPrice,
-                );
-            } else if (paymentAction === 'delete') {
-                if (!selectedPaymentId) return;
-
-                await deletePayment(
-                    selectedPaymentId,
-                    selectedPaymentAmount
-                );
-            }
-
-            await fetchPayments();
-            await fetchSummary();
-            closeModal();
-        } catch (error) {
-            console.error('Could not complete action: ', error);
-            Platform.OS === 'web'
-                ? alert('Could not complete action.')
-                : Alert.alert('Error', 'Could not complete action.');
-        }
-    };
-
     const renderModal = () => {
         if (!isModalVisible || selectedStudentId === null || selectedClassId === null) {
             return null;
@@ -604,32 +457,47 @@ const Payments = () => {
             <Modal
                 visible={isModalVisible}
                 transparent={true}
-                onRequestClose={closeModal}
+                onRequestClose={() => {
+                    setIsModalVisible(false)
+                }}
             >
                 <View style={styles.modalContainer}>
-                    <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
+                    <View style={styles.modalView}>
                         <View style={styles.modalInfo}>
-                            <Text style={[textStyle, {fontWeight: "bold"}]}>
-                                {paymentAction === 'add'
-                                    ? `Do you want to add $${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
-                                    : paymentAction === 'delete'
-                                        ? `Do you want to delete $${selectedPaymentAmount} for ${selectedStudentName}, ${selectedClassName} class?`
-                                        : null
-                                }
+                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
+                                Do you want to add ${selectedPrice} for {selectedStudentName}, {selectedClassName} class?
                             </Text>
                         </View>
                         <View style={styles.modalButtonsContainer}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={handleConfirm}
+                                onPress={async () => {
+                                    try {
+                                        await submitPayment(
+                                            selectedStudentId,
+                                            selectedClassId,
+                                            selectedStudentName,
+                                            selectedClassName,
+                                            selectedPrice,
+                                        );
+                                        await fetchPayments();
+                                        await fetchSummary();
+                                        setIsModalVisible(false);
+                                } catch (error) {
+                                    console.error("Could not submit payment: ", error);
+                                    alert("Could not complete payment.");
+                                }
+                                }}
                             >
-                                <Text style={[textStyle]}>OK</Text>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
-                                onPress={closeModal}
+                                onPress={() => {
+                                    setIsModalVisible(false);
+                                }}
                             >
-                                <Text style={[textStyle]}>Cancel</Text>
+                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -641,8 +509,8 @@ const Payments = () => {
     const renderSummary = () => {
         return (
             <View style={[styles.spaceBetweenRow]}>
-                <Text style={[textStyle, styles.summary]}>Summary:</Text>
-                <Text style={[textStyle, styles.summary]}>{summary}</Text>
+                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>Summary:</Text>
+                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.summary]}>{summary}</Text>
             </View>
         );
     };
@@ -650,45 +518,42 @@ const Payments = () => {
     const renderSelector = () => {
         return (
             <View style={styles.selector}>
-                <Text style={[textStyle, styles.selectorText]}>Select month and year to display:</Text>
-                <View style={styles.selectorInputRow}>
-                    <TextInput
-                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
-                        value={monthInput}
-                        onChangeText={(newMonth) => {readMonth(newMonth)}}
-                    />
-                    <View style={{width: 10}}></View>
-                    <TextInput
-                        style={[textStyle, commonStyles.inputField, { width: 100 }]}
-                        value={yearInput}
-                        onChangeText={(newYear) => {readYear(newYear)}}
-                    />
-                    <View style={{width: 10}}></View>
-                    <Pressable
-                        onPress={() => { submitMonthYearSelection(); }}
-                        style={[styles.paymentButton, styles.selectorButtonColor]}
-                    >
-                        <Text style={textStyle}>Show</Text>
-                    </Pressable>
+                <View style={{paddingRight: 20}}>
+                    <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.selectorText]}>Select month and year to display:</Text>
                 </View>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={monthInput}
+                    onChangeText={(newMonth) => {readMonth(newMonth)}}
+                />
+                <View style={{width: 10}}></View>
+                <TextInput
+                    style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, styles.inputFeld]}
+                    value={yearInput}
+                    onChangeText={(newYear) => {readYear(newYear)}}
+                />
+                <View style={{width: 10}}></View>
+                <Pressable
+                    onPress = {() => {
+                        submitMonthYearSelection();
+                    }}
+                    style={[styles.paymentButton, styles.selectorButtonColor]}
+                >
+                    <Text style={colorScheme === 'dark'? styles.lightColor : styles.darkColor}>Show</Text>
+                </Pressable>
             </View>
         );
     };
 
-    if (loading) {
-        return <ActivityIndicator size="large" color="#0000ff" />;
-    }
-
     return (
         <SafeAreaView style={styles.container}>
-
             <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}
             </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <ScrollView horizontal={true}>
-                    <View style={{minWidth: screenWidth, paddingBottom: 80 }}>
+                    <View style={{minWidth: screenWidth }}>
                         {renderHeaderRow()}
                         {renderTableBody()}
                         {renderModal()}
@@ -731,13 +596,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     paymentButtonContainer: {
-        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
     paymentButton: {
-        width: 55,
-        alignItems: 'center',
         paddingVertical: 7,
         paddingHorizontal: 5,
         marginVertical: 10,
@@ -750,8 +612,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalView: {
-        width: '85%',
-        maxWidth: 360,
+        width: '50%',
+        height: '40%',
         backgroundColor: 'black', //TODO: make it adjustable
         borderRadius: 20,
         padding: 20,
@@ -763,10 +625,10 @@ const styles = StyleSheet.create({
     },
     modalButtonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         padding: 20,
         alignItems: 'center',
-        gap: 16,
+        width: '30%',
     },
     modalConfirmButton: {
         alignItems: 'center',
@@ -803,12 +665,9 @@ const styles = StyleSheet.create({
     selector: {
         paddingVertical: 20,
         paddingHorizontal: 20,
-        alignItems: 'center',
-    },
-    selectorInputRow: {
         flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
     },
     selectorText: {
         paddingHorizontal: 10,
@@ -816,6 +675,20 @@ const styles = StyleSheet.create({
     },
     selectorButtonColor: {
         borderColor: 'grey',
+    },
+    darkColor: {
+        color: 'black',
+    },
+    lightColor: {
+        color: 'white',
+    },
+    inputFeld: {
+        height: 30,
+        width: 100,
+        borderWidth: 1,
+        borderColor: 'gray',
+        padding: 10,
+        borderRadius: 15,
     },
 })
 
