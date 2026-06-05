@@ -55,7 +55,7 @@ export default function InviteAcceptScreen() {
 
     const renderNotSignedIn = () => (
         <View style={styles.content}>
-            <Text style={[textStyle, styles.title]}>You're invited!</Text>
+            <Text style={[textStyle, styles.title]}>You&apos;re invited!</Text>
             <Text style={[textStyle, styles.message]}>
                 Sign in or create an account to accept this invitation.
             </Text>
@@ -93,7 +93,7 @@ export default function InviteAcceptScreen() {
 
     const renderAcceptForm = () => (
         <View style={styles.content}>
-            <Text style={[textStyle, styles.title]}>You're invited!</Text>
+            <Text style={[textStyle, styles.title]}>You&apos;re invited!</Text>
             <Text style={[textStyle, styles.message]}>
                 You have a pending invitation to join a school.
             </Text>

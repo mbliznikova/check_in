@@ -44,7 +44,7 @@ const StudentManagement = () => {
     ) => {
         return (
             typeof responseData === 'object' &&
-            typeof responseData !== null &&
+            responseData !== null &&
             'message' in responseData && responseData.message === 'Student was created successfully' &&
             'studentId' in responseData &&
             'firstName' in responseData && responseData.firstName === firstName &&

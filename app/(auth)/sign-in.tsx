@@ -12,15 +12,6 @@ export default function Page() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>()
-
-  if (Platform.OS === 'web') {
-    return (
-      <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
-        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/check-in'} />
-    </View>
-    );
-  }
-
   const { signIn, setActive, isLoaded } = useSignIn()
   const router = useRouter()
 
@@ -32,6 +23,14 @@ export default function Page() {
   const [code, setCode] = useState('')
 
   const textStyle = useThemeTextStyle();
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/check-in'} />
+    </View>
+    );
+  }
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
@@ -160,7 +159,7 @@ export default function Page() {
         <View style={styles.itemContainer}>
           <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
             <Link href="/sign-up">
-              <Text style={[textStyle, styles.regularText]}>Don't have an account? </Text>
+              <Text style={[textStyle, styles.regularText]}>Don&apos;t have an account? </Text>
               <Text style={[textStyle, styles.signUpText, styles.regularText]}>Sign up</Text>
             </Link>
           </View>
