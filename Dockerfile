@@ -1,22 +1,4 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-
-ARG EXPO_PUBLIC_API_BASE_URL=/backend
-ARG EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
-ARG EXPO_PUBLIC_MIXPANEL_TOKEN
-
-ENV EXPO_PUBLIC_API_BASE_URL=$EXPO_PUBLIC_API_BASE_URL
-ENV EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=$EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
-ENV EXPO_PUBLIC_MIXPANEL_TOKEN=$EXPO_PUBLIC_MIXPANEL_TOKEN
-
-RUN npx expo export --platform web
-
-FROM nginx:alpine AS runner
-COPY --from=builder /app/dist /usr/share/nginx/html
+FROM nginx:alpine
+COPY dist/ /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
