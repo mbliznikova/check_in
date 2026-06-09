@@ -36,16 +36,11 @@ jobs:
 
       - name: Export web bundle
         run: |
-          npx expo export --platform web &
+          npx expo export --platform web 2>&1 | tee /tmp/expo.log &
           PID=$!
-
-          while [ ! -f dist/index.html ]; do
+          while ! grep -q "Exported: dist" /tmp/expo.log 2>/dev/null; do 
             sleep 2
           done
-
-          # Give Expo a bit more time to finish writing files
-          sleep 20
-
           kill -TERM $PID || true
           wait $PID || true
         env:
@@ -60,13 +55,9 @@ jobs:
 
       - name: Verify dist output
         run: |
-          echo "=== dist/ contents ==="
-          ls -lh dist/
-          echo "=== checking key files exist ==="
-          test -f dist/index.html && echo "✓ index.html" || (echo "✗ index.html MISSING" && exit 1)
-          test -d dist/_expo && echo "✓ _expo/" || (echo "✗ _expo/ MISSING" && exit 1)
-          echo "=== bundle size ==="
-          du -sh dist/
+          test -f dist/index.html || (echo "✗ index.html missing" && exit 1)
+          test -d dist/_expo      || (echo "✗ _expo/ missing"      && exit 1)
+          echo "✓ dist ready ($(du -sh dist/ | cut -f1))"
 
       - name: Log in to GHCR
         if: github.event_name == 'push'
