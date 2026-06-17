@@ -25,11 +25,6 @@ export default function RootLayout() {
       throw new Error("Missing Clerk publishable key");
     }
 
-  console.log(
-    "CLERK KEY",
-    process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
-  );
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
