@@ -44,7 +44,7 @@ jobs:
 
       - name: Export web bundle
         run: |
-          npx expo export --platform web > >(tee /tmp/expo.log) 2>&1 &
+          npx expo export --platform web --clear > >(tee /tmp/expo.log) 2>&1 &
           PID=$!
           while ! grep -q "Exported: dist" /tmp/expo.log 2>/dev/null; do
             sleep 2
