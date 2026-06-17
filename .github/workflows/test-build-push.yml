@@ -34,6 +34,14 @@ jobs:
       - name: Test
         run: npm test -- --watchAll=false
 
+      - name: Debug env vars
+        run: |
+          echo "CLERK key length: ${#EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}"
+          echo "API base: $EXPO_PUBLIC_API_BASE_URL"
+        env:
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          EXPO_PUBLIC_API_BASE_URL: /backend
+
       - name: Export web bundle
         run: |
           npx expo export --platform web > >(tee /tmp/expo.log) 2>&1 &
