@@ -20,6 +20,16 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      throw new Error("Missing Clerk publishable key");
+    }
+
+  console.log(
+    "CLERK KEY",
+    process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+  );
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -31,12 +41,14 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider tokenCache={tokenCache}>
-      <UserProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerShown: false }} />
-        </ThemeProvider>
-      </UserProvider>
+    <ClerkProvider
+      publishableKey={publishableKey}
+      tokenCache={tokenCache}>
+        <UserProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Stack screenOptions={{ headerShown: false }} />
+          </ThemeProvider>
+        </UserProvider>
     </ClerkProvider>
   );
 }
