@@ -19,7 +19,7 @@ const SchoolManagement = () => {
     const { apiFetch } = useApi();
     const { createOrganization } = useOrganizationList();
     const textStyle = useThemeTextStyle();
-    const { role: activeRole } = useUserRole();
+    const { role: activeRole, reloadUser } = useUserRole();
 
     const [loading, setLoading] = useState(true);
     const [schools, setSchools] = useState<SchoolType[]>([]);
@@ -139,6 +139,7 @@ const SchoolManagement = () => {
                     responseData.phone ?? phone,
                     responseData.address ?? address,
                 );
+                reloadUser();
                 mixpanel.track('School created');
             } else {
                 console.warn(`Function createSchool. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);

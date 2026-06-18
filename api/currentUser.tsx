@@ -7,10 +7,14 @@ const isValidCurrentUserResponse = (responseData: any): boolean => {
         typeof responseData === 'object' &&
         responseData !== null &&
         Array.isArray(responseData.memberships) &&
-        responseData.memberships.length > 0 &&
-        typeof responseData.memberships[0].schoolId === "number" &&
-        typeof responseData.memberships[0].role === "string" &&
-        typeof responseData.memberships[0].schoolName === "string"
+        (
+            responseData.memberships.length === 0 ||
+            (
+                typeof responseData.memberships[0].schoolId === "number" &&
+                typeof responseData.memberships[0].role === "string" &&
+                typeof responseData.memberships[0].schoolName === "string"
+            )
+        )
     );
 }
 
@@ -22,10 +26,11 @@ export const fetchCurrentUser = async (apiFetch: ApiFetch) => {
             const responseData = await response.json();
 
             if (isValidCurrentUserResponse(responseData)) {
+                const memberships = responseData.memberships as MembershipType[];
                 return {
-                    role: responseData.memberships[0].role,
-                    schoolId: responseData.memberships[0].schoolId,
-                    memberships: responseData.memberships as MembershipType[],
+                    role: memberships.length > 0 ? memberships[0].role : null,
+                    schoolId: memberships.length > 0 ? memberships[0].schoolId : null,
+                    memberships,
                 }
             }
 

@@ -59,7 +59,7 @@ export default function TabLayout() {
           name="schools"
           options={{
             title: 'Schools',
-            href: show(["teacher", "admin", "owner"]) ? undefined : null,
+            href: (role === null || show(["teacher", "admin", "owner"])) ? undefined : null,
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="building.columns" color={color} />,
           }}
         />

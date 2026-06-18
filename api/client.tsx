@@ -13,7 +13,7 @@ const schoolReady = new Promise<void>((resolve) => {
 export function configureSchoolId(schoolId: number | null) {
     currentSchoolId = schoolId;
 
-    if (schoolId !== null && resolveSchoolReady) {
+    if (resolveSchoolReady) {
         resolveSchoolReady();
         resolveSchoolReady = null;
     }
