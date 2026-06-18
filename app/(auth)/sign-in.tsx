@@ -27,7 +27,7 @@ export default function Page() {
   if (Platform.OS === 'web') {
     return (
       <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
-        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/check-in'} />
+        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/'} />
     </View>
     );
   }
