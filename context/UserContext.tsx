@@ -59,6 +59,8 @@ export function UserProvider({children}: {children: ReactNode}) {
     };
 
     useEffect(() => {
+        if (isSignedIn === undefined) return;
+
         if (!isSignedIn) {
             setRole(null);
             setSchoolId(null);
