@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { ScheduleType } from "@/types/class";
 import { mixpanel } from '@/utils/mixpanel';
@@ -37,6 +38,7 @@ const isValidAvailableTimeSlotsResponse = (responseData: any): boolean => {
 
 export function useClassSchedules() {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const [allSchedulesList, setAllSchedulesList] = useState<ScheduleType[]>([]);
     const [schedulesSet, setSchedulesSet] = useState<Set<string>>(new Set());
@@ -44,8 +46,9 @@ export function useClassSchedules() {
     const [scheduleModal, setScheduleModal] = useState({ isVisible: false, isSuccess: false });
 
     useEffect(() => {
+        if (!schoolId) return;
         fetchSchedules();
-    }, []);
+    }, [schoolId]);
 
     useEffect(() => {
         const scheduleSet: Set<string> = new Set();

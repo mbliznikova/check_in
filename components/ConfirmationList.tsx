@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {StyleSheet, FlatList, SafeAreaView, ActivityIndicator} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from '@/api/validators';
 import { AttendanceType } from '@/types/attendance';
 import ConfirmationDetails from './ConfirmationDetails';
@@ -29,6 +30,7 @@ import ConfirmationDetails from './ConfirmationDetails';
 
 const ConfirmationList = () => {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
 
     const [attendances, setAttendances] = useState<AttendanceType[]>([]);
@@ -36,6 +38,7 @@ const ConfirmationList = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!schoolId) return;
         const fetchAttendances = async () => {
             try {
                 const response = await apiFetch("/attendances/",
@@ -68,7 +71,7 @@ const ConfirmationList = () => {
 
         fetchAttendances();
     },
-    []);
+    [schoolId]);
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;

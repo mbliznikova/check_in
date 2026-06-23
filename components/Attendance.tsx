@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
 
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
@@ -28,6 +29,7 @@ type ClassAttendanceCountType = {
 
 const Attendance = () => {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const colorScheme = useColorScheme();
     const textStyle = useThemeTextStyle();
@@ -119,6 +121,7 @@ const Attendance = () => {
     }
 
     useEffect(() => {
+        if (!schoolId) return;
         const fetchPayments = async () => {
             // Assume for now that the query returns the payment data only for the current month
            try {
@@ -148,7 +151,7 @@ const Attendance = () => {
             fetchPayments(),
         ]).finally(() => setLoading(false));
     },
-    []);
+    [schoolId]);
 
     useEffect(() => {
         getBalance();

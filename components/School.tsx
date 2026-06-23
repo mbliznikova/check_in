@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions, Platform } from 'react-native';
 
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from '@/api/validators';
 import { StudentType } from '@/types/student';
 import ClassName from './ClassName';
@@ -32,6 +33,7 @@ const isLargeScreen = Platform.OS === 'web' || (Platform.OS === 'ios' && Platfor
 
 const School = () => {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const [classOccurrenceList, setClassOccurrenceList] = useState<ClassOccurrenceType[]>([]);
 
@@ -48,6 +50,7 @@ const School = () => {
     const checkedInStudents = useMemo(() => assignStudentsToOccurrences(), [students, classOccurrenceList]);
 
     useEffect(() => {
+        if (!schoolId) return;
         const fetchClassOccurrences = async () => {
             try {
                 const response = await apiFetch("/today_class_occurrences/",
@@ -174,7 +177,7 @@ const School = () => {
             fetchStudents(),
             fetchAttendedStudents(),
         ]).finally(() => setLoading(false));
-    }, []);
+    }, [schoolId]);
 
     useEffect(() => {
         if (attendance.length === 0) return;

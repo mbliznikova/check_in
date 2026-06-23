@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { ClassType, PriceItem, PriceMap } from "@/types/class";
 import { mixpanel } from '@/utils/mixpanel';
@@ -68,6 +69,7 @@ const isValidCreatePriceResponse = (responseData: any, classId: number, amount: 
 
 export function useClassData() {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const [loading, setLoading] = useState(true);
     const [classes, setClasses] = useState<ClassType[]>([]);
@@ -79,11 +81,12 @@ export function useClassData() {
     const [deleteModal, setDeleteModal] = useState({ isVisible: false, isSuccess: false });
 
     useEffect(() => {
+        if (!schoolId) return;
         Promise.all([
             fetchClasses(),
             fetchPrices(),
         ]).finally(() => setLoading(false));
-    }, []);
+    }, [schoolId]);
 
     useEffect(() => {
         const classSet: Set<string> = new Set();

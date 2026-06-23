@@ -3,6 +3,7 @@ import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable, ActivityIndi
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { StudentManagementType as StudentType } from "@/types/student";
 import ScreenTitle from "./ScreenTitle";
@@ -13,6 +14,7 @@ import { mixpanel } from '@/utils/mixpanel';
 
 const StudentManagement = () => {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const textStyle = useThemeTextStyle();
 
@@ -378,8 +380,9 @@ const StudentManagement = () => {
     };
 
     useEffect(() => {
+        if (!schoolId) return;
         fetchStudents();
-    }, []);
+    }, [schoolId]);
 
     useEffect(() => {
         const allStudentsSet: Set<string> = new Set();

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/api/client";
+import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { ClassOccurrenceType } from "@/types/class";
 import { mixpanel } from '@/utils/mixpanel';
@@ -69,13 +70,15 @@ const isValidAvailableTimeIntervalsResponse = (responseData: any): boolean => {
 
 export function useClassOccurrences() {
     const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
     const [currentClassOccurrenceMap, setCurrentClassOccurrenceMap] = useState<Map<string, [number, string][]>>(new Map());
     useEffect(() => {
+        if (!schoolId) return;
         fetchAllClassOccurrences();
-    }, []);
+    }, [schoolId]);
 
     useEffect(() => {
         const occurrencesSetTemp: Set<string> = new Set();
