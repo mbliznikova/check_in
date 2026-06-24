@@ -5,6 +5,7 @@ import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimen
 // import { URLSearchParams } from 'node:url'
 
 import ScreenTitle from './ScreenTitle';
+import { useApi } from '@/api/client';
 
 type StudentType = {
     id: number;
@@ -44,6 +45,8 @@ type PaymentMapType = Map<number, {
   }>;
 
 const Payments = () => {
+
+    const { apiFetch } = useApi();
 
     const colorScheme = useColorScheme();
 
@@ -178,7 +181,7 @@ const Payments = () => {
 
     const fetchPrices = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/prices/');
+            const response = await apiFetch('/prices/');
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
@@ -208,7 +211,7 @@ const Payments = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/backend/students/');
+            const response = await apiFetch('/students/');
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
@@ -232,7 +235,7 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await fetch(`http://127.0.0.1:8000/backend/payments/?${params}`);
+            const response = await apiFetch(`/payments/?${params}`);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -256,7 +259,7 @@ const Payments = () => {
             const params = new URLSearchParams();
             params.append('month', selectedMonth.toString());
             params.append('year', selectedYear.toString());
-            const response = await fetch(`http://127.0.0.1:8000/backend/payment_summary/?${params}`);
+            const response = await apiFetch(`/payment_summary/?${params}`);
 
             if (response.ok) {
                 const responseData = await response.json();
@@ -302,16 +305,10 @@ const Payments = () => {
         console.log('data is: ' + JSON.stringify(data));
 
         try {
-            const response = await fetch(
-                'http://127.0.0.1:8000/backend/payments/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await apiFetch('/payments/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
 
             if (!response.ok) {
                 const errorMessage = `Function submitPayment. Request was unsuccessful: ${response.status}, ${response.statusText}`;
