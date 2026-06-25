@@ -1,5 +1,5 @@
 import { useSignIn } from '@clerk/clerk-expo'
-import { SignIn as WebSignIn } from '@clerk/clerk-expo/web'
+// import { SignIn as WebSignIn } from '@clerk/clerk-expo/web' // due to temporarily turned off sso, see #60
 import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 import {
     Text, TextInput, TouchableOpacity, View,
@@ -24,13 +24,14 @@ export default function Page() {
 
   const textStyle = useThemeTextStyle();
 
-  if (Platform.OS === 'web') {
-    return (
-      <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
-        <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/'} />
-    </View>
-    );
-  }
+  // due to temporarily turned off sso, see #60
+  // if (Platform.OS === 'web') {
+  //   return (
+  //     <View style={[styles.container, {backgroundColor: isDark ? '#000' : '#fff' }]}>
+  //       <WebSignIn fallbackRedirectUrl={(returnTo as string) ?? '/'} />
+  //   </View>
+  //   );
+  // }
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
