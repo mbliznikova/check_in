@@ -158,7 +158,7 @@ const School = () => {
                             console.log("Fetched attendance: ", fetchedAttendances);
 
                         } else {
-                            console.warn("No attendance for today or responseData.confirmedAttendance is not a type of Array");
+                            console.log("Function fetchAttendedStudents. No attendance recorded for today.");
                         }
                     } else {
                         console.warn('Function fetchAttendedStudents. The response from backend is NOT valid! '  + JSON.stringify(responseData));
