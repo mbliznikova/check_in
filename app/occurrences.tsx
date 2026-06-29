@@ -41,9 +41,16 @@ export default function OccurrencesScreen() {
         mixpanel.track(paramClassId !== null ? 'Class occurrences viewed by class' : 'Class occurrences viewed');
     }, []);
 
-    const [weekStartDate, setWeekStartDate] = useState<Date>(() => getMondayOfWeek(new Date()));
+    useEffect(() => {
+        setWeekStartDate(getMondayOfWeek(new Date()));
+        setSelectedDay(new Date().toISOString().slice(0, 10));
+        setDatesInitialized(true);
+    }, []);
+
+    const [datesInitialized, setDatesInitialized] = useState(false);
+    const [weekStartDate, setWeekStartDate] = useState<Date>(new Date(0));
     const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
-    const [selectedDay, setSelectedDay] = useState<string>(() => new Date().toISOString().slice(0, 10));
+    const [selectedDay, setSelectedDay] = useState<string>('1970-01-01');
     const [filterClassId, setFilterClassId] = useState<number | null>(paramClassId);
     const [filterClassName, setFilterClassName] = useState<string | null>(paramClassName);
 
@@ -123,6 +130,8 @@ export default function OccurrencesScreen() {
     const closeModal = () => {
         setFormModal(prev => ({ ...prev, visible: false }));
     };
+
+    if (!datesInitialized) return null;
 
     const selectedClassForCreate = filterClassId !== null
         ? classData.classes.find(c => c.id === filterClassId) ?? null

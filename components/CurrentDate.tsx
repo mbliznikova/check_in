@@ -1,17 +1,29 @@
+import { useState, useEffect } from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 const CurrentDate = () => {
     const textStyle = useThemeTextStyle();
-    const date = new Date();
+    const [dateString, setDateString] = useState<string | null>(null);
+
+    useEffect(() => {
+        const d = new Date();
+        setDateString(
+            `${d.toLocaleString('en-US', {weekday: 'long'})}, ` +
+            `${d.toLocaleString('en-US', {month: 'short'})} ${d.getDate()} ${d.getFullYear()}`
+        );
+    }, []);
+
+    if (!dateString) return null;
+
     return (
         <View style={styles.container}>
             <Text style={[
-                styles.container, 
+                styles.container,
                 styles.mainTextStyle,
                 textStyle
                 ]}>
-                    {date.toLocaleString('en-US', {weekday: 'long'})}, {date.toLocaleString('en-US', {month: 'short'})} {date.getDate()} {date.getFullYear()}
+                    {dateString}
             </Text>
         </View>
     );

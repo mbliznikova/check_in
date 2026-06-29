@@ -55,18 +55,12 @@ const Attendance = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const today = new Date();
-    const monthName = today.toLocaleString('default', { month: 'long' });
-    const monthNumber = today.getMonth() + 1;
-    const todayYear = today.getFullYear();
-
-    const [selectedMonth, setSelectedMonth] = useState(monthNumber);
-
-    const [selectedYear, setSelectedYear] = useState(todayYear);
-
-    const [monthInput, setMonthInput] = useState(selectedMonth.toString());
-
-    const [yearInput, setYearInput] = useState(selectedYear.toString());
+    const [datesInitialized, setDatesInitialized] = useState(false);
+    const [monthName, setMonthName] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(0);
+    const [monthInput, setMonthInput] = useState('');
+    const [yearInput, setYearInput] = useState('');
 
     const readMonth = (monthString: string) => {
         const monthConverted = Number(monthString);
@@ -121,7 +115,19 @@ const Attendance = () => {
     }
 
     useEffect(() => {
-        if (!schoolId) return;
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+        setSelectedMonth(month);
+        setSelectedYear(year);
+        setMonthName(today.toLocaleString('default', { month: 'long' }));
+        setMonthInput(month.toString());
+        setYearInput(year.toString());
+        setDatesInitialized(true);
+    }, []);
+
+    useEffect(() => {
+        if (!schoolId || !datesInitialized) return;
         const fetchPayments = async () => {
             // Assume for now that the query returns the payment data only for the current month
            try {
@@ -151,7 +157,7 @@ const Attendance = () => {
             fetchPayments(),
         ]).finally(() => setLoading(false));
     },
-    [schoolId]);
+    [schoolId, datesInitialized]);
 
     useEffect(() => {
         getBalance();
@@ -267,12 +273,14 @@ const Attendance = () => {
         fetchAttendances();
     };
 
+    if (!datesInitialized) return null;
+
     const renderHeader = () => (
         <View style={[
             styles.headerContainer,
             colorScheme === 'dark' ? styles.darkBackground : styles.lightBackground,
         ]}>
-            <ScreenTitle titleText={`Attendance report (${monthName} ${todayYear})`}/>
+            <ScreenTitle titleText={`Attendance report (${monthName} ${selectedYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 {renderSelector()}
             </View>

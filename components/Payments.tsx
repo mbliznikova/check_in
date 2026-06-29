@@ -76,18 +76,12 @@ const Payments = () => {
 
     const [selectedClassName, setSelectedClassName] = useState<string>("");
 
-    const today = new Date();
-    const monthName = today.toLocaleString('default', { month: 'long' });
-    const monthNumber = today.getMonth() + 1;
-    const todayYear = today.getFullYear();
-
-    const [selectedMonth, setSelectedMonth] = useState(monthNumber);
-
-    const [selectedYear, setSelectedYear] = useState(todayYear);
-
-    const [monthInput, setMonthInput] = useState(selectedMonth.toString());
-
-    const [yearInput, setYearInput] = useState(selectedYear.toString());
+    const [datesInitialized, setDatesInitialized] = useState(false);
+    const [monthName, setMonthName] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState(0);
+    const [selectedYear, setSelectedYear] = useState(0);
+    const [monthInput, setMonthInput] = useState('');
+    const [yearInput, setYearInput] = useState('');
 
     const readMonth = (monthString: string) => {
         console.log('The month from user input is: ' + monthString);
@@ -285,6 +279,7 @@ const Payments = () => {
         className: string,
         amount: number,
     ) => {
+        const today = new Date();
         const todayDate = today.toISOString();
         const todayMonth = today.getMonth() + 1;
         const todayYear = today.getFullYear();
@@ -354,12 +349,25 @@ const Payments = () => {
     };
 
     useEffect(() => {
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+        setSelectedMonth(month);
+        setSelectedYear(year);
+        setMonthName(today.toLocaleString('default', { month: 'long' }));
+        setMonthInput(month.toString());
+        setYearInput(year.toString());
+        setDatesInitialized(true);
+    }, []);
+
+    useEffect(() => {
+        if (!datesInitialized) return;
         fetchPrices();
         fetchStudents();
         fetchPayments();
         fetchSummary();
     },
-    []);
+    [datesInitialized]);
 
     useEffect(() => {
         // TODO: make sure the payment is loaded if there are payments at all?.. Avoid case when no payments made yet this month and it blocks
@@ -542,9 +550,11 @@ const Payments = () => {
         );
     };
 
+    if (!datesInitialized) return null;
+
     return (
         <SafeAreaView style={styles.container}>
-            <ScreenTitle titleText={`Payments (${monthName} ${todayYear})`}/>
+            <ScreenTitle titleText={`Payments (${monthName} ${selectedYear})`}/>
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}
             </View>
