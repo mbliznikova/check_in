@@ -179,7 +179,7 @@ const Payments = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
-                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchPrices at Payments.tsx. The response from backend is valid: " + JSON.stringify(responseData))
 
                     const rawPricesObj: RawPriceType = responseData.response;
 
@@ -209,7 +209,7 @@ const Payments = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchStudents at Payments.tsx. The response from backend is valid: " + JSON.stringify(responseData))
 
                     const studentList: StudentType[] = responseData.response;
                     studentList.sort((a, b) => a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase()));
@@ -234,7 +234,7 @@ const Payments = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isValidArrayResponse(responseData, "response")) {
-                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchPayments at Payments.tsx. The response from backend is valid: " + JSON.stringify(responseData))
 
                     const paymentList: PaymentType[] = responseData.response;
 
@@ -258,7 +258,7 @@ const Payments = () => {
             if (response.ok) {
                 const responseData = await response.json();
                 if (isGeneralValidResponse(responseData, "response")) {
-                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid." + JSON.stringify(responseData))
+                    console.log("Function fetchSummary at Payments.tsx. The response from backend is valid: " + JSON.stringify(responseData))
 
                     const summary: number = responseData.response.summary ?? 0.0;
 
@@ -332,7 +332,7 @@ const Payments = () => {
                 'paymentMonth' in responseData && 'paymentYear' in responseData &&
                 responseData.paymentMonth === todayMonth && responseData.paymentYear === todayYear
             ) {
-                console.log('Function submitPayment. The response from backend is valid. ' + JSON.stringify(responseData));
+                console.log('Function submitPayment. The response from backend is valid: ' + JSON.stringify(responseData));
             } else {
                 console.warn('Function submitPayment. The response from backend is NOT valid! '  + JSON.stringify(responseData));
             }
