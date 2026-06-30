@@ -3,8 +3,9 @@ import { useSignIn } from '@clerk/clerk-expo'
 import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 import {
     Text, TextInput, TouchableOpacity, View,
-    useColorScheme, StyleSheet, Platform,
+    StyleSheet, Platform,
 } from 'react-native'
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import React, { useState } from "react";
 

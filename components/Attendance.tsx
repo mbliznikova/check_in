@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import {View, SafeAreaView, StyleSheet, useColorScheme, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
+import {View, SafeAreaView, StyleSheet, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";

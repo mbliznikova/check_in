@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { Text, TextInput, TouchableOpacity, View, useColorScheme, StyleSheet } from 'react-native'
+import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useSignUp } from '@clerk/clerk-expo'
 import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'

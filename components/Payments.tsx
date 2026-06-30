@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, useColorScheme, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 // import { URLSearchParams } from 'node:url'
 
