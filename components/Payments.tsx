@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 import ScreenTitle from './ScreenTitle';
 import { useApi } from '@/api/client';
+import { PriceItem, PriceMap } from '@/types/class';
 
 type StudentType = {
     id: number;
@@ -14,20 +15,11 @@ type StudentType = {
     lastName: string;
 };
 
-type RawPriceType = {
-    [classId: string]: {
-        [className: string]: number
-    },
-};
-
-type PriceType = Map<number, {
-    [className: string]: number
-}>;
-
 type ClassPaymentType = Map<number, {
     className: string;
     amount: number;
     paid: boolean;
+    lastPaymentId: number | null;
   }>;
 
 type PaymentType = {
@@ -59,7 +51,7 @@ const Payments = () => {
 
     const [students, setStudents] = useState<StudentType[]>([]);
 
-    const [prices, setPrices] = useState<PriceType>(new Map());
+    const [prices, setPrices] = useState<PriceMap>(new Map());
 
     const [payments, setPayments] = useState<PaymentType[]>([]);
 
@@ -76,6 +68,12 @@ const Payments = () => {
     const [selectedStudentName, setSelectedStudentName] = useState<string>("");
 
     const [selectedClassName, setSelectedClassName] = useState<string>("");
+
+    const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+
+    const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number>(0);
+
+    const [paymentAction, setPaymentAction] = useState<'add' | 'delete' | null>(null);
 
     const [datesInitialized, setDatesInitialized] = useState(false);
     const [monthName, setMonthName] = useState('');
@@ -124,8 +122,18 @@ const Payments = () => {
         );
     };
 
-    const aggregatePayments = ():Map<string, number[]> => {
-        const paidMap: Map<string, number[]> = new Map();
+    const isValidDeletePaymentResponse = (responseData: any, paymentId: number, paymentAmount: number): boolean => {
+        return (
+            typeof responseData === 'object' &&
+            responseData !== null &&
+            'message' in responseData && responseData.message === `Payment ${paymentId} was deleted successfully` &&
+            'paymentId' in responseData && responseData.paymentId === paymentId &&
+            'paymentAmount' in responseData && responseData.paymentAmount === paymentAmount
+        );
+    };
+
+    const aggregatePayments = (): Map<string, { id: number; amount: number }[]> => {
+        const paidMap: Map<string, { id: number; amount: number }[]> = new Map();
 
         payments.forEach((payment) => {
             const key = `${payment.studentId}-${payment.classId}`;
@@ -134,7 +142,7 @@ const Payments = () => {
                 paidMap.set(key, []);
             }
 
-            paidMap.get(key)!.push(payment.amount)
+            paidMap.get(key)!.push({ id: payment.id, amount: payment.amount });
 
         });
 
@@ -151,15 +159,20 @@ const Payments = () => {
             const paymentData: ClassPaymentType = new Map();
 
             prices.forEach((classInfo, classId) => {
-                const className = Object.keys(classInfo)[0];
+                const className = classInfo.className;
                 const key = `${student.id}-${classId}`;
-                const amount = aggregatedPayments.has(key) ? aggregatedPayments.get(key)!.reduce((acc, curr) => acc + curr, 0) : 0.0;
-                const paid = aggregatedPayments.has(key) ? true : false;
+                const paymentsForCell = aggregatedPayments.get(key) ?? [];
+                const amount = paymentsForCell.reduce((acc, p) => acc + p.amount, 0);
+                const paid = paymentsForCell.length > 0;
+                const lastPaymentId = paymentsForCell.length > 0
+                    ? paymentsForCell[paymentsForCell.length - 1].id
+                    : null;
 
                 paymentData.set(Number(classId), {
                     className,
                     amount,
                     paid,
+                    lastPaymentId,
                 });
             });
 
@@ -182,16 +195,10 @@ const Payments = () => {
                 if (isGeneralValidResponse(responseData, "response")) {
                     console.log("Function fetchPrices at Payments.tsx. The response from backend is valid: " + JSON.stringify(responseData))
 
-                    const rawPricesObj: RawPriceType = responseData.response;
-
-                    const pricesObj: PriceType = new Map(
-                        Object.entries(rawPricesObj)
-                            .map(([key, value]) => [Number(key), value] as [number, { [className: string]: number }])
-                            .sort((a, b) => {
-                                    const nameA = Object.keys(a[1])[0].toLowerCase();
-                                    const nameB = Object.keys(b[1])[0].toLowerCase();
-                                    return nameA.localeCompare(nameB);
-                                })
+                    const pricesObj: PriceMap = new Map(
+                        Object.entries(responseData.response)
+                            .map(([key, value]) => [Number(key), value as PriceItem])
+                            .sort((a, b) => a[1].className.toLowerCase().localeCompare(b[1].className.toLowerCase()))
                     );
 
                     setPrices(pricesObj);
@@ -349,6 +356,64 @@ const Payments = () => {
         fetchSummary();
     };
 
+    const deletePayment = async (paymentId: number, paymentAmount: number) => {
+        try {
+            const response = await apiFetch(`/payments/${paymentId}/delete/`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                const responseData = await response.json();
+                if (isValidDeletePaymentResponse(responseData, paymentId, paymentAmount)) {
+                    console.log('Function deletePayment. The response from backend is valid.');
+                } else {
+                    console.warn(`Function deletePayment. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                }
+            } else {
+                console.warn(`Function deletePayment. Request was unsuccessful: ${response.status}, ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`Error while deleting the payment: ${error}`);
+        }
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setPaymentAction(null);
+        setSelectedPaymentId(null);
+        setSelectedPaymentAmount(0);
+        setSelectedStudentId(null);
+        setSelectedClassId(null);
+        setSelectedStudentName("");
+        setSelectedClassName("");
+        setSelectedPrice(0);
+    };
+
+    const handleConfirm = async () => {
+        if (!paymentAction || selectedStudentId === null || selectedClassId === null) {
+            return;
+        }
+        try {
+            if (paymentAction === 'add') {
+                await submitPayment(
+                    selectedStudentId,
+                    selectedClassId,
+                    selectedStudentName,
+                    selectedClassName,
+                    selectedPrice,
+                );
+            } else if (paymentAction === 'delete') {
+                if (!selectedPaymentId) return;
+                await deletePayment(selectedPaymentId, selectedPaymentAmount);
+            }
+            await fetchPayments();
+            await fetchSummary();
+            closeModal();
+        } catch (error) {
+            console.error('Could not complete action: ', error);
+            alert('Could not complete action.');
+        }
+    };
+
     useEffect(() => {
         const today = new Date();
         const month = today.getMonth() + 1;
@@ -387,7 +452,7 @@ const Payments = () => {
             <View style={[styles.headerRow, styles.whiteBorderLine]}>
                 <Text style={{paddingRight: 150}}></Text>
                 {priceArray.map(([classId, classInfo]) => {
-                    const className = Object.keys(classInfo)[0];
+                    const className = classInfo.className;
                     return (
                         <Text key={classId} style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
                             {className}
@@ -421,27 +486,62 @@ const Payments = () => {
                             const isPaid: boolean = classInfo.paid ?? false;
 
                             const classPrice = prices.get(Number(classId));
-                            const className = classPrice ? Object.keys(classPrice)[0] : "Undefined";
-                            const price = classPrice && className ? classPrice[className] : 0.0;
+                            const className = classPrice ? classPrice.className : "Undefined";
+                            const price = classPrice ? classPrice.amount : 0.0;
+
+                            const paymentId = classInfo.lastPaymentId;
+                            const balanceText = isPaid ? `$${amount - price}` : `-$${price}`;
 
                             return (
                                 <View key={classId} style={[styles.spaceBetweenRow]}>
                                     <View key={classId} style={[styles.column, styles.cell]}>
-                                        <Text style={[isPaid? styles.paidText : styles.unpaidText, { fontWeight: "bold" }]}>
-                                            {isPaid ? amount + " - Paid" : price}
+                                        <Text style={[isPaid ? styles.paidText : styles.unpaidText, { fontWeight: "bold" }]}>
+                                            {`Price: $${price}`}
                                         </Text>
                                         <View style={styles.paymentButtonContainer}>
                                             <Pressable
-                                                style={[styles.paymentButton, isPaid? styles.paidBorder : styles.unpaidBorder]}
+                                                style={{ paddingRight: 10 }}
+                                                onPress={() => {
+                                                    if (!paymentId) return;
+                                                    setSelectedStudentId(student.id);
+                                                    setSelectedClassId(classId);
+                                                    setSelectedStudentName(studentData.studentName);
+                                                    setSelectedClassName(className);
+                                                    setSelectedPaymentId(paymentId);
+                                                    setSelectedPaymentAmount(price);
+                                                    setPaymentAction('delete');
+                                                    setIsModalVisible(true);
+                                                }}
+                                            >
+                                                <Text style={[isPaid ? styles.paidText : styles.unpaidText]}>-</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                style={[styles.paymentButton, isPaid ? styles.paidBorder : styles.unpaidBorder]}
                                                 onPress={() => {
                                                     setSelectedStudentId(student.id);
                                                     setSelectedClassId(classId);
                                                     setSelectedStudentName(studentData.studentName);
                                                     setSelectedClassName(className);
                                                     setSelectedPrice(price);
+                                                    setPaymentAction('add');
                                                     setIsModalVisible(true);
-                                                }}>
-                                                <Text style={[isPaid? styles.paidText : styles.unpaidText]}>{isPaid ? "Pay more?" : "Pay"}</Text>
+                                                }}
+                                            >
+                                                <Text style={[isPaid ? styles.paidText : styles.unpaidText]}>{balanceText}</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                style={{ paddingLeft: 10 }}
+                                                onPress={() => {
+                                                    setSelectedStudentId(student.id);
+                                                    setSelectedClassId(classId);
+                                                    setSelectedStudentName(studentData.studentName);
+                                                    setSelectedClassName(className);
+                                                    setSelectedPrice(price);
+                                                    setPaymentAction('add');
+                                                    setIsModalVisible(true);
+                                                }}
+                                            >
+                                                <Text style={[isPaid ? styles.paidText : styles.unpaidText]}>+</Text>
                                             </Pressable>
                                         </View>
                                     </View>
@@ -463,47 +563,32 @@ const Payments = () => {
             <Modal
                 visible={isModalVisible}
                 transparent={true}
-                onRequestClose={() => {
-                    setIsModalVisible(false)
-                }}
+                onRequestClose={closeModal}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
                         <View style={styles.modalInfo}>
-                            <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor, {fontWeight: "bold"}]}>
-                                Do you want to add ${selectedPrice} for {selectedStudentName}, {selectedClassName} class?
+                            <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, { fontWeight: "bold" }]}>
+                                {paymentAction === 'add'
+                                    ? `Do you want to add $${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
+                                    : paymentAction === 'delete'
+                                        ? `Do you want to delete $${selectedPaymentAmount} for ${selectedStudentName}, ${selectedClassName} class?`
+                                        : null
+                                }
                             </Text>
                         </View>
                         <View style={styles.modalButtonsContainer}>
                             <Pressable
                                 style={styles.modalConfirmButton}
-                                onPress={async () => {
-                                    try {
-                                        await submitPayment(
-                                            selectedStudentId,
-                                            selectedClassId,
-                                            selectedStudentName,
-                                            selectedClassName,
-                                            selectedPrice,
-                                        );
-                                        await fetchPayments();
-                                        await fetchSummary();
-                                        setIsModalVisible(false);
-                                } catch (error) {
-                                    console.error("Could not submit payment: ", error);
-                                    alert("Could not complete payment.");
-                                }
-                                }}
+                                onPress={handleConfirm}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>OK</Text>
+                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>OK</Text>
                             </Pressable>
                             <Pressable
                                 style={styles.modalCancelButton}
-                                onPress={() => {
-                                    setIsModalVisible(false);
-                                }}
+                                onPress={closeModal}
                             >
-                                <Text style={[colorScheme === 'dark'? styles.lightColor : styles.darkColor]}>Cancel</Text>
+                                <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Cancel</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -604,6 +689,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     paymentButtonContainer: {
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
