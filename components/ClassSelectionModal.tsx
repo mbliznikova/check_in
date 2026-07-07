@@ -5,7 +5,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 
 import Checkbox from './Checkbox';
+import { ThemedText } from './ThemedText';
 import { StudentType } from '@/types/student';
+import { commonStyles } from '@/constants/commonStyles';
 
 type ClassSelectionModalProps = {
     isVisible: boolean;
@@ -62,7 +64,10 @@ const ClassSelectionModal = ({
 
     function getSelectedOccurrenceIds(selectedStateMap: Map<number, boolean>) {
         return Array.from(selectedStateMap.entries()).filter(([_, v]) => v).map(([k]) => k);
-      }
+    }
+
+    const hasSelection = Array.from(classSelectionState.values()).some(v => v);
+    const confirmDisabled = allClassOccurrencesList.length === 0 || !hasSelection;
 
     function toggleClass(classId: number) {
         setClassSelectionState(prev => {
@@ -108,7 +113,16 @@ const ClassSelectionModal = ({
                 <View style={[styles.modalView, { backgroundColor: themeColors.background }]}>
                      <Text style={[styles.modalTitle, { color: themeColors.text }]}>Check in {student?.firstName} {student?.lastName}</Text>
                      <View style={styles.modalList}>
-                        {allClassOccurrencesList.map((cls) => ( // TODO: check/make it scrollable?
+                        {allClassOccurrencesList.length === 0 ? (
+                            <ThemedText
+                                lightColor={Colors.light.textMuted}
+                                darkColor={Colors.dark.textMuted}
+                                style={commonStyles.emptyMessage}
+                            >
+                                No classes scheduled for today
+                            </ThemedText>
+                        ) : (
+                            allClassOccurrencesList.map((cls) => (
                                 <Checkbox
                                     key={cls.id}
                                     label={`${cls.fallbackClassName} - ${cls.actualStartTime.slice(0, 5)}`}
@@ -116,12 +130,14 @@ const ClassSelectionModal = ({
                                     onChange={() => toggleClass(cls.id)}
                                     labelStyle={{ color: themeColors.text }}
                                 />
-                            ))}
+                            ))
+                        )}
                      </View>
 
                      <View style={styles.modalButtonRow}>
                      <Pressable
-                            style={styles.modalConfirmButton}
+                            style={[styles.modalConfirmButton, confirmDisabled && styles.disabledButton]}
+                            disabled={confirmDisabled}
                             onPress={() => {
                                 const selected = getSelectedOccurrenceIds(classSelectionState)
                                 onConfirm(selected);
@@ -181,6 +197,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 15,
         backgroundColor: 'green',
+      },
+      disabledButton: {
+        opacity: 0.5,
       },
       modalCancelButton: {
         alignItems: 'center',

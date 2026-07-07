@@ -21,4 +21,8 @@ export const commonStyles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 30,
     },
+    emptyMessage: {
+        textAlign: 'center',
+        padding: 20,
+    },
 });

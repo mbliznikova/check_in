@@ -9,7 +9,9 @@ import { StudentType } from '@/types/student';
 import ClassName from './ClassName';
 import ClassSelectionModal from './ClassSelectionModal';
 import StudentList from './StudentList';
+import { ThemedText } from './ThemedText';
 import { commonStyles } from '@/constants/commonStyles';
+import { Colors } from '@/constants/Colors';
 import { mixpanel } from '@/utils/mixpanel';
 
 type ClassOccurrenceType = {
@@ -298,6 +300,15 @@ const School = () => {
                 <FlatList
                     data={classOccurrenceList}
                     keyExtractor={cls => cls.id.toString()}
+                    ListEmptyComponent={
+                        <ThemedText
+                            lightColor={Colors.light.textMuted}
+                            darkColor={Colors.dark.textMuted}
+                            style={commonStyles.emptyMessage}
+                        >
+                            No classes scheduled for today
+                        </ThemedText>
+                    }
                     renderItem={({ item: cls }) => (
                         <View>
                             <StudentList
