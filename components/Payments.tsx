@@ -197,7 +197,7 @@ const Payments = () => {
 
                     const pricesObj: PriceMap = new Map(
                         Object.entries(responseData.response)
-                            .map(([key, value]) => [Number(key), value as PriceItem])
+                            .map(([key, value]) => [Number(key), value as PriceItem] as [number, PriceItem])
                             .sort((a, b) => a[1].className.toLowerCase().localeCompare(b[1].className.toLowerCase()))
                     );
 
