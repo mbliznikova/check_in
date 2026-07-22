@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { TOGGLE_COLOR } from './Colors';
 
 export const commonStyles = StyleSheet.create({
     inputField: {
@@ -24,5 +25,48 @@ export const commonStyles = StyleSheet.create({
     emptyMessage: {
         textAlign: 'center',
         padding: 20,
+    },
+    formContainer: {
+        alignSelf: 'stretch',
+        paddingHorizontal: 10,
+    },
+    fieldGroup: {
+        alignSelf: 'stretch',
+        marginBottom: 14,
+    },
+    fieldLabel: {
+        fontSize: 13,
+        marginBottom: 6,
+        marginLeft: 2,
+    },
+    fullWidthInput: {
+        width: '100%',
+    },
+    sideBySideRow: {
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 12,
+    },
+    segmentedToggle: {
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        borderRadius: 10,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: TOGGLE_COLOR,
+    },
+    segmentedPill: {
+        flex: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    segmentedPillActive: {
+        backgroundColor: TOGGLE_COLOR,
+    },
+    segmentedPillText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

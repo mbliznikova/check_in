@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Pressable, Alert, Platform } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors, TOGGLE_TEXT } from '@/constants/Colors';
 import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
-import Checkbox from './Checkbox';
 import ScreenTitle from "./ScreenTitle";
 import React from 'react';
 
@@ -40,6 +41,7 @@ const EditClassModal = ({
 
     const textStyle = useThemeTextStyle();
     const modalStyles = useModalStyles();
+    const colorScheme = useColorScheme() ?? 'light';
 
     const [newClassName, setNewClassName] = useState(oldClassName);
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
@@ -130,63 +132,73 @@ const EditClassModal = ({
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
                 <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
-                    <View style={[styles.itemContainer, styles.itemRow]}>
-                        <Text
-                            style={[textStyle, styles.itemContainer]}
-                        >
-                            Edit class name:
-                        </Text>
-                        <TextInput
-                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
-                            value={newClassName}
-                            onChangeText={(updatedClassName) => {
-                                setNewClassName(updatedClassName)
-                            }}
-                        ></TextInput>
-                    </View>
+                    <View style={commonStyles.formContainer}>
+                        <View style={commonStyles.fieldGroup}>
+                            <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                                Name
+                            </Text>
+                            <TextInput
+                                style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                                value={newClassName}
+                                onChangeText={(updatedClassName) => {
+                                    setNewClassName(updatedClassName)
+                                }}
+                            ></TextInput>
+                        </View>
 
-                    <View style={[styles.itemContainer, styles.itemRow]}>
-                        <Text
-                            style={[textStyle, styles.itemContainer]}
-                        >
-                            Edit class duration:
-                        </Text>
-                        <TextInput
-                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
-                            value={newClassDuration?.toString()}
-                            onChangeText={(updatedClassDuration) => {
-                                setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
-                            }}
-                        ></TextInput>
-                    </View>
+                        <View style={commonStyles.sideBySideRow}>
+                            <View style={[commonStyles.fieldGroup, { flex: 1 }]}>
+                                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                                    Duration (min)
+                                </Text>
+                                <TextInput
+                                    style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                                    value={newClassDuration?.toString()}
+                                    onChangeText={(updatedClassDuration) => {
+                                        setNewClassDuration(Number(updatedClassDuration)) // TODO: think about better handling and type conversion & validation. Number picker?
+                                    }}
+                                ></TextInput>
+                            </View>
 
-                    <View style={[styles.itemContainer, styles.itemRow, {paddingVertical: 10, justifyContent: 'space-between', alignSelf: 'center'}]}>
-                        <Text
-                            style={[textStyle, styles.itemContainer, ]}
-                            >
-                                Is recurring?
-                        </Text>
-                        <Checkbox
-                            label=''
-                            checked={newClassRecurrence}
-                            onChange={() => {setNewClassRecurrence(!newClassRecurrence)}}
-                            labelStyle={textStyle}
-                        />
-                    </View>
+                            <View style={[commonStyles.fieldGroup, { flex: 1 }]}>
+                                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                                    Price
+                                </Text>
+                                <TextInput
+                                    style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                                    value={newClassPrice?.toString()}
+                                    onChangeText={(updatedClassPrice) => {
+                                        setNewClassPrice(Number(updatedClassPrice)) // TODO: better handling and type conversion & validation. Number picker?
+                                    }}
+                                ></TextInput>
+                            </View>
+                        </View>
 
-                    <View style={[styles.itemContainer, styles.itemRow]}>
-                        <Text
-                            style={[textStyle, styles.itemContainer]}
-                        >
-                            Edit class price:
-                        </Text>
-                        <TextInput
-                            style={[textStyle, commonStyles.inputField, { flex: 1 }]}
-                            value={newClassPrice?.toString()}
-                            onChangeText={(updatedClassPrice) => {
-                                setNewClassPrice(Number(updatedClassPrice)) // TODO: better handling and type conversion & validation. Number picker?
-                            }}
-                        ></TextInput>
+                        <View style={[commonStyles.separator, commonStyles.fullWidthInput]} />
+
+                        <View style={commonStyles.fieldGroup}>
+                            <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                                Repeats
+                            </Text>
+                            <View style={commonStyles.segmentedToggle}>
+                                <Pressable
+                                    style={[commonStyles.segmentedPill, !newClassRecurrence && commonStyles.segmentedPillActive]}
+                                    onPress={() => setNewClassRecurrence(false)}
+                                >
+                                    <Text style={[commonStyles.segmentedPillText, { color: !newClassRecurrence ? TOGGLE_TEXT : textStyle.color }]}>
+                                        One-off
+                                    </Text>
+                                </Pressable>
+                                <Pressable
+                                    style={[commonStyles.segmentedPill, newClassRecurrence && commonStyles.segmentedPillActive]}
+                                    onPress={() => setNewClassRecurrence(true)}
+                                >
+                                    <Text style={[commonStyles.segmentedPillText, { color: newClassRecurrence ? TOGGLE_TEXT : textStyle.color }]}>
+                                        Weekly
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </View>
                     </View>
 
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
@@ -263,16 +275,6 @@ const styles = StyleSheet.create({
     },
     modalSingleButtonContainer: {
          justifyContent: 'center'
-    },
-    itemContainer: {
-        padding: 10,
-        alignItems: 'center',
-    },
-    itemRow: {
-        flexDirection: 'row',
-        alignSelf: 'stretch',
-        justifyContent: 'space-between',
-        alignItems: 'center',
     },
     createButton: {
         padding: 10,
