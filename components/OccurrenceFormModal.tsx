@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, Modal, Platform, ScrollView, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import Checkbox from './Checkbox';
+import { DateInputField, TimeInputField } from './DateTimeInputFields';
 import { ClassOccurrenceType, ClassType } from '@/types/class';
 
 type OccurrenceFormModalProps = {
@@ -81,8 +81,6 @@ const OccurrenceFormModal = ({
     const [intervals, setIntervals] = useState<[string, string][]>([]);
     const [isIntervalsOpen, setIsIntervalsOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [showTimePicker, setShowTimePicker] = useState(false);
 
     // Sync edit state when occurrence changes
     useEffect(() => {
@@ -122,113 +120,6 @@ const OccurrenceFormModal = ({
             });
         }
     }, [editDate, editDuration, mode]);
-
-    const renderDateInput = (value: string, onChange: (v: string) => void) => {
-        if (Platform.OS === 'web') {
-            return (
-                <View>
-                    {/* @ts-ignore react-native-web date input */}
-                    <input
-                        type="date"
-                        value={value}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-                        style={{ padding: 8, borderRadius: 8, border: '1px solid grey', fontSize: 16 }}
-                    />
-                </View>
-            );
-        }
-        const dateObj = new Date(value + 'T00:00:00');
-        if (Platform.OS === 'ios') {
-            return (
-                <DateTimePicker
-                    style={styles.compactPicker}
-                    value={dateObj}
-                    mode="date"
-                    display="compact"
-                    onChange={(_, selected) => {
-                        if (selected) onChange(selected.toISOString().slice(0, 10));
-                    }}
-                />
-            );
-        }
-        return (
-            <View>
-                <Pressable style={styles.pickerButton} onPress={() => setShowDatePicker(true)}>
-                    <Text style={textStyle}>{value || 'Select date'}</Text>
-                </Pressable>
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={dateObj}
-                        mode="date"
-                        display="default"
-                        onChange={(_, selected) => {
-                            setShowDatePicker(false);
-                            if (selected) onChange(selected.toISOString().slice(0, 10));
-                        }}
-                    />
-                )}
-            </View>
-        );
-    };
-
-    const renderTimeInput = (value: string, onChange: (v: string) => void) => {
-        if (Platform.OS === 'web') {
-            return (
-                <View>
-                    {/* @ts-ignore react-native-web time input */}
-                    <input
-                        type="time"
-                        value={value}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-                        style={{ padding: 8, borderRadius: 8, border: '1px solid grey', fontSize: 16 }}
-                    />
-                </View>
-            );
-        }
-        const [hours, minutes] = value ? value.split(':').map(Number) : [12, 0];
-        const timeObj = new Date();
-        timeObj.setHours(hours, minutes, 0, 0);
-        if (Platform.OS === 'ios') {
-            return (
-                <DateTimePicker
-                    style={styles.compactPicker}
-                    value={timeObj}
-                    mode="time"
-                    display="compact"
-                    onChange={(_, selected) => {
-                        if (selected) {
-                            const h = String(selected.getHours()).padStart(2, '0');
-                            const m = String(selected.getMinutes()).padStart(2, '0');
-                            onChange(`${h}:${m}`);
-                        }
-                    }}
-                />
-            );
-        }
-        return (
-            <View>
-                <Pressable style={styles.pickerButton} onPress={() => setShowTimePicker(prev => !prev)}>
-                    <Text style={textStyle}>{value || 'Select time'}</Text>
-                </Pressable>
-                {showTimePicker && (
-                    <DateTimePicker
-                        value={timeObj}
-                        mode="time"
-                        is24Hour={true}
-                        display="default"
-                        onChange={(_, selected) => {
-                            setShowTimePicker(false);
-                            if (selected) {
-                                const h = String(selected.getHours()).padStart(2, '0');
-                                const m = String(selected.getMinutes()).padStart(2, '0');
-                                onChange(`${h}:${m}`);
-                            }
-                        }}
-                    />
-                )}
-            </View>
-        );
-    };
 
     const isTimeWithinIntervals = (time: string): boolean => {
         return intervals.some(([start, end]) => time >= start && time <= end);
@@ -306,7 +197,7 @@ const OccurrenceFormModal = ({
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Date:</Text>
-                    {renderDateInput(createDate, setCreateDate)}
+                    <DateInputField value={createDate} onChange={setCreateDate} />
                 </View>
 
                 <View style={styles.row}>
@@ -323,7 +214,7 @@ const OccurrenceFormModal = ({
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Time:</Text>
-                    {renderTimeInput(createTime, setCreateTime)}
+                    <TimeInputField value={createTime} onChange={setCreateTime} />
                 </View>
                 {renderTimeWarning(createTime)}
 
@@ -410,7 +301,7 @@ const OccurrenceFormModal = ({
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Date:</Text>
-                    {renderDateInput(editDate, setEditDate)}
+                    <DateInputField value={editDate} onChange={setEditDate} />
                 </View>
 
                 <View style={styles.row}>
@@ -427,7 +318,7 @@ const OccurrenceFormModal = ({
 
                 <View style={styles.row}>
                     <Text style={[textStyle, styles.label]}>Time:</Text>
-                    {renderTimeInput(editTime, setEditTime)}
+                    <TimeInputField value={editTime} onChange={setEditTime} />
                 </View>
                 {renderTimeWarning(editTime)}
 
@@ -617,17 +508,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)',
         borderRadius: 20,
         zIndex: 10,
-    },
-    pickerButton: {
-        minWidth: 110,
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 8,
-        borderRadius: 10,
-    },
-    compactPicker: {
-        height: 34,
-        width: 160,
     },
     classPickerItem: {
         padding: 8,
