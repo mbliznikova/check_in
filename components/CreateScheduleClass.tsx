@@ -480,13 +480,20 @@ const CreateScheduleClass = ({
 
                 {renderSchedules(scheduleData)}
 
-                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                     <Pressable
                         style={modalStyles.modalConfirmButton}
                         onPress={isAddDayOpen ? undefined : handleModalClose}
                         disabled={isAddDayOpen}
                     >
                         <Text style={[textStyle]}>OK</Text>
+                    </Pressable>
+                    <Pressable
+                        style={modalStyles.modalCancelButton}
+                        onPress={isAddDayOpen ? undefined : handleModalClose}
+                        disabled={isAddDayOpen}
+                    >
+                        <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
                 </View>
 
