@@ -8,6 +8,7 @@ import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
+import { DateInputField, TimeInputField } from './DateTimeInputFields';
 import { DAY_NAMES } from '@/constants/scheduling';
 
 const dropdownStyle = { position: 'absolute', top: '100%', borderWidth: 1, borderRadius: 10 } as ViewStyle;
@@ -27,6 +28,17 @@ type ClassCreationModalProps = {
     createdClassId: number | null;
     scheduleData: Map<number, [number, string][]>;
     isSheduleSuccess: boolean;
+    onCreateOccurrence: (
+        className: string,
+        plannedDate: string,
+        plannedTime: string,
+        duration: number,
+        classId?: number,
+        scheduleId?: number,
+        notes?: string,
+    ) => Promise<void>;
+    onRequestingTimeIntervals: (date: string, classDurationToFit: number) => Promise<[string, string][]>;
+    onOccurrenceUniquenessCheck: (date: string, time: string) => boolean;
 };
 
 const CreateScheduleClass = ({
@@ -44,6 +56,9 @@ const CreateScheduleClass = ({
     createdClassId,
     scheduleData = new Map(),
     isSheduleSuccess = false,
+    onCreateOccurrence,
+    onRequestingTimeIntervals,
+    onOccurrenceUniquenessCheck,
 }: ClassCreationModalProps) => {
     const textStyle = useThemeTextStyle();
     const colorScheme = useColorScheme() ?? 'light';
@@ -67,10 +82,49 @@ const CreateScheduleClass = ({
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
 
+    const [occurrenceDate, setOccurrenceDate] = useState<string>(new Date().toISOString().slice(0, 10));
+    const [occurrenceTime, setOccurrenceTime] = useState<string>("");
+    const [isOccurrenceCreated, setIsOccurrenceCreated] = useState<boolean>(false);
+    const [occurrenceIntervals, setOccurrenceIntervals] = useState<[string, string][]>([]);
+    const [isOccurrenceIntervalsOpen, setIsOccurrenceIntervalsOpen] = useState<boolean>(false);
+
 
     useEffect(() => {
         setIsConfirmationOpen(isSheduleSuccess)
     }, [isSheduleSuccess]);
+
+    useEffect(() => {
+        if (isCreateSuccess && !isRecurring) {
+            onRequestingTimeIntervals(occurrenceDate, newClassDuration).then(result => {
+                setOccurrenceIntervals(result);
+                setIsOccurrenceIntervalsOpen(true);
+            });
+        }
+    }, [occurrenceDate, newClassDuration, isCreateSuccess, isRecurring]);
+
+    const handleModalClose = () => {
+        setClassName("");
+        setNewClassDuration(defaultClassDuration);
+        setClassPrice(0);
+        setIsRecurring(false);
+        setSelectedDayId(null);
+        setSelectedDayName("");
+        setTime("");
+        setIsAddDayOpen(false);
+        setIsAddTimeOpen(false);
+        setIsConfirmationOpen(false);
+        setTimeSlots([]);
+        setSelectedSlotIndex(-1);
+        setOccurrenceDate(new Date().toISOString().slice(0, 10));
+        setOccurrenceTime("");
+        setIsOccurrenceCreated(false);
+        setOccurrenceIntervals([]);
+        setIsOccurrenceIntervalsOpen(false);
+        onModalClose();
+    };
+
+    const isOccurrenceTimeWithinIntervals = (t: string): boolean =>
+        occurrenceIntervals.some(([start, end]) => t >= start && t <= end);
 
     const renderAddDayView = () => {
         const onDayPress = async (dayIndex: number) => {
@@ -394,7 +448,6 @@ const CreateScheduleClass = ({
                                     Alert.alert('Conflict', 'Class with such name already exists');
                                 }
                             }
-                            setClassName("");
                         }}
                         style={[modalStyles.modalConfirmButton, !className && { opacity: 0.5 }]}
                         disabled={!className}
@@ -403,7 +456,7 @@ const CreateScheduleClass = ({
                     </Pressable>
                     <Pressable
                         style={modalStyles.modalCancelButton}
-                        onPress={onModalClose}
+                        onPress={handleModalClose}
                         >
                             <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
@@ -430,7 +483,7 @@ const CreateScheduleClass = ({
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                     <Pressable
                         style={modalStyles.modalConfirmButton}
-                        onPress={isAddDayOpen ? undefined : onModalClose}
+                        onPress={isAddDayOpen ? undefined : handleModalClose}
                         disabled={isAddDayOpen}
                     >
                         <Text style={[textStyle]}>OK</Text>
@@ -441,12 +494,109 @@ const CreateScheduleClass = ({
         );
     };
 
+    const renderOccurrenceCreationForm = () => {
+        if (isOccurrenceCreated) {
+            return (
+                <View>
+                    <ScreenTitle titleText={`Schedule class ${className}`}/>
+                    <View style={[styles.itemContainer, styles.itemRow, {justifyContent: 'center'}]}>
+                        <Text style={[textStyle]}>
+                            {`Occurrence scheduled for ${occurrenceDate} at ${occurrenceTime}`}
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable style={modalStyles.modalConfirmButton} onPress={handleModalClose}>
+                            <Text style={[textStyle]}>OK</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            );
+        }
+
+        return (
+            <View>
+                <ScreenTitle titleText={`Schedule class ${className}`}/>
+                <View style={[styles.itemContainer, styles.itemRow, {justifyContent: 'center'}]}>
+                    <Text style={[textStyle]}>
+                        {`Class ${className} has been successfully created!`}
+                    </Text>
+                </View>
+
+                <View style={commonStyles.formContainer}>
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Date</Text>
+                        <DateInputField value={occurrenceDate} onChange={setOccurrenceDate} />
+                    </View>
+
+                    {isOccurrenceIntervalsOpen && (
+                        <View style={commonStyles.fieldGroup}>
+                            <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                                Pick start time within:
+                            </Text>
+                            {occurrenceIntervals.length === 0 ? (
+                                <Text style={{ color: 'grey', fontStyle: 'italic' }}>
+                                    {`No available time for ${newClassDuration} minutes`}
+                                </Text>
+                            ) : (
+                                occurrenceIntervals.map(([start, end]) => (
+                                    <Text key={`${start}-${end}`} style={{ color: 'green', paddingVertical: 2 }}>
+                                        {`${start} – ${end}`}
+                                    </Text>
+                                ))
+                            )}
+                        </View>
+                    )}
+
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Time</Text>
+                        <TimeInputField value={occurrenceTime} onChange={setOccurrenceTime} />
+                        {Boolean(occurrenceTime) && isOccurrenceIntervalsOpen && occurrenceIntervals.length > 0 &&
+                            !isOccurrenceTimeWithinIntervals(occurrenceTime) && (
+                                <Text style={{ color: 'orange', fontSize: 12 }}>Outside available intervals</Text>
+                        )}
+                    </View>
+                </View>
+
+                <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
+                    <Pressable
+                        style={[modalStyles.modalConfirmButton, !occurrenceTime && { opacity: 0.5 }]}
+                        disabled={!occurrenceTime}
+                        onPress={async () => {
+                            if (!occurrenceTime) return;
+                            if (onOccurrenceUniquenessCheck(occurrenceDate, occurrenceTime)) {
+                                await onCreateOccurrence(
+                                    className,
+                                    occurrenceDate,
+                                    occurrenceTime,
+                                    newClassDuration,
+                                    createdClassId ?? undefined,
+                                    undefined,
+                                    undefined,
+                                );
+                                setIsOccurrenceCreated(true);
+                            } else {
+                                Platform.OS === 'web'
+                                    ? alert('That date and time are already taken')
+                                    : Alert.alert('Conflict', 'That date and time are already taken');
+                            }
+                        }}
+                    >
+                        <Text style={textStyle}>Create</Text>
+                    </Pressable>
+                    <Pressable style={modalStyles.modalCancelButton} onPress={handleModalClose}>
+                        <Text style={[textStyle]}>Cancel</Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    };
+
     const renderCreateScheduleForm = () => {
         return (
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
                     <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'}/>
-                    {isCreateSuccess? renderClassScheduleForm() : renderClassCreationForm()}
+                    {isCreateSuccess ? (isRecurring ? renderClassScheduleForm() : renderOccurrenceCreationForm()) : renderClassCreationForm()}
                 </View>
             </View>
         );
@@ -482,7 +632,7 @@ const CreateScheduleClass = ({
         <Modal
             visible={isVisible}
             transparent={true}
-            onRequestClose={onModalClose}
+            onRequestClose={handleModalClose}
         >
             <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background }}>
                 {isConfirmationOpen && (

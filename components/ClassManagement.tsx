@@ -5,6 +5,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 import { useClassData } from "@/hooks/useClassData";
 import { useClassSchedules } from "@/hooks/useClassSchedules";
+import { useClassOccurrences } from "@/hooks/useClassOccurrences";
 import { SelectedClassState } from "@/types/class";
 import ScreenTitle from "./ScreenTitle";
 import CreateScheduleClass from "./CreateScheduleClass";
@@ -26,6 +27,7 @@ const ClassManagement = () => {
 
     const classData = useClassData();
     const classSchedules = useClassSchedules();
+    const classOccurrences = useClassOccurrences();
 
     const [selectedClass, setSelectedClass] = useState<SelectedClassState>(INITIAL_SELECTED_CLASS);
 
@@ -141,6 +143,9 @@ const ClassManagement = () => {
                     createdClassId={classData.createdClassId}
                     scheduleData={classSchedules.currentClassScheduleMap}
                     isSheduleSuccess={classSchedules.isScheduleSuccess}
+                    onCreateOccurrence={classOccurrences.createClassOccurrence}
+                    onRequestingTimeIntervals={classOccurrences.fetchAvailableTimeIntervalsOccurrence}
+                    onOccurrenceUniquenessCheck={classOccurrences.checkIfOccurrenceUnique}
                 />
             )}
 
