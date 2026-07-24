@@ -471,10 +471,6 @@ const CreateScheduleClass = ({
             <View style={styles.screenContainer}>
                 <ScreenTitle titleText={isCreateSuccess ? `Schedule class ${className}` : ''}/>
 
-                <Text style={[textStyle, styles.subtitleText, { color: Colors[colorScheme].textMuted }]}>
-                    {isCreateSuccess ? `Class ${className} has been successfully created!` : ''}
-                </Text>
-
                 {renderSchedules(scheduleData)}
 
                 <View style={[styles.scheduleActionsRow, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
@@ -520,9 +516,6 @@ const CreateScheduleClass = ({
         return (
             <View style={styles.screenContainer}>
                 <ScreenTitle titleText={`Schedule class ${className}`}/>
-                <Text style={[textStyle, styles.subtitleText, { color: Colors[colorScheme].textMuted }]}>
-                    {`Class ${className} has been successfully created!`}
-                </Text>
 
                 <View style={commonStyles.formContainer}>
                     <View style={commonStyles.fieldGroup}>
