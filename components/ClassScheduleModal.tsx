@@ -1,7 +1,7 @@
 import { Modal, View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, Platform, ViewStyle, PlatformIOSStatic } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { Colors, INPUT_BORDER_COLOR } from '@/constants/Colors';
 import { useModalStyles } from '@/constants/modalStyles';
 import ScreenTitle from './ScreenTitle';
 
@@ -230,12 +230,12 @@ const ClassScheduleModal = ({
         const label = `Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`;
 
         return (
-            <View style={{paddingHorizontal: 10, paddingVertical: 10}}>
-                <Text style={[textStyle, {paddingBottom: 10, paddingLeft: 5}]}>{label}</Text>
-                {renderTimeSlots()}
-                <View style={{paddingTop: 10, marginLeft: 5}}>
+            <View style={[commonStyles.formContainer, styles.addTimeContainer]}>
+                <View style={commonStyles.fieldGroup}>
+                    <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>{label}</Text>
+                    {renderTimeSlots()}
                     <TextInput
-                        style={[textStyle, commonStyles.inputField, {width: '100%'}]}
+                        style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
                         value={timeToSchedule}
                         onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
                     />
@@ -249,7 +249,10 @@ const ClassScheduleModal = ({
     const renderSchedules = (schedule: Map<number, [number, string][]>) => {
         const isWeb = Platform.OS === 'web';
         return (
-            <View style={styles.scheduleRowContainder}>
+            <View style={[commonStyles.formContainer, styles.scheduleRowContainder]}>
+                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                    Scheduled days
+                </Text>
                 {[...schedule].map(([day, times]) => (
                     <View key={day} style={styles.scheduleRow}>
                         <View style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}>
@@ -282,7 +285,7 @@ const ClassScheduleModal = ({
                                     }}
                                     style={styles.addTimeButton}
                                 >
-                                    <Text style={[textStyle]}>+</Text>
+                                    <Text style={[textStyle, styles.addTimeButtonText]}>+</Text>
                                 </Pressable>
                             </View>
                         ) : (
@@ -315,25 +318,23 @@ const ClassScheduleModal = ({
                                     }}
                                     style={styles.addTimeButton}
                                 >
-                                    <Text style={[textStyle]}>+</Text>
+                                    <Text style={[textStyle, styles.addTimeButtonText]}>+</Text>
                                 </Pressable>
                             </ScrollView>
                         )}
                     </View>
                 ))}
-                <View style={styles.scheduleRow}>
-                    <View style={isWeb ? {position: 'relative'} : undefined}>
-                        <Pressable
-                            style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}
-                            onPress={() => {
-                                setIsAddDayOpen(!isAddDayOpen);
-                                setIsAddTimeOpen(false);
-                            }}
-                        >
-                            <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>+ Add day</Text>
-                        </Pressable>
-                        {isWeb && isAddDayOpen && <View style={percentageStyles.dropdown}>{renderAddDayView()}</View>}
-                    </View>
+                <View style={[styles.addDayRow, isWeb && {position: 'relative'}]}>
+                    <Pressable
+                        style={styles.addDayButton}
+                        onPress={() => {
+                            setIsAddDayOpen(!isAddDayOpen);
+                            setIsAddTimeOpen(false);
+                        }}
+                    >
+                        <Text style={[textStyle, styles.addDayButtonText]}>+ Add day</Text>
+                    </Pressable>
+                    {isWeb && isAddDayOpen && <View style={percentageStyles.dropdown}>{renderAddDayView()}</View>}
                 </View>
                 {!isWeb && isAddDayOpen && renderAddDayView()}
                 {isAddTimeOpen && renderAddTimeView()}
@@ -350,13 +351,13 @@ const ClassScheduleModal = ({
         return (
             <View style={modalStyles.modalView}>
                 <View style={styles.modalInfo}>
-                    <Text style={[textStyle, {fontWeight: "bold"}]}>
+                    <Text style={[textStyle, styles.confirmationText]}>
                         Do you want to delete this schedule?
                     </Text>
                 </View>
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
-                        style={modalStyles.modalConfirmButton}
+                        style={modalStyles.modalDeleteButton}
                         onPress={() => {
                             onScheduleDelete(scheduleId, day, time);
                             setPendingDelete(null);
@@ -376,18 +377,25 @@ const ClassScheduleModal = ({
     };
 
     const renderScheduleContent = () => (
-        <View>
+        <View style={styles.screenContainer}>
             <ScreenTitle titleText={`Schedule for the class ${className}`} />
 
             {renderSchedules(scheduleData)}
 
-            <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
+            <View style={[styles.scheduleActionsRow, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                 <Pressable
                     style={styles.modalConfirmButton}
                     onPress={isAddDayOpen ? undefined : onModalClose}
                     disabled={isAddDayOpen}
                 >
                     <Text style={[textStyle]}>OK</Text>
+                </Pressable>
+                <Pressable
+                    style={styles.cancelButton}
+                    onPress={isAddDayOpen ? undefined : onModalClose}
+                    disabled={isAddDayOpen}
+                >
+                    <Text style={[textStyle]}>Cancel</Text>
                 </Pressable>
             </View>
         </View>
@@ -398,7 +406,8 @@ const ClassScheduleModal = ({
             <View style={styles.modalContainer}>
                 <View style={[styles.modalView, Platform.OS === 'web'
                     ? percentageStyles.modalViewWeb :
-                    (isIpad ? percentageStyles.modalViewPad : percentageStyles.modalViewPhone), { backgroundColor: Colors[colorScheme].background }]}>
+                    (isIpad ? percentageStyles.modalViewPad : percentageStyles.modalViewPhone),
+                    { backgroundColor: Colors[colorScheme].background, borderColor: Colors[colorScheme].border }]}>
 
                     {Platform.OS === 'web'
                         ? renderScheduleContent()
@@ -413,7 +422,7 @@ const ClassScheduleModal = ({
         return (
             <View style={modalStyles.modalView}>
                 <View style={styles.modalInfo}>
-                    <Text style={[textStyle, {fontWeight: "bold"}]}>
+                    <Text style={[textStyle, styles.confirmationText]}>
                         Class was scheduled successfully!
                     </Text>
                 </View>
@@ -457,6 +466,9 @@ const ClassScheduleModal = ({
 };
 
 const styles = StyleSheet.create({
+    screenContainer: {
+        alignSelf: 'stretch',
+    },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -466,21 +478,35 @@ const styles = StyleSheet.create({
         width: '85%',
         backgroundColor: 'black', //TODO: make it adjustable
         borderRadius: 20,
-        padding: 20,
+        borderWidth: 1,
+        padding: 24,
     },
     modalScrollContent: {
         alignItems: 'stretch',
     },
     modalInfo: {
         padding: 20,
+        alignSelf: 'stretch',
     },
     dayContainer: {
         justifyContent: 'center',
         marginRight: 10,
-        borderRadius: 10,
+        borderRadius: 15,
         borderWidth: 1,
-        borderColor: 'grey',
+        borderColor: INPUT_BORDER_COLOR,
         paddingVertical: 3,
+    },
+    addDayRow: {
+        marginTop: 12,
+        alignSelf: 'stretch',
+    },
+    addDayButton: {
+        alignSelf: 'stretch',
+        alignItems: 'center',
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: INPUT_BORDER_COLOR,
+        paddingVertical: 14,
     },
     dayContainerWeb: {
         width: 150,
@@ -501,10 +527,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flexDirection: 'row',
     },
+    scheduleActionsRow: {
+        alignSelf: 'stretch',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
+        paddingTop: 20,
+    },
     timeButton: {
-        borderRadius: 10,
+        borderRadius: 15,
         borderWidth: 1,
-        borderColor: 'grey',
+        borderColor: INPUT_BORDER_COLOR,
         justifyContent: 'center',
         minWidth: 70,
         marginHorizontal: 10,
@@ -514,13 +548,25 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
     },
     addTimeButton: {
-        padding: 10,
-        paddingLeft: 20,
-        fontSize: 20,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: INPUT_BORDER_COLOR,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    addTimeButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        lineHeight: 18,
     },
     dayText: {
         fontWeight: "bold",
         padding: 10,
+    },
+    addDayButtonText: {
+        fontWeight: 'bold',
     },
     dayTextWeb: {
         paddingHorizontal: 20,
@@ -535,6 +581,9 @@ const styles = StyleSheet.create({
     },
     scheduleRowContainder: {
         padding: 10,
+    },
+    addTimeContainer: {
+        marginTop: 20,
     },
     scheduleRow: {
         flexDirection: 'row',
@@ -592,7 +641,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
 timeSlot: {
-        borderRadius: 10,
+        borderRadius: 15,
         paddingHorizontal: 10,
         paddingVertical: 5,
         margin: 5,
@@ -604,7 +653,12 @@ timeSlot: {
     },
     notSelectedTimeSlotBorders: {
         borderWidth: 1,
-        borderColor: "grey",
+        borderColor: INPUT_BORDER_COLOR,
+    },
+    confirmationText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
     cancelButton: {
         alignItems: 'center',

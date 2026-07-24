@@ -3,14 +3,28 @@ import { useState } from 'react';
 import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors, INPUT_BORDER_COLOR } from '@/constants/Colors';
 
 type DateTimeFieldProps = {
     value: string;
     onChange: (value: string) => void;
 };
 
+const webInputStyle = (colorScheme: 'light' | 'dark'): React.CSSProperties => ({
+    padding: 12,
+    paddingLeft: 14,
+    borderRadius: 15,
+    border: `1px solid ${INPUT_BORDER_COLOR}`,
+    fontSize: 16,
+    backgroundColor: Colors[colorScheme].background,
+    color: Colors[colorScheme].text,
+    colorScheme,
+});
+
 export const DateInputField = ({ value, onChange }: DateTimeFieldProps) => {
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     if (Platform.OS === 'web') {
@@ -21,7 +35,7 @@ export const DateInputField = ({ value, onChange }: DateTimeFieldProps) => {
                     type="date"
                     value={value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-                    style={{ padding: 8, borderRadius: 8, border: '1px solid grey', fontSize: 16 }}
+                    style={webInputStyle(colorScheme)}
                 />
             </View>
         );
@@ -62,6 +76,7 @@ export const DateInputField = ({ value, onChange }: DateTimeFieldProps) => {
 
 export const TimeInputField = ({ value, onChange }: DateTimeFieldProps) => {
     const textStyle = useThemeTextStyle();
+    const colorScheme = useColorScheme() ?? 'light';
     const [showTimePicker, setShowTimePicker] = useState(false);
 
     if (Platform.OS === 'web') {
@@ -72,7 +87,7 @@ export const TimeInputField = ({ value, onChange }: DateTimeFieldProps) => {
                     type="time"
                     value={value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-                    style={{ padding: 8, borderRadius: 8, border: '1px solid grey', fontSize: 16 }}
+                    style={webInputStyle(colorScheme)}
                 />
             </View>
         );
@@ -126,7 +141,7 @@ const styles = StyleSheet.create({
     pickerButton: {
         minWidth: 110,
         borderWidth: 1,
-        borderColor: 'gray',
+        borderColor: INPUT_BORDER_COLOR,
         padding: 8,
         borderRadius: 10,
     },

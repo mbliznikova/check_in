@@ -1,18 +1,18 @@
 import { StyleSheet } from 'react-native';
-import { TOGGLE_COLOR } from './Colors';
+import { TOGGLE_COLOR, INPUT_BORDER_COLOR } from './Colors';
 
 export const commonStyles = StyleSheet.create({
     inputField: {
         width: 200,
         borderWidth: 1,
-        borderColor: 'gray',
+        borderColor: INPUT_BORDER_COLOR,
         paddingVertical: 12,
         paddingHorizontal: 14,
         borderRadius: 15,
     },
     separator: {
         height: 1,
-        backgroundColor: 'gray',
+        backgroundColor: INPUT_BORDER_COLOR,
         marginVertical: 10,
     },
     spaceBetweenRow: {
@@ -32,11 +32,11 @@ export const commonStyles = StyleSheet.create({
     },
     fieldGroup: {
         alignSelf: 'stretch',
-        marginBottom: 14,
+        marginBottom: 20,
     },
     fieldLabel: {
         fontSize: 13,
-        marginBottom: 6,
+        marginBottom: 8,
         marginLeft: 2,
     },
     fullWidthInput: {

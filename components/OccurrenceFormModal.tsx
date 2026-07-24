@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, Modal, Platform, ScrollView, Alert } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { Colors, DESTRUCTIVE_COLOR } from '@/constants/Colors';
+import { useModalStyles } from '@/constants/modalStyles';
+import { commonStyles } from '@/constants/commonStyles';
 import Checkbox from './Checkbox';
+import ScreenTitle from './ScreenTitle';
 import { DateInputField, TimeInputField } from './DateTimeInputFields';
 import { ClassOccurrenceType, ClassType } from '@/types/class';
 
@@ -61,6 +64,7 @@ const OccurrenceFormModal = ({
 }: OccurrenceFormModalProps) => {
     const textStyle = useThemeTextStyle();
     const colorScheme = useColorScheme() ?? 'light';
+    const modalStyles = useModalStyles();
     // Create state
     const [createDate, setCreateDate] = useState<string>(
         initialDate ?? new Date().toISOString().slice(0, 10)
@@ -128,18 +132,18 @@ const OccurrenceFormModal = ({
     const renderAvailableIntervals = (durationLabel: number) => {
         if (!isIntervalsOpen) return null;
         return (
-            <View style={styles.row}>
-                <Text style={[textStyle, styles.label]}>Pick start time within:</Text>
-                <View>
-                    {intervals.length === 0
-                        ? <Text style={{ color: 'grey', fontStyle: 'italic' }}>No available time for {durationLabel} minutes</Text>
-                        : intervals.map(([start, end]) => (
-                            <Text key={`${start}-${end}`} style={{ color: 'green', paddingVertical: 2 }}>
-                                {`${start} – ${end}`}
-                            </Text>
-                        ))
-                    }
-                </View>
+            <View style={commonStyles.fieldGroup}>
+                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                    Pick start time within:
+                </Text>
+                {intervals.length === 0
+                    ? <Text style={{ color: 'grey', fontStyle: 'italic' }}>No available time for {durationLabel} minutes</Text>
+                    : intervals.map(([start, end]) => (
+                        <Text key={`${start}-${end}`} style={{ color: 'green', paddingVertical: 2 }}>
+                            {`${start} – ${end}`}
+                        </Text>
+                    ))
+                }
             </View>
         );
     };
@@ -147,18 +151,17 @@ const OccurrenceFormModal = ({
     const renderTimeWarning = (time: string) => {
         if (!time || !isIntervalsOpen || intervals.length === 0 || isTimeWithinIntervals(time)) return null;
         return (
-            <View style={styles.row}>
-                <View style={{ width: 130 }} />
-                <Text style={{ color: 'orange', fontSize: 12 }}>Outside available intervals</Text>
-            </View>
+            <Text style={{ color: 'orange', fontSize: 12, marginTop: 8 }}>Outside available intervals</Text>
         );
     };
 
     const renderClassPicker = () => {
         if (!availableClasses || availableClasses.length === 0) return null;
         return (
-            <View style={{ padding: 10 }}>
-                <Text style={[textStyle, { fontWeight: 'bold', marginBottom: 8 }]}>Select class:</Text>
+            <View style={commonStyles.fieldGroup}>
+                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                    Select class
+                </Text>
                 <ScrollView style={{ maxHeight: 150 }}>
                     {availableClasses.map(cls => (
                         <Pressable
@@ -187,49 +190,47 @@ const OccurrenceFormModal = ({
 
         return (
             <ScrollView>
-                <View style={{ padding: 10 }}>
-                    <Text style={[textStyle, { fontWeight: 'bold' }]}>
-                        {effectiveClassName ? `Add occurrence for ${effectiveClassName}` : 'Add new occurrence'}
-                    </Text>
-                </View>
+                <ScreenTitle titleText={effectiveClassName ? `Add occurrence for ${effectiveClassName}` : 'Add new occurrence'} />
 
-                {!classId && renderClassPicker()}
+                <View style={commonStyles.formContainer}>
+                    {!classId && renderClassPicker()}
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Date:</Text>
-                    <DateInputField value={createDate} onChange={setCreateDate} />
-                </View>
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Date</Text>
+                        <DateInputField value={createDate} onChange={setCreateDate} />
+                    </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Duration (mins):</Text>
-                    <TextInput
-                        style={[textStyle, styles.shortInput]}
-                        value={effectiveDuration.toString()}
-                        onChangeText={v => setCreateDuration(Number(v))}
-                        keyboardType="numeric"
-                    />
-                </View>
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Duration (mins)</Text>
+                        <TextInput
+                            style={[textStyle, commonStyles.inputField, { width: 100 }]}
+                            value={effectiveDuration.toString()}
+                            onChangeText={v => setCreateDuration(Number(v))}
+                            keyboardType="numeric"
+                        />
+                    </View>
 
-                {renderAvailableIntervals(effectiveDuration)}
+                    {renderAvailableIntervals(effectiveDuration)}
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Time:</Text>
-                    <TimeInputField value={createTime} onChange={setCreateTime} />
-                </View>
-                {renderTimeWarning(createTime)}
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Time</Text>
+                        <TimeInputField value={createTime} onChange={setCreateTime} />
+                        {renderTimeWarning(createTime)}
+                    </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Notes:</Text>
-                    <TextInput
-                        style={[textStyle, styles.longInput]}
-                        value={createNotes}
-                        onChangeText={setCreateNotes}
-                    />
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Notes</Text>
+                        <TextInput
+                            style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                            value={createNotes}
+                            onChangeText={setCreateNotes}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.buttonRow}>
                     <Pressable
-                        style={styles.confirmButton}
+                        style={modalStyles.modalConfirmButton}
                         onPress={() => {
                             if (!effectiveClassName) {
                                 Platform.OS === 'web'
@@ -263,7 +264,7 @@ const OccurrenceFormModal = ({
                     >
                         <Text style={textStyle}>Create</Text>
                     </Pressable>
-                    <Pressable style={styles.cancelButton} onPress={onClose}>
+                    <Pressable style={modalStyles.modalCancelButton} onPress={onClose}>
                         <Text style={textStyle}>Cancel</Text>
                     </Pressable>
                 </View>
@@ -293,57 +294,55 @@ const OccurrenceFormModal = ({
 
         return (
             <ScrollView>
-                <View style={{ padding: 10 }}>
-                    <Text style={[textStyle, { fontWeight: 'bold' }]}>
-                        Edit occurrence — {displayName}
-                    </Text>
-                </View>
+                <ScreenTitle titleText={`Edit occurrence — ${displayName}`} />
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Date:</Text>
-                    <DateInputField value={editDate} onChange={setEditDate} />
-                </View>
+                <View style={commonStyles.formContainer}>
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Date</Text>
+                        <DateInputField value={editDate} onChange={setEditDate} />
+                    </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Duration (mins):</Text>
-                    <TextInput
-                        style={[textStyle, styles.shortInput]}
-                        value={editDuration.toString()}
-                        onChangeText={v => setEditDuration(Number(v))}
-                        keyboardType="numeric"
-                    />
-                </View>
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Duration (mins)</Text>
+                        <TextInput
+                            style={[textStyle, commonStyles.inputField, { width: 100 }]}
+                            value={editDuration.toString()}
+                            onChangeText={v => setEditDuration(Number(v))}
+                            keyboardType="numeric"
+                        />
+                    </View>
 
-                {renderAvailableIntervals(editDuration)}
+                    {renderAvailableIntervals(editDuration)}
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Time:</Text>
-                    <TimeInputField value={editTime} onChange={setEditTime} />
-                </View>
-                {renderTimeWarning(editTime)}
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Time</Text>
+                        <TimeInputField value={editTime} onChange={setEditTime} />
+                        {renderTimeWarning(editTime)}
+                    </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Cancelled?</Text>
-                    <Checkbox
-                        label=""
-                        checked={editIsCancelled}
-                        onChange={() => setEditIsCancelled(prev => !prev)}
-                        labelStyle={textStyle}
-                    />
-                </View>
+                    <View style={[commonStyles.fieldGroup, commonStyles.sideBySideRow]}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Cancelled?</Text>
+                        <Checkbox
+                            label=""
+                            checked={editIsCancelled}
+                            onChange={() => setEditIsCancelled(prev => !prev)}
+                            labelStyle={textStyle}
+                        />
+                    </View>
 
-                <View style={styles.row}>
-                    <Text style={[textStyle, styles.label]}>Notes:</Text>
-                    <TextInput
-                        style={[textStyle, styles.longInput]}
-                        value={editNotes}
-                        onChangeText={setEditNotes}
-                    />
+                    <View style={commonStyles.fieldGroup}>
+                        <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Notes</Text>
+                        <TextInput
+                            style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                            value={editNotes}
+                            onChangeText={setEditNotes}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.buttonRow}>
                     <Pressable
-                        style={styles.confirmButton}
+                        style={modalStyles.modalConfirmButton}
                         onPress={() => {
                             const changes = getChanges();
                             if (Object.keys(changes).length === 0) {
@@ -374,7 +373,7 @@ const OccurrenceFormModal = ({
                     >
                         <Text style={textStyle}>Save</Text>
                     </Pressable>
-                    <Pressable style={styles.cancelButton} onPress={onClose}>
+                    <Pressable style={modalStyles.modalCancelButton} onPress={onClose}>
                         <Text style={textStyle}>Cancel</Text>
                     </Pressable>
                 </View>
@@ -393,8 +392,8 @@ const OccurrenceFormModal = ({
         if (!occurrence) return null;
         return (
             <View style={styles.overlay}>
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
-                    <Text style={[textStyle, { fontWeight: 'bold', marginBottom: 20 }]}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background, borderColor: Colors[colorScheme].border }]}>
+                    <Text style={[textStyle, styles.deleteConfirmText]}>
                         Delete this occurrence?
                     </Text>
                     <View style={styles.buttonRow}>
@@ -413,7 +412,7 @@ const OccurrenceFormModal = ({
                         >
                             <Text style={textStyle}>Delete</Text>
                         </Pressable>
-                        <Pressable style={styles.cancelButton} onPress={() => setIsDeleteConfirmOpen(false)}>
+                        <Pressable style={modalStyles.modalCancelButton} onPress={() => setIsDeleteConfirmOpen(false)}>
                             <Text style={textStyle}>Cancel</Text>
                         </Pressable>
                     </View>
@@ -425,7 +424,7 @@ const OccurrenceFormModal = ({
     return (
         <Modal visible={isVisible} transparent={true} onRequestClose={onClose}>
             <View style={styles.container}>
-                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background }]}>
+                <View style={[styles.modalView, { backgroundColor: Colors[colorScheme].background, borderColor: Colors[colorScheme].border }]}>
                     {mode === 'create' ? renderCreateForm() : renderEditForm()}
                     {isDeleteConfirmOpen && renderDeleteConfirm()}
                 </View>
@@ -447,55 +446,27 @@ const styles = StyleSheet.create({
         maxHeight: '80%',
         backgroundColor: 'black',
         borderRadius: 20,
-        padding: 20,
-    },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-    },
-    label: {
-        width: 130,
-    },
-    shortInput: {
-        width: 60,
         borderWidth: 1,
-        borderColor: 'gray',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
-        borderRadius: 10,
-    },
-    longInput: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: 'gray',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
-        borderRadius: 10,
+        padding: 24,
     },
     buttonRow: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
         paddingVertical: 15,
-    },
-    confirmButton: {
-        paddingVertical: 6,
-        paddingHorizontal: 16,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    cancelButton: {
-        paddingVertical: 6,
-        paddingHorizontal: 16,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     deleteButton: {
         paddingVertical: 6,
         paddingHorizontal: 16,
         borderRadius: 15,
-        backgroundColor: 'red',
+        backgroundColor: DESTRUCTIVE_COLOR,
+    },
+    deleteConfirmText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
     },
     overlay: {
         position: 'absolute',
