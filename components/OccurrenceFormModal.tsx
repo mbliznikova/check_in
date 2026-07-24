@@ -190,7 +190,7 @@ const OccurrenceFormModal = ({
 
         return (
             <ScrollView>
-                <ScreenTitle titleText={effectiveClassName ? `Add occurrence for ${effectiveClassName}` : 'Add new occurrence'} />
+                <ScreenTitle titleText={effectiveClassName ? `Add occurrence for ${effectiveClassName}` : 'Add new occurrence'} centered={false} />
 
                 <View style={commonStyles.formContainer}>
                     {!classId && renderClassPicker()}
@@ -294,7 +294,7 @@ const OccurrenceFormModal = ({
 
         return (
             <ScrollView>
-                <ScreenTitle titleText={`Edit occurrence — ${displayName}`} />
+                <ScreenTitle titleText={`Edit occurrence — ${displayName}`} centered={false} />
 
                 <View style={commonStyles.formContainer}>
                     <View style={commonStyles.fieldGroup}>

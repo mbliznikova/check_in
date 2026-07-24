@@ -378,7 +378,7 @@ const ClassScheduleModal = ({
 
     const renderScheduleContent = () => (
         <View style={styles.screenContainer}>
-            <ScreenTitle titleText={`Schedule for the class ${className}`} />
+            <ScreenTitle titleText={`Schedule for the class ${className}`} centered={false} />
 
             {renderSchedules(scheduleData)}
 

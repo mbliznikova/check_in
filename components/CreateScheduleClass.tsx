@@ -469,7 +469,7 @@ const CreateScheduleClass = ({
     const renderClassScheduleForm = () => {
         return (
             <View style={styles.screenContainer}>
-                <ScreenTitle titleText={isCreateSuccess ? `Schedule class ${className}` : ''} centered/>
+                <ScreenTitle titleText={isCreateSuccess ? `Schedule class ${className}` : ''}/>
 
                 <Text style={[textStyle, styles.subtitleText, { color: Colors[colorScheme].textMuted }]}>
                     {isCreateSuccess ? `Class ${className} has been successfully created!` : ''}
@@ -519,7 +519,7 @@ const CreateScheduleClass = ({
 
         return (
             <View style={styles.screenContainer}>
-                <ScreenTitle titleText={`Schedule class ${className}`} centered/>
+                <ScreenTitle titleText={`Schedule class ${className}`}/>
                 <Text style={[textStyle, styles.subtitleText, { color: Colors[colorScheme].textMuted }]}>
                     {`Class ${className} has been successfully created!`}
                 </Text>
@@ -597,7 +597,7 @@ const CreateScheduleClass = ({
         return (
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
-                    <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'} centered/>
+                    <ScreenTitle titleText={isCreateSuccess ? '' : 'Create new class'}/>
                     {isCreateSuccess ? (isRecurring ? renderClassScheduleForm() : renderOccurrenceCreationForm()) : renderClassCreationForm()}
                 </View>
             </View>

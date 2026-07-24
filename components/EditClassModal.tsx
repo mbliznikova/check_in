@@ -131,7 +131,7 @@ const EditClassModal = ({
         return (
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
-                <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
+                <ScreenTitle titleText={`Edit class ${oldClassName}`} centered={false}/>
                     <View style={commonStyles.formContainer}>
                         <View style={commonStyles.fieldGroup}>
                             <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>

@@ -3,16 +3,16 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
 const ScreenTitle = ({
     titleText = "Screen Title",
-    centered = false,
+    centered = true,
 }) => {
     const textStyle = useThemeTextStyle();
     return (
-        <View style={[styles.container, centered && styles.containerCentered]}>
+        <View style={[styles.container, !centered && styles.containerLeft]}>
             <Text style={[
                 styles.container,
-                centered && styles.containerCentered,
+                !centered && styles.containerLeft,
                 styles.mainTextStyle,
-                centered && styles.mainTextStyleCentered,
+                !centered && styles.mainTextStyleLeft,
                 textStyle
                 ]}>
                     {titleText}
@@ -24,18 +24,19 @@ const ScreenTitle = ({
 const styles = StyleSheet.create({
     container: {
         alignSelf: 'stretch',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         paddingBottom: 20,
     },
-    containerCentered: {
-        alignItems: 'center',
+    containerLeft: {
+        alignItems: 'flex-start',
     },
     mainTextStyle: {
         fontSize: 25,
         fontWeight: 'bold',
-    },
-    mainTextStyleCentered: {
         textAlign: 'center',
+    },
+    mainTextStyleLeft: {
+        textAlign: 'left',
     },
 })
 
