@@ -12,9 +12,9 @@ import { commonStyles } from '@/constants/commonStyles';
 const isIpad = Platform.OS === 'ios' && (Platform as PlatformIOSStatic).isPad;
 
 const percentageStyles = {
-    modalViewWeb: { maxWidth: 360, height: '40%', alignItems: 'center', justifyContent: 'center' } as ViewStyle,
-    modalViewPad: { maxHeight: '85%' } as ViewStyle,
-    modalViewPhone: { width: '95%', maxHeight: '85%' } as ViewStyle,
+    modalViewWeb: { alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+    modalViewPad: {} as ViewStyle,
+    modalViewPhone: { width: '95%' } as ViewStyle,
 };
 
 type ClassScheduleModalProps = {
@@ -363,7 +363,7 @@ const ClassScheduleModal = ({
 
     const renderScheduleContent = () => (
         <View style={styles.screenContainer}>
-            <ScreenTitle titleText={`Schedule for the class ${className}`} centered={false} />
+            <ScreenTitle titleText={`Schedule for the class ${className}`} />
 
             {renderSchedules(scheduleData)}
 
@@ -382,16 +382,11 @@ const ClassScheduleModal = ({
 
     const renderSchedule = () => {
         return(
-            <View style={styles.modalContainer}>
-                <View style={[styles.modalView, Platform.OS === 'web'
-                    ? percentageStyles.modalViewWeb :
-                    (isIpad ? percentageStyles.modalViewPad : percentageStyles.modalViewPhone),
-                    { backgroundColor: Colors[colorScheme].background, borderColor: Colors[colorScheme].border }]}>
-
-                    {Platform.OS === 'web'
-                        ? renderScheduleContent()
-                        : <ScrollView contentContainerStyle={styles.modalScrollContent}>{renderScheduleContent()}</ScrollView>
-                    }
+            <View style={modalStyles.modalContainer}>
+                <View style={[modalStyles.modalView, Platform.OS === 'web'
+                    ? percentageStyles.modalViewWeb
+                    : (isIpad ? percentageStyles.modalViewPad : percentageStyles.modalViewPhone)]}>
+                    {renderScheduleContent()}
                 </View>
             </View>
         );
@@ -447,21 +442,6 @@ const ClassScheduleModal = ({
 const styles = StyleSheet.create({
     screenContainer: {
         alignSelf: 'stretch',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '85%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        borderWidth: 1,
-        padding: 24,
-    },
-    modalScrollContent: {
-        alignItems: 'stretch',
     },
     modalInfo: {
         padding: 20,
