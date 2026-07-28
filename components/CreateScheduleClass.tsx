@@ -246,11 +246,11 @@ const CreateScheduleClass = ({
     const renderAddTimeView = () => {
         return (
             <View style={[commonStyles.formContainer, styles.addTimeContainer]}>
-                <View style={commonStyles.fieldGroup}>
+                <View style={[commonStyles.fieldGroup, styles.timeFieldGroup]}>
                     <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Time</Text>
                     {renderTimeSlots()}
                     <TextInput
-                        style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput, styles.timeInputBorderless]}
+                        style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
                         value={time}
                         onChangeText={(timeStr) => {setTime(timeStr)}}
                     />
@@ -337,7 +337,7 @@ const CreateScheduleClass = ({
                         )}
                     </View>
                 ))}
-                {isAddTimeOpen && selectedDayName !== "" && (
+                {isAddTimeOpen && selectedDayName !== "" && selectedDayId !== null && !schedule.has(selectedDayId) && (
                     <View style={styles.selectedDayChipRow}>
                         <View style={[styles.dayChip, styles.dayChipSelected]}>
                             <Text style={[textStyle, styles.dayChipText]}>{selectedDayName}</Text>
@@ -474,22 +474,16 @@ const CreateScheduleClass = ({
 
                 {renderSchedules(scheduleData)}
 
-                <View style={[styles.scheduleActionsRow, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
-                    <Pressable
-                        style={modalStyles.modalConfirmButton}
-                        onPress={(isAddDayOpen || isAddTimeOpen) ? undefined : handleModalClose}
-                        disabled={isAddDayOpen || isAddTimeOpen}
-                    >
-                        <Text style={[textStyle]}>OK</Text>
-                    </Pressable>
-                    <Pressable
-                        style={modalStyles.modalCancelButton}
-                        onPress={(isAddDayOpen || isAddTimeOpen) ? undefined : handleModalClose}
-                        disabled={isAddDayOpen || isAddTimeOpen}
-                    >
-                        <Text style={[textStyle]}>Cancel</Text>
-                    </Pressable>
-                </View>
+                {!(isAddDayOpen || isAddTimeOpen) && (
+                    <View style={styles.scheduleActionsRow}>
+                        <Pressable style={modalStyles.modalConfirmButton} onPress={handleModalClose}>
+                            <Text style={[textStyle]}>OK</Text>
+                        </Pressable>
+                        <Pressable style={modalStyles.modalCancelButton} onPress={handleModalClose}>
+                            <Text style={[textStyle]}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                )}
 
             </View>
         );
@@ -695,7 +689,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     addTimeContainer: {
-        marginTop: 20,
+        marginTop: 10,
+    },
+    timeFieldGroup: {
+        marginBottom: 8,
     },
     scheduledDaysLabel: {
         alignSelf: 'center',
@@ -730,7 +727,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     // Highlighted variant shown above "+ Add day" while a time is being added
-    // for that day — same border treatment as a selected time slot.
+    // for a brand-new day — same border treatment as a selected time slot.
     dayChipSelected: {
         borderWidth: 3,
     },
@@ -840,7 +837,7 @@ const styles = StyleSheet.create({
     },
     modalButtonsContainer: {
         flexDirection: 'row',
-        padding: 20,
+        padding: 12,
         alignItems: 'center',
         width: '30%',
         justifyContent: 'center',
@@ -854,21 +851,11 @@ const styles = StyleSheet.create({
     modalSingleButtonContainer: {
          justifyContent: 'center'
     },
-    hiddenButtonContainer: {
-        opacity: 0,
-        width: 0,
-        overflow: 'hidden',
-    },
-    hiddenButton: {
-        opacity: 0,
-        width: 0,
-        overflow: 'hidden',
-    },
     timeSlotsContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "flex-start",
-        marginVertical: 10,
+        marginVertical: 6,
     },
     timeSlot: {
         borderRadius: 15,
@@ -884,11 +871,6 @@ const styles = StyleSheet.create({
     notSelectedTimeSlotBorders: {
         borderWidth: 1,
         borderColor: INPUT_BORDER_COLOR,
-    },
-    // Manual time-entry field sits directly under a grid of already-bordered
-    // slot pills — dropping its own border avoids stacking boxes on boxes.
-    timeInputBorderless: {
-        borderWidth: 0,
     },
     deleteTimeButton: {
         marginLeft: 6,
