@@ -124,7 +124,7 @@ const ClassScheduleModal = ({
                 {dayList}
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                     <Pressable
-                        style={styles.cancelButton}
+                        style={modalStyles.modalCancelButton}
                         onPress={() => setIsAddDayOpen(false)}
                     >
                         <Text style={[textStyle]}>Cancel</Text>
@@ -163,13 +163,13 @@ const ClassScheduleModal = ({
     const renderTimeButtons = (onSchedule: () => void) => (
         <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
             <Pressable
-                style={styles.modalConfirmButton}
+                style={modalStyles.modalConfirmButton}
                 onPress={onSchedule}
             >
                 <Text style={[textStyle]}>Schedule</Text>
             </Pressable>
             <Pressable
-                style={styles.cancelButton}
+                style={modalStyles.modalCancelButton}
                 onPress={() => {setIsAddTimeOpen(false)}}
             >
                 <Text style={[textStyle]}>Cancel</Text>
@@ -369,10 +369,10 @@ const ClassScheduleModal = ({
 
             {!(isAddDayOpen || isAddTimeOpen) && (
                 <View style={styles.scheduleActionsRow}>
-                    <Pressable style={styles.modalConfirmButton} onPress={onModalClose}>
+                    <Pressable style={modalStyles.modalConfirmButton} onPress={onModalClose}>
                         <Text style={[textStyle]}>OK</Text>
                     </Pressable>
-                    <Pressable style={styles.cancelButton} onPress={onModalClose}>
+                    <Pressable style={modalStyles.modalCancelButton} onPress={onModalClose}>
                         <Text style={[textStyle]}>Cancel</Text>
                     </Pressable>
                 </View>
@@ -594,16 +594,9 @@ const styles = StyleSheet.create({
     addDayButtonText: {
         fontWeight: 'bold',
     },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
     scheduleRowContainder: {
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingBottom: 10,
     },
     addTimeContainer: {
         marginTop: 10,
@@ -683,14 +676,6 @@ timeSlot: {
         fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'center',
-    },
-    cancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     confirmationOverlay: {
         position: 'absolute',
