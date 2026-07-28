@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         rowGap: 8,
         columnGap: 10,
-        padding: 5,
+        paddingVertical: 5,
     },
     timesRowWeb: {
         flexDirection: 'row',

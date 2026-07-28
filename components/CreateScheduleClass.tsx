@@ -686,7 +686,8 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     scheduleRowContainder: {
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingBottom: 10,
     },
     addTimeContainer: {
         marginTop: 10,
@@ -708,7 +709,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         rowGap: 8,
         columnGap: 10,
-        padding: 5,
+        paddingVertical: 5,
     },
     // Compact chip used in the "Scheduled days" summary row — fixed width so it
     // never collapses under flexWrap and lines up across rows of different days.
