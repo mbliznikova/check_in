@@ -26,13 +26,13 @@ const DeleteClassModal = ({
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, styles.modalInfoText]}>
                             Do you want to delete {className} class?
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
-                            style={modalStyles.modalConfirmButton}
+                            style={modalStyles.modalDeleteButton}
                             onPress={() => {
                                 onDeleteClass();
                             }}
@@ -56,7 +56,7 @@ const DeleteClassModal = ({
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
+                        <Text style={[textStyle, styles.modalInfoText]}>
                             Class {className} was deleted successfully
                         </Text>
                     </View>
@@ -87,6 +87,12 @@ const DeleteClassModal = ({
 const styles = StyleSheet.create({
     modalInfo: {
         padding: 20,
+        alignSelf: 'stretch',
+    },
+    modalInfoText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
     modalButtonsContainer: {
         flexDirection: 'row',

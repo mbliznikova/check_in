@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors, TOGGLE_COLOR, TOGGLE_TEXT } from '@/constants/Colors';
+import { Colors, TOGGLE_TEXT } from '@/constants/Colors';
+import { commonStyles } from '@/constants/commonStyles';
 
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
@@ -154,18 +155,18 @@ export default function OccurrencesScreen() {
                     <Text style={[styles.backText, { color: C.text }]}>{'← Back'}</Text>
                 </Pressable>
                 <Text style={[styles.title, { color: C.text }]}>Occurrences</Text>
-                <View style={styles.viewToggle}>
+                <View style={[commonStyles.segmentedToggle, styles.viewToggle]}>
                     <Pressable
-                        style={[styles.togglePill, viewMode === 'week' && styles.togglePillActive]}
+                        style={[commonStyles.segmentedPill, styles.togglePill, viewMode === 'week' && commonStyles.segmentedPillActive]}
                         onPress={() => switchViewMode('week')}
                     >
-                        <Text style={[styles.toggleText, viewMode === 'week' && styles.toggleTextActive, { color: viewMode === 'week' ? TOGGLE_TEXT : C.text }]}>Week</Text>
+                        <Text style={[commonStyles.segmentedPillText, styles.toggleText, { color: viewMode === 'week' ? TOGGLE_TEXT : C.text }]}>Week</Text>
                     </Pressable>
                     <Pressable
-                        style={[styles.togglePill, viewMode === 'day' && styles.togglePillActive]}
+                        style={[commonStyles.segmentedPill, styles.togglePill, viewMode === 'day' && commonStyles.segmentedPillActive]}
                         onPress={() => switchViewMode('day')}
                     >
-                        <Text style={[styles.toggleText, viewMode === 'day' && styles.toggleTextActive, { color: viewMode === 'day' ? TOGGLE_TEXT : C.text }]}>Day</Text>
+                        <Text style={[commonStyles.segmentedPillText, styles.toggleText, { color: viewMode === 'day' ? TOGGLE_TEXT : C.text }]}>Day</Text>
                     </Pressable>
                 </View>
             </View>
@@ -255,27 +256,14 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     viewToggle: {
-        flexDirection: 'row',
-        borderRadius: 8,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: TOGGLE_COLOR,
+        alignSelf: 'auto',
         width: 90,
     },
     togglePill: {
-        flex: 1,
         paddingVertical: 5,
-        alignItems: 'center',
-    },
-    togglePillActive: {
-        backgroundColor: TOGGLE_COLOR,
     },
     toggleText: {
         fontSize: 12,
-        fontWeight: '600',
-    },
-    toggleTextActive: {
-        color: TOGGLE_TEXT,
     },
     filterRow: {
         flexDirection: 'row',

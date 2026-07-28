@@ -8,6 +8,8 @@ const tintColorDark = '#fff';
 
 export const TOGGLE_COLOR = '#1a73e8';
 export const TOGGLE_TEXT = '#fff';
+export const INPUT_BORDER_COLOR = 'gray';
+export const DESTRUCTIVE_COLOR = 'indianred';
 
 export const Colors = {
   light: {
