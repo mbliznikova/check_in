@@ -15,7 +15,6 @@ const percentageStyles = {
     modalViewWeb: { maxWidth: 360, height: '40%', alignItems: 'center', justifyContent: 'center' } as ViewStyle,
     modalViewPad: { maxHeight: '85%' } as ViewStyle,
     modalViewPhone: { width: '95%', maxHeight: '85%' } as ViewStyle,
-    dropdown: { position: 'absolute', top: '100%', borderWidth: 1, borderRadius: 10 } as ViewStyle,
 };
 
 type ClassScheduleModalProps = {
@@ -87,60 +86,42 @@ const ClassScheduleModal = ({
     };
 
     const renderAddDayView = () => {
+        const onDayPress = async (dayIndex: number) => {
+            console.log(`Selected ${DAY_NAMES[dayIndex]}`);
+            setIsAddDayOpen(false);
+            setIsAddTimeOpen(true);
+            setDayToSchedule(dayIndex);
+            setTimeToSchedule("");
+            setSelectedSlotIndex(-1);
+            if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
+                const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
+                setTimeSlots(await slots);
+            }
+        };
+
+        const dayList = (
+            <View style={styles.addDayListPanel}>
+                {getRemainedDays().map((dayIndex, idx) => (
+                    <Pressable
+                        key={dayIndex}
+                        style={[styles.addDayListRow, idx > 0 && styles.addDayListRowDivider]}
+                        onPress={() => onDayPress(dayIndex)}
+                    >
+                        <Text style={[textStyle, styles.addDayListRowText]}>
+                            {DAY_NAMES[dayIndex]}
+                        </Text>
+                    </Pressable>
+                ))}
+            </View>
+        );
+
         if (Platform.OS === 'web') {
-            return (
-                <View>
-                    {getRemainedDays().map((dayIndex) => (
-                        <Pressable
-                            key={dayIndex}
-                            style={[styles.dayContainer, styles.dayContainerWeb]}
-                            onPress={async () => {
-                                console.log(`Selected ${DAY_NAMES[dayIndex]}`);
-                                setIsAddDayOpen(false);
-                                setIsAddTimeOpen(true);
-                                setDayToSchedule(dayIndex);
-                                setTimeToSchedule("");
-                                setSelectedSlotIndex(-1);
-                                if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
-                                    const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
-                                    setTimeSlots(await slots);
-                                }
-                            }}
-                        >
-                            <Text style={[textStyle, styles.dayText]}>
-                                {DAY_NAMES[dayIndex]}
-                            </Text>
-                        </Pressable>
-                    ))}
-                </View>
-            );
+            return dayList;
         }
 
         return (
-            <View style={{marginTop: -4}}>
-                {getRemainedDays().map((dayIndex) => (
-                    <View key={dayIndex} style={styles.pickerRow}>
-                        <Pressable
-                            style={[styles.dayContainer, styles.dayContainerNative]}
-                            onPress={async () => {
-                                console.log(`Selected ${DAY_NAMES[dayIndex]}`);
-                                setIsAddDayOpen(false);
-                                setIsAddTimeOpen(true);
-                                setDayToSchedule(dayIndex);
-                                setTimeToSchedule("");
-                                setSelectedSlotIndex(-1);
-                                if (DAY_NAMES[dayIndex] !== null && classDuration !== null) {
-                                    const slots = onRequestingTimeSlots(DAY_NAMES[dayIndex], classDuration);
-                                    setTimeSlots(await slots);
-                                }
-                            }}
-                        >
-                            <Text style={[textStyle, styles.dayText]}>
-                                {DAY_NAMES[dayIndex]}
-                            </Text>
-                        </Pressable>
-                    </View>
-                ))}
+            <View>
+                {dayList}
                 <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
                     <Pressable
                         style={styles.cancelButton}
@@ -227,15 +208,13 @@ const ClassScheduleModal = ({
     };
 
     const renderAddTimeView = () => {
-        const label = `Select or enter time for ${dayToSchedule ? DAY_NAMES[dayToSchedule] : ""}:`;
-
         return (
             <View style={[commonStyles.formContainer, styles.addTimeContainer]}>
                 <View style={commonStyles.fieldGroup}>
-                    <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>{label}</Text>
+                    <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>Time</Text>
                     {renderTimeSlots()}
                     <TextInput
-                        style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput]}
+                        style={[textStyle, commonStyles.inputField, commonStyles.fullWidthInput, styles.timeInputBorderless]}
                         value={timeToSchedule}
                         onChangeText={(timeStr) => {setTimeToSchedule(timeStr)}}
                     />
@@ -250,13 +229,13 @@ const ClassScheduleModal = ({
         const isWeb = Platform.OS === 'web';
         return (
             <View style={[commonStyles.formContainer, styles.scheduleRowContainder]}>
-                <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
+                <Text style={[commonStyles.fieldLabel, styles.scheduledDaysLabel, { color: Colors[colorScheme].textMuted }]}>
                     Scheduled days
                 </Text>
                 {[...schedule].map(([day, times]) => (
                     <View key={day} style={styles.scheduleRow}>
-                        <View style={[styles.dayContainer, isWeb ? styles.dayContainerWeb : styles.dayContainerNative]}>
-                            <Text style={[textStyle, styles.dayText, isWeb && styles.dayTextWeb]}>
+                        <View style={styles.dayChip}>
+                            <Text style={[textStyle, styles.dayChipText]}>
                                 {DAY_NAMES[day]}
                             </Text>
                         </View>
@@ -268,8 +247,8 @@ const ClassScheduleModal = ({
                                         style={styles.timeButton}
                                         onPress={() => setPendingDelete({scheduleId, day, time})}
                                     >
-                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
                                         <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
                                     </Pressable>
                                 ))}
                                 <Pressable
@@ -301,8 +280,8 @@ const ClassScheduleModal = ({
                                         style={styles.timeButton}
                                         onPress={() => setPendingDelete({scheduleId, day, time})}
                                     >
-                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
                                         <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
+                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
                                     </Pressable>
                                 ))}
                                 <Pressable
@@ -324,19 +303,25 @@ const ClassScheduleModal = ({
                         )}
                     </View>
                 ))}
-                <View style={[styles.addDayRow, isWeb && {position: 'relative'}]}>
+                {isAddTimeOpen && dayToSchedule !== null && (
+                    <View style={styles.selectedDayChipRow}>
+                        <View style={[styles.dayChip, styles.dayChipSelected]}>
+                            <Text style={[textStyle, styles.dayChipText]}>{DAY_NAMES[dayToSchedule]}</Text>
+                        </View>
+                    </View>
+                )}
+                <View style={styles.addDayRow}>
                     <Pressable
-                        style={styles.addDayButton}
+                        style={[styles.addDayButton, isAddDayOpen && styles.addDayButtonActive]}
                         onPress={() => {
                             setIsAddDayOpen(!isAddDayOpen);
                             setIsAddTimeOpen(false);
                         }}
                     >
-                        <Text style={[textStyle, styles.addDayButtonText]}>+ Add day</Text>
+                        <Text style={[textStyle, styles.addDayButtonText, isAddDayOpen && styles.addDayButtonTextActive]}>+ Add day</Text>
                     </Pressable>
-                    {isWeb && isAddDayOpen && <View style={percentageStyles.dropdown}>{renderAddDayView()}</View>}
                 </View>
-                {!isWeb && isAddDayOpen && renderAddDayView()}
+                {isAddDayOpen && renderAddDayView()}
                 {isAddTimeOpen && renderAddTimeView()}
             </View>
         );
@@ -385,15 +370,15 @@ const ClassScheduleModal = ({
             <View style={[styles.scheduleActionsRow, (isAddDayOpen || isAddTimeOpen) && styles.hiddenButton]}>
                 <Pressable
                     style={styles.modalConfirmButton}
-                    onPress={isAddDayOpen ? undefined : onModalClose}
-                    disabled={isAddDayOpen}
+                    onPress={(isAddDayOpen || isAddTimeOpen) ? undefined : onModalClose}
+                    disabled={isAddDayOpen || isAddTimeOpen}
                 >
                     <Text style={[textStyle]}>OK</Text>
                 </Pressable>
                 <Pressable
                     style={styles.cancelButton}
-                    onPress={isAddDayOpen ? undefined : onModalClose}
-                    disabled={isAddDayOpen}
+                    onPress={(isAddDayOpen || isAddTimeOpen) ? undefined : onModalClose}
+                    disabled={isAddDayOpen || isAddTimeOpen}
                 >
                     <Text style={[textStyle]}>Cancel</Text>
                 </Pressable>
@@ -488,13 +473,38 @@ const styles = StyleSheet.create({
         padding: 20,
         alignSelf: 'stretch',
     },
-    dayContainer: {
+    scheduledDaysLabel: {
+        alignSelf: 'center',
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+        marginBottom: 14,
+    },
+    // Compact chip used in the "Scheduled days" summary row — fixed width so it
+    // never collapses under flexWrap and lines up across rows of different days.
+    dayChip: {
+        width: 120,
+        flexShrink: 0,
+        height: 44,
         justifyContent: 'center',
-        marginRight: 10,
+        alignItems: 'center',
         borderRadius: 15,
         borderWidth: 1,
         borderColor: INPUT_BORDER_COLOR,
-        paddingVertical: 3,
+    },
+    dayChipText: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    // Highlighted variant shown above "+ Add day" while a time is being added
+    // for that day — same border treatment as a selected time slot.
+    dayChipSelected: {
+        borderWidth: 3,
+    },
+    selectedDayChipRow: {
+        alignSelf: 'stretch',
+        alignItems: 'flex-start',
+        marginTop: 12,
     },
     addDayRow: {
         marginTop: 12,
@@ -508,11 +518,33 @@ const styles = StyleSheet.create({
         borderColor: INPUT_BORDER_COLOR,
         paddingVertical: 14,
     },
-    dayContainerWeb: {
-        width: 150,
+    addDayButtonActive: {
+        borderColor: 'green',
     },
-    dayContainerNative: {
-        width: 120,
+    addDayButtonTextActive: {
+        color: 'green',
+    },
+    // Single bordered panel for the "+ Add day" picker — one contained list,
+    // not separate floating pills, so it never spills past the card's edge.
+    addDayListPanel: {
+        alignSelf: 'stretch',
+        marginTop: 8,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: INPUT_BORDER_COLOR,
+        overflow: 'hidden',
+    },
+    addDayListRow: {
+        alignSelf: 'stretch',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+    },
+    addDayListRowDivider: {
+        borderTopWidth: 1,
+        borderTopColor: INPUT_BORDER_COLOR,
+    },
+    addDayListRowText: {
+        fontSize: 15,
     },
     modalButtonsContainer: {
         flexDirection: 'row',
@@ -536,40 +568,37 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     timeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 44,
+        minWidth: 70,
+        flexShrink: 0,
+        paddingHorizontal: 10,
         borderRadius: 15,
         borderWidth: 1,
         borderColor: INPUT_BORDER_COLOR,
-        justifyContent: 'center',
-        minWidth: 70,
-        marginHorizontal: 10,
     },
     timeText: {
-        paddingHorizontal: 10,
-        paddingBottom: 10,
+        fontWeight: '600',
     },
     addTimeButton: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         borderWidth: 1,
         borderColor: INPUT_BORDER_COLOR,
         justifyContent: 'center',
         alignItems: 'center',
+        flexShrink: 0,
     },
     addTimeButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
         lineHeight: 18,
     },
-    dayText: {
-        fontWeight: "bold",
-        padding: 10,
-    },
     addDayButtonText: {
         fontWeight: 'bold',
-    },
-    dayTextWeb: {
-        paddingHorizontal: 20,
     },
     modalConfirmButton: {
         alignItems: 'center',
@@ -587,12 +616,18 @@ const styles = StyleSheet.create({
     },
     scheduleRow: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        rowGap: 8,
+        columnGap: 10,
         padding: 5,
     },
     timesRowWeb: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
+        rowGap: 8,
+        columnGap: 10,
     },
     timesScrollNative: {
         flex: 1,
@@ -600,11 +635,7 @@ const styles = StyleSheet.create({
     timesRowNative: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    pickerRow: {
-        flexDirection: 'row',
-        paddingHorizontal: 5,
-        marginVertical: 1,
+        columnGap: 10,
     },
     pickerContainer: {
         paddingHorizontal: 10,
@@ -619,8 +650,9 @@ const styles = StyleSheet.create({
         marginVertical: 4,
     },
     deleteTimeButton: {
-        textAlign: 'right',
-        paddingRight: 5, color: 'red',
+        marginLeft: 6,
+        fontSize: 12,
+        color: 'red',
     },
     itemContainer: {
         padding: 10,
@@ -654,6 +686,11 @@ timeSlot: {
     notSelectedTimeSlotBorders: {
         borderWidth: 1,
         borderColor: INPUT_BORDER_COLOR,
+    },
+    // Manual time-entry field sits directly under a grid of already-bordered
+    // slot pills — dropping its own border avoids stacking boxes on boxes.
+    timeInputBorderless: {
+        borderWidth: 0,
     },
     confirmationText: {
         fontSize: 18,
