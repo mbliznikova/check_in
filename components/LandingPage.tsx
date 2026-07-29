@@ -11,16 +11,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
-import { TOGGLE_COLOR } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { TOGGLE_COLOR, LandingColors } from '@/constants/Colors';
 
-// Fixed marketing palette — this page is a public landing page, not an
-// in-app themed screen, so it intentionally ignores the device's light/dark
-// setting (matching the design, which has no dark variant).
-const PAGE_BG = '#f8f9fb';
-const FEATURE_BG = '#eef0f5';
-const TEXT = '#12181f';
-const TEXT_MUTED = '#5b6672';
-const EYEBROW_BG = '#e7edff';
+// The CTA band stays a fixed dark navy regardless of theme — it's an
+// intentional high-contrast band in the design, with no light variant.
 const DARK_BAND = '#151b26';
 
 const CONTAINER_MAX_WIDTH = 1160;
@@ -104,6 +99,8 @@ export default function LandingPage() {
   const [featuresY, setFeaturesY] = useState(0);
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
+  const colorScheme = useColorScheme();
+  const colors = LandingColors[colorScheme];
 
   const scrollToFeatures = () => {
     scrollRef.current?.scrollTo({ y: featuresY, animated: true });
@@ -114,7 +111,7 @@ export default function LandingPage() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
         {/* Top bar */}
         <View style={[styles.container, styles.topBar]}>
@@ -122,17 +119,20 @@ export default function LandingPage() {
             <View style={styles.logoMark}>
               <IconSymbol name="checkmark.circle.fill" size={16} color="#fff" />
             </View>
-            <Text style={styles.wordmark}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
           </View>
           <View style={styles.topBarActions}>
             <TouchableOpacity onPress={scrollToFeatures}>
-              <Text style={styles.linkText}>Product</Text>
+              <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/sign-in')}>
-              <Text style={styles.linkText}>Sign in</Text>
+              <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navPillButton} onPress={() => router.push('/sign-up')}>
-              <Text style={styles.navPillButtonText}>Get started</Text>
+            <TouchableOpacity
+              style={[styles.navPillButton, { backgroundColor: colors.text }]}
+              onPress={() => router.push('/sign-up')}
+            >
+              <Text style={[styles.navPillButtonText, { color: colors.background }]}>Get started</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -140,18 +140,22 @@ export default function LandingPage() {
         {/* Hero */}
         <View style={[styles.container, styles.hero, isWide && styles.heroWide]}>
           <View style={[styles.heroText, isWide && styles.heroTextWide]}>
-            <View style={styles.eyebrow}>
+            <View style={[styles.eyebrow, { backgroundColor: colors.eyebrowBg }]}>
               <Text style={styles.eyebrowText}>Attendance for studios</Text>
             </View>
-            <Text style={styles.heroTitle}>Know who showed up. Every class, every time.</Text>
-            <Text style={styles.heroSubtitle}>
+            <Text style={[styles.heroTitle, { color: colors.text }]}>
+              Know who showed up. Every class, every time.
+            </Text>
+            <Text style={[styles.heroSubtitle, { color: colors.textMuted }]}>
               Runs in any browser — nothing to install — with mobile apps for the studio floor.
               Attendance, rosters, payments, and scheduling, from the front desk or your phone.
             </Text>
             <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/sign-up')}>
               <Text style={styles.primaryButtonText}>Get started</Text>
             </TouchableOpacity>
-            <Text style={styles.heroCaption}>Built for dance, music, and art studios.</Text>
+            <Text style={[styles.heroCaption, { color: colors.textMuted }]}>
+              Built for dance, music, and art studios.
+            </Text>
           </View>
           <View style={[styles.heroImageWrap, isWide && styles.heroImageWrapWide]}>
             <BrowserWindowFrame url="app.checkin.app/classes" label="dashboard screenshot" />
@@ -159,18 +163,27 @@ export default function LandingPage() {
         </View>
 
         {/* Feature grid */}
-        <View style={styles.featureSection} onLayout={handleFeaturesLayout}>
+        <View
+          style={[styles.featureSection, { backgroundColor: colors.featureBg }]}
+          onLayout={handleFeaturesLayout}
+        >
           <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Everything a studio needs to track attendance</Text>
-            <Text style={styles.sectionSubtitle}>Replaces the paper roster, the spreadsheet, and the group chat.</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Everything a studio needs to track attendance
+            </Text>
+            <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
+              Replaces the paper roster, the spreadsheet, and the group chat.
+            </Text>
             <View style={[styles.featureGrid, isWide && styles.featureGridWide]}>
               {FEATURES.map((feature) => (
                 <View key={feature.title} style={[styles.featureItem, isWide && styles.featureItemWide]}>
                   <View style={styles.featureIcon}>
                     <IconSymbol name={feature.icon} size={22} color="#fff" />
                   </View>
-                  <Text style={styles.featureTitle}>{feature.title}</Text>
-                  <Text style={styles.featureDescription}>{feature.description}</Text>
+                  <Text style={[styles.featureTitle, { color: colors.text }]}>{feature.title}</Text>
+                  <Text style={[styles.featureDescription, { color: colors.textMuted }]}>
+                    {feature.description}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -179,19 +192,21 @@ export default function LandingPage() {
 
         {/* Product showcase */}
         <View style={[styles.container, styles.section]}>
-          <Text style={[styles.sectionTitle, styles.centeredText]}>One system, front desk to phone</Text>
-          <Text style={[styles.sectionSubtitle, styles.centeredText]}>
+          <Text style={[styles.sectionTitle, styles.centeredText, { color: colors.text }]}>
+            One system, front desk to phone
+          </Text>
+          <Text style={[styles.sectionSubtitle, styles.centeredText, { color: colors.textMuted }]}>
             Run the full dashboard at the front desk, or check students in from the studio floor.
             Real screenshots coming soon.
           </Text>
           <View style={[styles.showcaseRow, isWide && styles.showcaseRowWide]}>
             <View style={[styles.showcaseItem, isWide && styles.showcaseItemWide]}>
               <BrowserWindowFrame url="app.checkin.app/occurrences" label="weekly schedule screenshot" />
-              <Text style={styles.showcaseCaption}>Web dashboard</Text>
+              <Text style={[styles.showcaseCaption, { color: colors.textMuted }]}>Web dashboard</Text>
             </View>
             <View style={styles.showcaseItem}>
               <PhoneFrame label="check-in screen screenshot" />
-              <Text style={styles.showcaseCaption}>Mobile check-in</Text>
+              <Text style={[styles.showcaseCaption, { color: colors.textMuted }]}>Mobile check-in</Text>
             </View>
           </View>
         </View>
@@ -209,14 +224,14 @@ export default function LandingPage() {
         <View style={[styles.container, styles.footer]}>
           <View style={styles.brandRow}>
             <View style={styles.logoMarkSmall} />
-            <Text style={styles.wordmark}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
           </View>
           <View style={styles.footerLinks}>
             <TouchableOpacity onPress={scrollToFeatures}>
-              <Text style={styles.linkText}>Product</Text>
+              <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/sign-in')}>
-              <Text style={styles.linkText}>Sign in</Text>
+              <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -228,7 +243,6 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: PAGE_BG,
   },
   scrollContent: {
     paddingBottom: 40,
@@ -268,7 +282,6 @@ const styles = StyleSheet.create({
   wordmark: {
     fontSize: 17,
     fontWeight: '600',
-    color: TEXT,
   },
   topBarActions: {
     flexDirection: 'row',
@@ -278,10 +291,8 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 15,
     fontWeight: '500',
-    color: TEXT,
   },
   navPillButton: {
-    backgroundColor: TEXT,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 100,
@@ -289,7 +300,6 @@ const styles = StyleSheet.create({
   navPillButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: PAGE_BG,
   },
   hero: {
     flexDirection: 'column',
@@ -317,7 +327,6 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     alignSelf: 'flex-start',
-    backgroundColor: EYEBROW_BG,
     borderRadius: 100,
     paddingVertical: 5,
     paddingHorizontal: 12,
@@ -334,13 +343,11 @@ const styles = StyleSheet.create({
     fontSize: 34,
     lineHeight: 38,
     fontWeight: '700',
-    color: TEXT,
     marginBottom: 14,
   },
   heroSubtitle: {
     fontSize: 16,
     lineHeight: 23,
-    color: TEXT_MUTED,
     marginBottom: 22,
   },
   primaryButton: {
@@ -357,7 +364,6 @@ const styles = StyleSheet.create({
   },
   heroCaption: {
     fontSize: 13,
-    color: TEXT_MUTED,
     marginTop: 18,
   },
   placeholderText: {
@@ -441,7 +447,6 @@ const styles = StyleSheet.create({
     paddingTop: 56,
   },
   featureSection: {
-    backgroundColor: FEATURE_BG,
     paddingVertical: 56,
     marginTop: 8,
   },
@@ -449,13 +454,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 29,
     fontWeight: '700',
-    color: TEXT,
     marginBottom: 10,
   },
   sectionSubtitle: {
     fontSize: 15,
     lineHeight: 21,
-    color: TEXT_MUTED,
     marginBottom: 32,
   },
   centeredText: {
@@ -487,13 +490,11 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: TEXT,
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
     lineHeight: 20,
-    color: TEXT_MUTED,
   },
   showcaseRow: {
     flexDirection: 'column',
@@ -518,7 +519,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     fontWeight: '600',
-    color: TEXT_MUTED,
     marginTop: 16,
   },
   phoneFrame: {
@@ -638,6 +638,5 @@ const styles = StyleSheet.create({
   },
   copyright: {
     fontSize: 13,
-    color: TEXT_MUTED,
   },
 });

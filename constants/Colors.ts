@@ -33,3 +33,23 @@ export const Colors = {
     textMuted: '#888',
   },
 };
+
+// Palette for components/LandingPage.tsx — a marketing page with its own
+// distinct look (off-white background, different muted tone), kept separate
+// from the in-app Colors above so it doesn't affect other screens.
+export const LandingColors = {
+  light: {
+    background: '#f8f9fb',
+    featureBg: '#eef0f5',
+    text: '#12181f',
+    textMuted: '#5b6672',
+    eyebrowBg: '#e7edff',
+  },
+  dark: {
+    background: '#000',
+    featureBg: '#15171c',
+    text: '#fff',
+    textMuted: '#9aa1ac',
+    eyebrowBg: '#182238',
+  },
+};
