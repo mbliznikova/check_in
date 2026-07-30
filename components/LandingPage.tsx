@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { TOGGLE_COLOR, LandingColors } from '@/constants/Colors';
+import { ACCENT_COLOR, LandingColors } from '@/constants/Colors';
 
 // The CTA band stays a fixed dark navy regardless of theme — it's an
 // intentional high-contrast band in the design, with no light variant.
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 7,
-    backgroundColor: TOGGLE_COLOR,
+    backgroundColor: ACCENT_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 5,
-    backgroundColor: TOGGLE_COLOR,
+    backgroundColor: ACCENT_COLOR,
   },
   wordmark: {
     fontSize: 17,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.4,
     textTransform: 'uppercase',
-    color: TOGGLE_COLOR,
+    color: ACCENT_COLOR,
   },
   heroTitle: {
     fontSize: 34,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignSelf: 'flex-start',
-    backgroundColor: TOGGLE_COLOR,
+    backgroundColor: ACCENT_COLOR,
     paddingVertical: 13,
     paddingHorizontal: 26,
     borderRadius: 100,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: TOGGLE_COLOR,
+    backgroundColor: ACCENT_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,

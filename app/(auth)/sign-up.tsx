@@ -1,9 +1,13 @@
 import * as React from 'react'
-import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
+import { Text, View, StyleSheet } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { AuthColors, ACCENT_COLOR } from '@/constants/Colors';
 import { useSignUp } from '@clerk/clerk-expo'
 import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
+import AuthShell from '@/components/AuthShell';
+import AuthTextField from '@/components/AuthTextField';
+import AuthPrimaryButton from '@/components/AuthPrimaryButton';
+import AuthCodeInput from '@/components/AuthCodeInput';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -16,8 +20,7 @@ export default function SignUpScreen() {
   const [code, setCode] = React.useState('')
 
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const textStyle = useThemeTextStyle();
+  const colors = AuthColors[colorScheme];
 
   const onSignUpPress = async () => {
     if (!isLoaded) return
@@ -63,137 +66,78 @@ export default function SignUpScreen() {
 
   function renderVerifyForm() {
     return (
-      <View>
+      <AuthShell>
+        <Text style={[styles.titleText, { color: colors.text }]}>Verify your email</Text>
+        <Text style={[styles.subtitleText, { color: colors.textMuted }]}>
+          Enter your verification code.
+        </Text>
 
-        <View style={styles.titleTextContainer}>
-          <Text style={[textStyle, styles.titleText]}>Verify your email</Text>
-        </View>
+        <AuthCodeInput value={code} onChange={setCode} />
 
-        <View style={[styles.itemContainer]}>
-          <TextInput
-            value={code}
-            placeholder='Enter your verification code'
-            placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
-            onChangeText={(code) => setCode(code)}
-            style={[textStyle, styles.inputFeld]}
-          />
-        </View>
-
-        <View>
-          <View style={styles.itemContainer}>
-            <TouchableOpacity
-              onPress={onVerifyPress}
-              style={[styles.button]}
-            >
-              <Text style={textStyle}>Verify</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-      </View>
+        <AuthPrimaryButton label="Verify" onPress={onVerifyPress} />
+      </AuthShell>
     )
   };
 
   function renderSignUpForm() {
     return (
-      <View>
+      <AuthShell>
+        <Text style={[styles.titleText, { color: colors.text }]}>Sign up to Check In</Text>
+        <Text style={[styles.subtitleText, { color: colors.textMuted }]}>
+          Set up your studio in a couple minutes.
+        </Text>
 
-        <View style={styles.titleTextContainer}>
-          <Text style={[textStyle, styles.titleText]}>Sign up to CHECK_IN</Text>
-        </View>
+        <AuthTextField
+          label="Email"
+          value={emailAddress}
+          placeholder="you@studio.com"
+          onChangeText={setEmailAddress}
+        />
+        <AuthTextField
+          label="Password"
+          value={password}
+          placeholder="Create a password"
+          secureTextEntry
+          onChangeText={setPassword}
+        />
 
-        <View style={[styles.itemContainer]}>
-          <TextInput
-            autoCapitalize='none'
-            value={emailAddress}
-            placeholder='Enter email'
-            placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
-            onChangeText={(email) => setEmailAddress(email)}
-            style={[textStyle, styles.inputFeld]}
-          />
-          <TextInput
-            value={password}
-            placeholder='Enter password'
-            placeholderTextColor={colorScheme === 'dark' ? '#999' : '#666'}
-            secureTextEntry={true}
-            onChangeText={(password) => setPassword(password)}
-            style={[textStyle, styles.inputFeld]}
-          />
-        </View>
+        <AuthPrimaryButton label="Continue" onPress={onSignUpPress} />
 
-        <View style={styles.itemContainer}>
-          <TouchableOpacity
-            onPress={onSignUpPress}
-            style={[styles.button]}
-          >
-            <Text style={textStyle}>Continue</Text>
-          </TouchableOpacity>
+        <View style={styles.footerRow}>
+          <Text style={[styles.footerText, { color: colors.textMuted }]}>Already have an account? </Text>
+          <Link href="/sign-in">
+            <Text style={[styles.footerText, styles.footerLink, { color: ACCENT_COLOR }]}>Sign in</Text>
+          </Link>
         </View>
-        <View style={styles.itemContainer}>
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-            <Text style={[textStyle, styles.regularText]}>Already have an account? </Text>
-            <Link href="/sign-in">
-              <Text style={[textStyle, styles.signInText, styles.regularText]}>Sign in</Text>
-            </Link>
-          </View>
-        </View>
-
-      </View>
+      </AuthShell>
     );
   };
 
-  return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
-      {pendingVerification ? renderVerifyForm() : renderSignUpForm()}
-    </View>
-  );
+  return pendingVerification ? renderVerifyForm() : renderSignUpForm();
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  itemContainer: {
-      padding: 10,
-      alignItems: 'center',
-  },
-  itemRow: {
-      flexDirection: 'row'
-  },
-  inputFeld: {
-      width: '80%',
-      maxWidth: 400,
-      borderWidth: 1,
-      borderColor: 'gray',
-      paddingVertical: 12,
-      paddingHorizontal: 14,
-      borderRadius: 15,
-      margin: 10,
-  },
-  titleTextContainer: {
-    alignItems: 'center',
-    margin: 10,
-    paddingBottom: 10,
-  },
   titleText: {
-    fontSize: 25,
-    fontWeight: 'heavy',
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  regularText: {
-    fontSize: 18,
+  subtitleText: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
   },
-  signInText: {
-    color: 'blue',
+  footerRow: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
-  button: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    elevation: 3,
-    backgroundColor: 'blue',
-    borderRadius: 8,
-},
+  footerText: {
+    fontSize: 13.5,
+  },
+  footerLink: {
+    fontWeight: '600',
+  },
 });
