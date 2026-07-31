@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { mixpanel } from '@/utils/mixpanel';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ACCENT_COLOR, LandingColors } from '@/constants/Colors';
@@ -20,6 +22,28 @@ const DARK_BAND = '#151b26';
 
 const CONTAINER_MAX_WIDTH = 1160;
 const WIDE_BREAKPOINT = 760;
+
+// Real screenshot pixel dimensions — used to compute an explicit height from
+// the measured container width. Image + resizeMode="contain" doesn't reliably
+// respect a CSS `aspectRatio` on web, so we compute pixel height ourselves.
+const WEB_SCREENSHOT_HEIGHT_RATIO = 1316 / 2000;
+const PHONE_SCREENSHOT_WIDTH = 195;
+const PHONE_SCREENSHOT_HEIGHT = Math.round(PHONE_SCREENSHOT_WIDTH * (2000 / 924));
+
+function WebDashboardScreenshot({ source }: { source: number }) {
+  const [width, setWidth] = useState(0);
+  return (
+    <View style={styles.webScreenshotWrap} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      {width > 0 && (
+        <Image
+          source={source}
+          resizeMode="contain"
+          style={[styles.webScreenshot, { width, height: width * WEB_SCREENSHOT_HEIGHT_RATIO }]}
+        />
+      )}
+    </View>
+  );
+}
 
 const FEATURES: { icon: IconSymbolName; title: string; description: string }[] = [
   {
@@ -44,55 +68,6 @@ const FEATURES: { icon: IconSymbolName; title: string; description: string }[] =
   },
 ];
 
-function BrowserWindowFrame({ url, label }: { url: string; label: string }) {
-  return (
-    <View style={styles.browserFrame}>
-      <View style={styles.browserTabBar}>
-        <View style={[styles.dot, { backgroundColor: '#ff5f57' }]} />
-        <View style={[styles.dot, { backgroundColor: '#febc2e' }]} />
-        <View style={[styles.dot, { backgroundColor: '#28c840' }]} />
-        <View style={styles.browserTab}>
-          <Text style={styles.browserTabText}>New Tab</Text>
-        </View>
-      </View>
-      <View style={styles.browserAddressRow}>
-        <View style={styles.addressDot} />
-        <View style={styles.browserAddressBar}>
-          <Text style={styles.browserAddressText} numberOfLines={1}>{url}</Text>
-        </View>
-        <View style={styles.addressDot} />
-      </View>
-      <View style={styles.browserBody}>
-        <Text style={styles.placeholderText}>{label}</Text>
-      </View>
-    </View>
-  );
-}
-
-function PhoneFrame({ label }: { label: string }) {
-  return (
-    <View style={styles.phoneFrame}>
-      <View style={styles.phoneStatusBar}>
-        <Text style={styles.phoneTime}>9:41</Text>
-        <View style={styles.phoneStatusIcons}>
-          <View style={styles.signalBars}>
-            <View style={[styles.signalBar, { height: 4 }]} />
-            <View style={[styles.signalBar, { height: 6 }]} />
-            <View style={[styles.signalBar, { height: 8 }]} />
-            <View style={[styles.signalBar, { height: 10 }]} />
-          </View>
-          <View style={styles.wifiIcon} />
-          <View style={styles.batteryIcon} />
-        </View>
-      </View>
-      <View style={styles.phoneScreen}>
-        <Text style={styles.placeholderTextDark}>{label}</Text>
-      </View>
-      <View style={styles.phoneHomeIndicator} />
-    </View>
-  );
-}
-
 export default function LandingPage() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
@@ -102,13 +77,28 @@ export default function LandingPage() {
   const colorScheme = useColorScheme();
   const colors = LandingColors[colorScheme];
 
-  const scrollToFeatures = () => {
+  const goSignUp = (location: string) => {
+    mixpanel.track('Landing CTA Clicked', { location });
+    router.push('/sign-up');
+  };
+
+  const goSignIn = (location: string) => {
+    mixpanel.track('Landing Sign In Clicked', { location });
+    router.push('/sign-in');
+  };
+
+  const goFeatures = (location: string) => {
+    mixpanel.track('Landing Product Clicked', { location });
     scrollRef.current?.scrollTo({ y: featuresY, animated: true });
   };
 
   const handleFeaturesLayout = (e: LayoutChangeEvent) => {
     setFeaturesY(e.nativeEvent.layout.y);
   };
+
+  useEffect(() => {
+    mixpanel.track('Landing Page Viewed');
+  }, []);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -119,18 +109,18 @@ export default function LandingPage() {
             <View style={styles.logoMark}>
               <IconSymbol name="checkmark.circle.fill" size={16} color="#fff" />
             </View>
-            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check In</Text>
           </View>
           <View style={styles.topBarActions}>
-            <TouchableOpacity onPress={scrollToFeatures}>
+            <TouchableOpacity onPress={() => goFeatures('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/sign-in')}>
+            <TouchableOpacity onPress={() => goSignIn('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.navPillButton, { backgroundColor: colors.text }]}
-              onPress={() => router.push('/sign-up')}
+              onPress={() => goSignUp('nav')}
             >
               <Text style={[styles.navPillButtonText, { color: colors.background }]}>Get started</Text>
             </TouchableOpacity>
@@ -150,15 +140,15 @@ export default function LandingPage() {
               Runs in any browser — nothing to install — with mobile apps for the studio floor.
               Attendance, rosters, payments, and scheduling, from the front desk or your phone.
             </Text>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/sign-up')}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => goSignUp('hero')}>
               <Text style={styles.primaryButtonText}>Get started</Text>
             </TouchableOpacity>
             <Text style={[styles.heroCaption, { color: colors.textMuted }]}>
-              Built for dance, music, and art studios.
+            Built for dance, martial arts, music, and other class-based studios.
             </Text>
           </View>
           <View style={[styles.heroImageWrap, isWide && styles.heroImageWrapWide]}>
-            <BrowserWindowFrame url="app.checkin.app/classes" label="dashboard screenshot" />
+            <WebDashboardScreenshot source={require('../docs/images/landing/web-check-in.png')} />
           </View>
         </View>
 
@@ -197,15 +187,18 @@ export default function LandingPage() {
           </Text>
           <Text style={[styles.sectionSubtitle, styles.centeredText, { color: colors.textMuted }]}>
             Run the full dashboard at the front desk, or check students in from the studio floor.
-            Real screenshots coming soon.
           </Text>
           <View style={[styles.showcaseRow, isWide && styles.showcaseRowWide]}>
             <View style={[styles.showcaseItem, isWide && styles.showcaseItemWide]}>
-              <BrowserWindowFrame url="app.checkin.app/occurrences" label="weekly schedule screenshot" />
+              <WebDashboardScreenshot source={require('../docs/images/landing/web-occurrences.png')} />
               <Text style={[styles.showcaseCaption, { color: colors.textMuted }]}>Web dashboard</Text>
             </View>
             <View style={styles.showcaseItem}>
-              <PhoneFrame label="check-in screen screenshot" />
+              <Image
+                source={require('../docs/images/landing/mobile-check-in.png')}
+                style={styles.phoneScreenshot}
+                resizeMode="contain"
+              />
               <Text style={[styles.showcaseCaption, { color: colors.textMuted }]}>Mobile check-in</Text>
             </View>
           </View>
@@ -215,7 +208,7 @@ export default function LandingPage() {
         <View style={styles.ctaBand}>
           <Text style={styles.ctaTitle}>Ready to simplify attendance?</Text>
           <Text style={styles.ctaSubtitle}>Get started free — no credit card required.</Text>
-          <TouchableOpacity style={styles.ctaButton} onPress={() => router.push('/sign-up')}>
+          <TouchableOpacity style={styles.ctaButton} onPress={() => goSignUp('cta_band')}>
             <Text style={styles.ctaButtonText}>Get started</Text>
           </TouchableOpacity>
         </View>
@@ -224,13 +217,13 @@ export default function LandingPage() {
         <View style={[styles.container, styles.footer]}>
           <View style={styles.brandRow}>
             <View style={styles.logoMarkSmall} />
-            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check In</Text>
           </View>
           <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={scrollToFeatures}>
+            <TouchableOpacity onPress={() => goFeatures('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/sign-in')}>
+            <TouchableOpacity onPress={() => goSignIn('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
           </View>
@@ -308,7 +301,7 @@ const styles = StyleSheet.create({
   },
   heroWide: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 48,
   },
   heroText: {
@@ -366,82 +359,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 18,
   },
-  placeholderText: {
-    fontSize: 12,
-    fontFamily: 'monospace',
-    color: '#8a8f98',
-  },
-  placeholderTextDark: {
-    fontSize: 11,
-    fontFamily: 'monospace',
-    color: '#9aa0ac',
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  browserFrame: {
+  webScreenshotWrap: {
     width: '100%',
+  },
+  webScreenshot: {
     borderRadius: 12,
-    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.16,
     shadowRadius: 24,
     elevation: 8,
-  },
-  browserTabBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#1c1f26',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  browserTab: {
-    marginLeft: 8,
-    backgroundColor: '#2c303a',
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  browserTabText: {
-    fontSize: 11,
-    color: '#c6cad2',
-  },
-  browserAddressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#14161b',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-  addressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#3a3f4a',
-  },
-  browserAddressBar: {
-    flex: 1,
-    backgroundColor: '#2c303a',
-    borderRadius: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  browserAddressText: {
-    fontSize: 11,
-    color: '#c6cad2',
-  },
-  browserBody: {
-    height: 220,
-    backgroundColor: '#e9ebef',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   section: {
     paddingTop: 56,
@@ -514,6 +441,7 @@ const styles = StyleSheet.create({
   },
   showcaseItemWide: {
     flex: 1,
+    maxWidth: 680,
   },
   showcaseCaption: {
     textAlign: 'center',
@@ -521,74 +449,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
   },
-  phoneFrame: {
-    width: 220,
+  phoneScreenshot: {
+    width: PHONE_SCREENSHOT_WIDTH,
+    height: PHONE_SCREENSHOT_HEIGHT,
     borderRadius: 28,
-    overflow: 'hidden',
-    backgroundColor: '#0b0b0d',
-    borderWidth: 6,
-    borderColor: '#0b0b0d',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.16,
     shadowRadius: 24,
     elevation: 8,
-  },
-  phoneStatusBar: {
-    height: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  phoneTime: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  phoneStatusIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  signalBars: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 1.5,
-    height: 10,
-  },
-  signalBar: {
-    width: 2.5,
-    borderRadius: 1,
-    backgroundColor: '#fff',
-  },
-  wifiIcon: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#fff',
-    backgroundColor: 'transparent',
-  },
-  batteryIcon: {
-    width: 16,
-    height: 9,
-    borderRadius: 2,
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  phoneScreen: {
-    height: 280,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phoneHomeIndicator: {
-    alignSelf: 'center',
-    width: 90,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#fff',
-    marginVertical: 8,
   },
   ctaBand: {
     marginTop: 8,

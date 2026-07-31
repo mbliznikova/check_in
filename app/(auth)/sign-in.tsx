@@ -4,11 +4,12 @@ import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 import { Text, View, StyleSheet } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthColors, DESTRUCTIVE_COLOR, ACCENT_COLOR } from '@/constants/Colors';
+import { mixpanel } from '@/utils/mixpanel';
 import AuthShell from '@/components/AuthShell';
 import AuthTextField from '@/components/AuthTextField';
 import AuthPrimaryButton from '@/components/AuthPrimaryButton';
 import AuthCodeInput from '@/components/AuthCodeInput';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function Page() {
   const colorScheme = useColorScheme();
@@ -24,6 +25,10 @@ export default function Page() {
   const [pendingVerification, setPendingVerification] = useState(false)
   const [code, setCode] = useState('')
 
+  useEffect(() => {
+    mixpanel.track('Sign In Page Viewed');
+  }, []);
+
   // due to temporarily turned off sso, see #60
   // if (Platform.OS === 'web') {
   //   return (
@@ -35,6 +40,8 @@ export default function Page() {
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
+
+    mixpanel.track('Sign In Submitted');
 
     try {
       const signInAttempt = await signIn.create({
@@ -67,6 +74,8 @@ export default function Page() {
 
   const onVerifyPress = async () => {
     if (!isLoaded || !pendingVerification) return;
+
+    mixpanel.track('Sign In Verification Submitted');
 
     try {
       const signInAttempt = await signIn.attemptSecondFactor({
@@ -134,7 +143,7 @@ export default function Page() {
         <AuthPrimaryButton label="Continue" onPress={onSignInPress} />
 
         <View style={styles.footerRow}>
-          <Link href="/sign-up">
+          <Link href="/sign-up" onPress={() => mixpanel.track('Sign In Footer Sign Up Clicked')}>
             <Text style={[styles.footerText, { color: colors.textMuted }]}>Don&apos;t have an account? </Text>
             <Text style={[styles.footerText, styles.footerLink, { color: ACCENT_COLOR }]}>Sign up</Text>
           </Link>
