@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { mixpanel } from '@/utils/mixpanel';
 import { IconSymbol, IconSymbolName } from '@/components/ui/IconSymbol';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ACCENT_COLOR, LandingColors } from '@/constants/Colors';
@@ -102,13 +103,28 @@ export default function LandingPage() {
   const colorScheme = useColorScheme();
   const colors = LandingColors[colorScheme];
 
-  const scrollToFeatures = () => {
+  const goSignUp = (location: string) => {
+    mixpanel.track('Landing CTA Clicked', { location });
+    router.push('/sign-up');
+  };
+
+  const goSignIn = (location: string) => {
+    mixpanel.track('Landing Sign In Clicked', { location });
+    router.push('/sign-in');
+  };
+
+  const goFeatures = (location: string) => {
+    mixpanel.track('Landing Product Clicked', { location });
     scrollRef.current?.scrollTo({ y: featuresY, animated: true });
   };
 
   const handleFeaturesLayout = (e: LayoutChangeEvent) => {
     setFeaturesY(e.nativeEvent.layout.y);
   };
+
+  useEffect(() => {
+    mixpanel.track('Landing Page Viewed');
+  }, []);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -119,18 +135,18 @@ export default function LandingPage() {
             <View style={styles.logoMark}>
               <IconSymbol name="checkmark.circle.fill" size={16} color="#fff" />
             </View>
-            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check In</Text>
           </View>
           <View style={styles.topBarActions}>
-            <TouchableOpacity onPress={scrollToFeatures}>
+            <TouchableOpacity onPress={() => goFeatures('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/sign-in')}>
+            <TouchableOpacity onPress={() => goSignIn('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.navPillButton, { backgroundColor: colors.text }]}
-              onPress={() => router.push('/sign-up')}
+              onPress={() => goSignUp('nav')}
             >
               <Text style={[styles.navPillButtonText, { color: colors.background }]}>Get started</Text>
             </TouchableOpacity>
@@ -150,7 +166,7 @@ export default function LandingPage() {
               Runs in any browser — nothing to install — with mobile apps for the studio floor.
               Attendance, rosters, payments, and scheduling, from the front desk or your phone.
             </Text>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/sign-up')}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => goSignUp('hero')}>
               <Text style={styles.primaryButtonText}>Get started</Text>
             </TouchableOpacity>
             <Text style={[styles.heroCaption, { color: colors.textMuted }]}>
@@ -215,7 +231,7 @@ export default function LandingPage() {
         <View style={styles.ctaBand}>
           <Text style={styles.ctaTitle}>Ready to simplify attendance?</Text>
           <Text style={styles.ctaSubtitle}>Get started free — no credit card required.</Text>
-          <TouchableOpacity style={styles.ctaButton} onPress={() => router.push('/sign-up')}>
+          <TouchableOpacity style={styles.ctaButton} onPress={() => goSignUp('cta_band')}>
             <Text style={styles.ctaButtonText}>Get started</Text>
           </TouchableOpacity>
         </View>
@@ -224,13 +240,13 @@ export default function LandingPage() {
         <View style={[styles.container, styles.footer]}>
           <View style={styles.brandRow}>
             <View style={styles.logoMarkSmall} />
-            <Text style={[styles.wordmark, { color: colors.text }]}>Check_in</Text>
+            <Text style={[styles.wordmark, { color: colors.text }]}>Check In</Text>
           </View>
           <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={scrollToFeatures}>
+            <TouchableOpacity onPress={() => goFeatures('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/sign-in')}>
+            <TouchableOpacity onPress={() => goSignIn('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
           </View>
