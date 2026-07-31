@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthColors, ACCENT_COLOR } from '@/constants/Colors';
+import { mixpanel } from '@/utils/mixpanel';
 import { useSignUp } from '@clerk/clerk-expo'
 import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
 import AuthShell from '@/components/AuthShell';
@@ -22,8 +23,14 @@ export default function SignUpScreen() {
   const colorScheme = useColorScheme();
   const colors = AuthColors[colorScheme];
 
+  React.useEffect(() => {
+    mixpanel.track('Sign Up Page Viewed');
+  }, []);
+
   const onSignUpPress = async () => {
     if (!isLoaded) return
+
+    mixpanel.track('Sign Up Submitted');
 
     try {
       await signUp.create({
@@ -44,6 +51,8 @@ export default function SignUpScreen() {
 
   const onVerifyPress = async () => {
     if (!isLoaded) return
+
+    mixpanel.track('Sign Up Verification Submitted');
 
     try {
       // Use the code the user provided to attempt verification
@@ -105,7 +114,7 @@ export default function SignUpScreen() {
 
         <View style={styles.footerRow}>
           <Text style={[styles.footerText, { color: colors.textMuted }]}>Already have an account? </Text>
-          <Link href="/sign-in">
+          <Link href="/sign-in" onPress={() => mixpanel.track('Sign Up Footer Sign In Clicked')}>
             <Text style={[styles.footerText, styles.footerLink, { color: ACCENT_COLOR }]}>Sign in</Text>
           </Link>
         </View>
