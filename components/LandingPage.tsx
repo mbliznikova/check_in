@@ -170,7 +170,7 @@ export default function LandingPage() {
               <Text style={styles.primaryButtonText}>Get started</Text>
             </TouchableOpacity>
             <Text style={[styles.heroCaption, { color: colors.textMuted }]}>
-              Built for dance, music, and art studios.
+            Built for dance, martial arts, music, and other class-based studios.
             </Text>
           </View>
           <View style={[styles.heroImageWrap, isWide && styles.heroImageWrapWide]}>
