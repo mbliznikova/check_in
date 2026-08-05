@@ -42,8 +42,15 @@ export default function Page() {
       setPendingReset(true)
       setErrorMsg('')
     } catch (err: any) {
-      setErrorMsg(err?.errors?.[0]?.message ?? 'Could not send reset code');
       console.error(JSON.stringify(err, null, 2))
+      if (err?.errors?.[0]?.code === 'form_identifier_not_found') {
+        // Enumeration protection: behave identically to a real account so a
+        // failed lookup can't be distinguished from a successful one.
+        setPendingReset(true)
+        setErrorMsg('')
+      } else {
+        setErrorMsg(err?.errors?.[0]?.message ?? 'Could not send reset code');
+      }
     }
   }
 
@@ -73,8 +80,8 @@ export default function Page() {
         console.error(JSON.stringify(attempt, null, 2))
       }
     } catch (err: any) {
-      setErrorMsg(err?.errors?.[0]?.message ?? 'Reset failed');
       console.error(JSON.stringify(err, null, 2))
+      setErrorMsg('Invalid or expired code. Please try again.');
     }
   }
 
@@ -113,7 +120,7 @@ export default function Page() {
       <AuthShell>
         <Text style={[styles.titleText, { color: colors.text }]}>Check your email</Text>
         <Text style={[styles.subtitleText, { color: colors.textMuted }]}>
-          Enter the code we sent you and choose a new password.
+          If an account exists for that email, we&apos;ve sent a code. Enter it below to set a new password.
         </Text>
 
         <AuthCodeInput value={code} onChange={setCode} />
