@@ -136,6 +136,16 @@ export default function Page() {
           secureTextEntry
           onChangeText={setPassword}
         />
+
+        <View style={styles.forgotPasswordRow}>
+          <Link
+            href={{ pathname: '/reset-password', params: { email: emailAddress, ...(returnTo ? { returnTo } : {}) } }}
+            onPress={() => mixpanel.track('Sign In Forgot Password Clicked')}
+          >
+            <Text style={[styles.footerText, styles.footerLink, { color: ACCENT_COLOR }]}>Forgot password?</Text>
+          </Link>
+        </View>
+
         {errorMsg.length > 0 && (
           <Text style={[styles.errorText, { color: DESTRUCTIVE_COLOR }]}>{errorMsg}</Text>
         )}
@@ -166,6 +176,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 24,
+  },
+  forgotPasswordRow: {
+    alignItems: 'flex-end',
+    marginBottom: 12,
   },
   errorText: {
     fontSize: 13,
