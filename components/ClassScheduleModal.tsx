@@ -12,7 +12,7 @@ import { commonStyles } from '@/constants/commonStyles';
 const isIpad = Platform.OS === 'ios' && (Platform as PlatformIOSStatic).isPad;
 
 const percentageStyles = {
-    modalViewWeb: { alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+    modalViewWeb: { alignItems: 'center', justifyContent: 'center', width: 'auto', maxWidth: 600 } as ViewStyle,
     modalViewPad: {} as ViewStyle,
     modalViewPhone: { width: '95%' } as ViewStyle,
 };
@@ -233,39 +233,41 @@ const ClassScheduleModal = ({
                     Scheduled days
                 </Text>
                 {[...schedule].map(([day, times]) => (
-                    <View key={day} style={styles.scheduleRow}>
+                    <View key={day} style={[styles.scheduleRow, isWeb && styles.scheduleRowWeb]}>
                         <View style={styles.dayChip}>
                             <Text style={[textStyle, styles.dayChipText]}>
                                 {DAY_NAMES[day]}
                             </Text>
                         </View>
                         {isWeb ? (
-                            <View style={styles.timesRowWeb}>
-                                {times.map(([scheduleId, time]) => (
+                            <View style={styles.timesRowWebWrapper}>
+                                <View style={styles.timesRowWeb}>
+                                    {times.map(([scheduleId, time]) => (
+                                        <Pressable
+                                            key={scheduleId}
+                                            style={styles.timeButton}
+                                            onPress={() => setPendingDelete({scheduleId, day, time})}
+                                        >
+                                            <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
+                                            <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
+                                        </Pressable>
+                                    ))}
                                     <Pressable
-                                        key={scheduleId}
-                                        style={styles.timeButton}
-                                        onPress={() => setPendingDelete({scheduleId, day, time})}
+                                        onPress={async () => {
+                                            setDayToSchedule(day);
+                                            setTimeToSchedule("");
+                                            setSelectedSlotIndex(-1);
+                                            if (DAY_NAMES[day] !== null && classDuration !== null) {
+                                                const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
+                                                setTimeSlots(await slots);
+                                            }
+                                            setIsAddTimeOpen(true);
+                                        }}
+                                        style={styles.addTimeButton}
                                     >
-                                        <Text style={[textStyle, styles.timeText]}>{time.slice(0,5)}</Text>
-                                        <Text style={[textStyle, styles.deleteTimeButton]}>x</Text>
+                                        <Text style={[textStyle, styles.addTimeButtonText]}>+</Text>
                                     </Pressable>
-                                ))}
-                                <Pressable
-                                    onPress={async () => {
-                                        setDayToSchedule(day);
-                                        setTimeToSchedule("");
-                                        setSelectedSlotIndex(-1);
-                                        if (DAY_NAMES[day] !== null && classDuration !== null) {
-                                            const slots = onRequestingTimeSlots(DAY_NAMES[day], classDuration);
-                                            setTimeSlots(await slots);
-                                        }
-                                        setIsAddTimeOpen(true);
-                                    }}
-                                    style={styles.addTimeButton}
-                                >
-                                    <Text style={[textStyle, styles.addTimeButtonText]}>+</Text>
-                                </Pressable>
+                                </View>
                             </View>
                         ) : (
                             <ScrollView
@@ -591,6 +593,23 @@ const styles = StyleSheet.create({
         rowGap: 8,
         columnGap: 10,
         paddingVertical: 5,
+    },
+    // Web-only: stack the day chip above its times instead of side-by-side,
+    // so growth and wrapping of the times block (see timesRowWebWrapper) don't
+    // fight the day chip for space in the same row.
+    scheduleRowWeb: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+    // No explicit width/stretch: grows to fit its time chips like before. It's
+    // bounded by scheduleRowWeb's resolved width (itself capped via modalView's
+    // maxWidth), so flexWrap wraps chips onto a new row instead of overflowing.
+    timesRowWebWrapper: {
+        marginTop: 8,
+        marginLeft: 12,
+        paddingLeft: 12,
+        borderLeftWidth: 1,
+        borderLeftColor: INPUT_BORDER_COLOR,
     },
     timesRowWeb: {
         flexDirection: 'row',
