@@ -135,8 +135,8 @@ export function useClassData() {
         }
     };
 
-    const createClassPrice = async (classId: number, amount: number) => {
-        if (!classId || !amount) {
+    const createClassPrice = async (classId: number, amount: number, className: string) => {
+        if (!classId || amount === undefined || amount === null || Number.isNaN(amount)) {
             console.warn("No class id or no amount");
             return;
         }
@@ -153,6 +153,11 @@ export function useClassData() {
             const responseData = await response.json();
             if (isValidCreatePriceResponse(responseData, classId, amount)) {
                 console.log(`Function createClassPrice. The response from backend is valid.`);
+                setPrices(prevPrices => {
+                    const newMap = new Map(prevPrices);
+                    newMap.set(classId, { className, amount, priceId: responseData.priceId });
+                    return newMap;
+                });
             } else {
                 console.log(`Function createClassPrice. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
             }
@@ -185,7 +190,7 @@ export function useClassData() {
                 setCreateModal(prev => ({ ...prev, isSuccess: true }));
                 setCreatedClassId(responseData.id);
                 setClasses(prevClasses => [...prevClasses, newClass]);
-                createClassPrice(responseData.id, price);
+                createClassPrice(responseData.id, price, responseData.name);
                 mixpanel.track('Class created');
             } else {
                 console.log(`Function createClass. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
@@ -215,7 +220,7 @@ export function useClassData() {
         }
         try {
             const response = await apiFetch(`/classes/${classId}/edit/`, {
-                method: "PUT",
+                method: "PATCH",
                 body: JSON.stringify(dataToUpdate),
             });
             if (response.ok) {
@@ -329,6 +334,7 @@ export function useClassData() {
         openDeleteModal,
         closeDeleteModal,
         createClass,
+        createClassPrice,
         editClass,
         deleteClass,
         editPrice,
