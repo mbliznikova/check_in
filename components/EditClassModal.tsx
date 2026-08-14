@@ -219,24 +219,27 @@ const EditClassModal = ({
                                     return;
                                 }
 
-                                const changes: string[] = [];
-
-                                if (classChanged) {
-                                    // classesSet always contains this class's OWN current name, so
-                                    // running the uniqueness check against an unchanged name would
-                                    // always (wrongly) report a collision. Only block when the name
-                                    // actually changed to something that collides with another class.
-                                    const isNameValid = !nameChanged || onClassUniquenessCheck(newClassName);
-                                    if (isNameValid) {
-                                        onEditClass(newClassName, newClassDuration, newClassRecurrence);
-                                        if (nameChanged) changes.push(`name changed to "${newClassName}"`);
-                                        if (durationChanged) changes.push(`duration changed to ${newClassDuration} min`);
-                                        if (recurrenceChanged) changes.push(`repeats set to ${newClassRecurrence ? 'Weekly' : 'One-off'}`);
-                                    } else if (Platform.OS === 'web') {
+                                // classesSet always contains this class's OWN current name, so
+                                // running the uniqueness check against an unchanged name would
+                                // always (wrongly) report a collision. Only check when the name
+                                // actually changed. On collision, abort before anything is saved —
+                                // no partial save of price while the rename is rejected.
+                                if (nameChanged && !onClassUniquenessCheck(newClassName)) {
+                                    if (Platform.OS === 'web') {
                                         alert('Class with such name already exists');
                                     } else {
                                         Alert.alert('Conflict', 'Class with such name already exists');
                                     }
+                                    return;
+                                }
+
+                                const changes: string[] = [];
+
+                                if (classChanged) {
+                                    onEditClass(newClassName, newClassDuration, newClassRecurrence);
+                                    if (nameChanged) changes.push(`name changed to "${newClassName}"`);
+                                    if (durationChanged) changes.push(`duration changed to ${newClassDuration} min`);
+                                    if (recurrenceChanged) changes.push(`repeats set to ${newClassRecurrence ? 'Weekly' : 'One-off'}`);
                                 }
                                 if (priceChanged) {
                                     if (priceId !== null) {
@@ -250,9 +253,7 @@ const EditClassModal = ({
                                     changes.push(`price changed to ${newClassPrice}`);
                                 }
 
-                                if (changes.length > 0) {
-                                    setSuccessMessage(`Class was updated successfully — ${changes.join(', ')}.`);
-                                }
+                                setSuccessMessage(`Class was updated successfully — ${changes.join(', ')}.`);
                             }}
                             style={modalStyles.modalConfirmButton}
                         >
