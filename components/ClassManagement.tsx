@@ -190,6 +190,10 @@ const ClassManagement = () => {
                         classData.editPrice(priceId, newAmount, classId);
                         setSelectedClass(prev => ({ ...prev, price: newAmount }));
                     }}
+                    onCreatePrice={(classId, newAmount, className) => {
+                        classData.createClassPrice(classId, newAmount, className);
+                        setSelectedClass(prev => ({ ...prev, price: newAmount }));
+                    }}
                     onClassUniquenessCheck={classData.checkIfClassUnique}
                     classId={selectedClass.id}
                     oldClassName={selectedClass.name}

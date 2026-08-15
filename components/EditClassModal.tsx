@@ -20,6 +20,7 @@ type EditClassModalProps = {
     onModalClose: () => void;
     onEditClass: (newClassName: string, newClassDuration: number, newClassRecurrence: boolean) => void;
     onEditPrice: (priceId: number, newAmount: number, classId: number) => void;
+    onCreatePrice: (classId: number, newAmount: number, className: string) => void;
     onClassUniquenessCheck: (name: string) => boolean;
     isSuccess: boolean;
 };
@@ -35,6 +36,7 @@ const EditClassModal = ({
     onModalClose,
     onEditClass,
     onEditPrice,
+    onCreatePrice,
     onClassUniquenessCheck,
     isSuccess = false,
 }: EditClassModalProps) => {
@@ -47,14 +49,15 @@ const EditClassModal = ({
     const [newClassDuration, setNewClassDuration] = useState(oldClassDuration);
     const [newClassRecurrence, setNewClassRecurrence] = useState(oldClassRecurrence);
     const [newClassPrice, setNewClassPrice] = useState(oldClassPrice);
+    const [successMessage, setSuccessMessage] = useState('');
 
     const renderSuccessConfirmation = () => {
         return (
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
                     <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
-                            Class name was updated successfully to {newClassName}
+                        <Text style={[textStyle, {fontWeight: "bold", textAlign: "center"}]}>
+                            {successMessage}
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
@@ -131,7 +134,7 @@ const EditClassModal = ({
         return (
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.modalView}>
-                <ScreenTitle titleText={`Edit class ${oldClassName}`} centered={false}/>
+                <ScreenTitle titleText={`Edit class ${oldClassName}`}/>
                     <View style={commonStyles.formContainer}>
                         <View style={commonStyles.fieldGroup}>
                             <Text style={[commonStyles.fieldLabel, { color: Colors[colorScheme].textMuted }]}>
@@ -204,11 +207,10 @@ const EditClassModal = ({
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             onPress={() => {
-                                const classChanged = (
-                                    newClassName!== oldClassName||
-                                    newClassDuration !== oldClassDuration ||
-                                    newClassRecurrence !== oldClassRecurrence
-                                );
+                                const nameChanged = newClassName !== oldClassName;
+                                const durationChanged = newClassDuration !== oldClassDuration;
+                                const recurrenceChanged = newClassRecurrence !== oldClassRecurrence;
+                                const classChanged = nameChanged || durationChanged || recurrenceChanged;
 
                                 const priceChanged = oldClassPrice !== newClassPrice;
 
@@ -217,21 +219,41 @@ const EditClassModal = ({
                                     return;
                                 }
 
-                                if (classChanged) {
-                                    // TODO: add ability to edit only duration or recurrence
-                                    if (onClassUniquenessCheck(newClassName)) {
-                                        onEditClass(newClassName, newClassDuration, newClassRecurrence);
-                                    } else if (Platform.OS === 'web') {
+                                // classesSet always contains this class's OWN current name, so
+                                // running the uniqueness check against an unchanged name would
+                                // always (wrongly) report a collision. Only check when the name
+                                // actually changed. On collision, abort before anything is saved —
+                                // no partial save of price while the rename is rejected.
+                                if (nameChanged && !onClassUniquenessCheck(newClassName)) {
+                                    if (Platform.OS === 'web') {
                                         alert('Class with such name already exists');
                                     } else {
                                         Alert.alert('Conflict', 'Class with such name already exists');
                                     }
-                                    // set the newcClassName to the oldClassName if not unique
+                                    return;
                                 }
-                                if (priceChanged && priceId !== null) {
-                                    onEditPrice(priceId, newClassPrice, classId);
+
+                                const changes: string[] = [];
+
+                                if (classChanged) {
+                                    onEditClass(newClassName, newClassDuration, newClassRecurrence);
+                                    if (nameChanged) changes.push(`name changed to "${newClassName}"`);
+                                    if (durationChanged) changes.push(`duration changed to ${newClassDuration} min`);
+                                    if (recurrenceChanged) changes.push(`repeats set to ${newClassRecurrence ? 'Weekly' : 'One-off'}`);
                                 }
-                                // setNewClassName("");
+                                if (priceChanged) {
+                                    if (priceId !== null) {
+                                        onEditPrice(priceId, newClassPrice, classId);
+                                    } else {
+                                        // No price record exists yet for this class (e.g. it was
+                                        // created at the default price of 0 before that was fixed) —
+                                        // create one instead of trying to PATCH a nonexistent record.
+                                        onCreatePrice(classId, newClassPrice, newClassName);
+                                    }
+                                    changes.push(`price changed to ${newClassPrice}`);
+                                }
+
+                                setSuccessMessage(`Class was updated successfully — ${changes.join(', ')}.`);
                             }}
                             style={modalStyles.modalConfirmButton}
                         >
