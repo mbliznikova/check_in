@@ -51,6 +51,10 @@ export function useClassSchedules() {
         fetchSchedules();
     }, [schoolId]);
 
+    // TODO(separate PR): schedule.day here is the raw backend day id, not the
+    // normalized 1-7 index used elsewhere (see fetchClassSchedules). checkIfScheduleUnique
+    // compares a normalized dayId against this set, so uniqueness checks can silently
+    // miss collisions when the backend day id drifts from 1-7.
     useEffect(() => {
         const scheduleSet: Set<string> = new Set();
         allSchedulesList.forEach((schedule) => {
