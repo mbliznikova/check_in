@@ -3,6 +3,7 @@ import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { ScheduleType } from "@/types/class";
+import { DAY_INDEX } from "@/constants/scheduling";
 import { mixpanel } from '@/utils/mixpanel';
 
 const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
@@ -50,6 +51,10 @@ export function useClassSchedules() {
         fetchSchedules();
     }, [schoolId]);
 
+    // TODO(separate PR): schedule.day here is the raw backend day id, not the
+    // normalized 1-7 index used elsewhere (see fetchClassSchedules). checkIfScheduleUnique
+    // compares a normalized dayId against this set, so uniqueness checks can silently
+    // miss collisions when the backend day id drifts from 1-7.
     useEffect(() => {
         const scheduleSet: Set<string> = new Set();
         allSchedulesList.forEach((schedule) => {
@@ -87,10 +92,15 @@ export function useClassSchedules() {
                     const schedules = responseData.response;
                     const scheduleMap: Map<number, [number, string][]> = new Map();
                     schedules.forEach((element: ScheduleType) => {
-                        if (scheduleMap.has(element.day)) {
-                            scheduleMap.get(element.day)?.push([element.id, element.classTime]);
+                        const dayIndex = DAY_INDEX[element.dayName] ?? -1;
+                        if (dayIndex > 0) {
+                            if (scheduleMap.has(dayIndex)) {
+                                scheduleMap.get(dayIndex)?.push([element.id, element.classTime]);
+                            } else {
+                                scheduleMap.set(dayIndex, [[element.id, element.classTime]]);
+                            }
                         } else {
-                            scheduleMap.set(element.day, [[element.id, element.classTime]]);
+                            console.warn(`Function fetchClassSchedules. Unknown dayName "${element.dayName}" for schedule id ${element.id} — skipping.`);
                         }
                     });
                     setCurrentClassScheduleMap(scheduleMap);

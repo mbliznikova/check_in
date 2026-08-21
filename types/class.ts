@@ -25,6 +25,7 @@ export type ScheduleType = {
     classTime: string;
     classModel: number;
     day: number;
+    dayName: string;
 };
 
 export type ClassOccurrenceType = {
