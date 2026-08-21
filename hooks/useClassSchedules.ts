@@ -3,6 +3,7 @@ import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
 import { ScheduleType } from "@/types/class";
+import { DAY_INDEX } from "@/constants/scheduling";
 import { mixpanel } from '@/utils/mixpanel';
 
 const isValidScheduleResponse = (responseData: any, classId: number, className: string, dayName: string): boolean => {
@@ -87,10 +88,13 @@ export function useClassSchedules() {
                     const schedules = responseData.response;
                     const scheduleMap: Map<number, [number, string][]> = new Map();
                     schedules.forEach((element: ScheduleType) => {
-                        if (scheduleMap.has(element.day)) {
-                            scheduleMap.get(element.day)?.push([element.id, element.classTime]);
-                        } else {
-                            scheduleMap.set(element.day, [[element.id, element.classTime]]);
+                        const dayIndex = DAY_INDEX[element.dayName] ?? -1;
+                        if (dayIndex > 0) {
+                            if (scheduleMap.has(dayIndex)) {
+                                scheduleMap.get(dayIndex)?.push([element.id, element.classTime]);
+                            } else {
+                                scheduleMap.set(dayIndex, [[element.id, element.classTime]]);
+                            }
                         }
                     });
                     setCurrentClassScheduleMap(scheduleMap);
