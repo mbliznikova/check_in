@@ -95,6 +95,8 @@ export function useClassSchedules() {
                             } else {
                                 scheduleMap.set(dayIndex, [[element.id, element.classTime]]);
                             }
+                        } else {
+                            console.warn(`Function fetchClassSchedules. Unknown dayName "${element.dayName}" for schedule id ${element.id} — skipping.`);
                         }
                     });
                     setCurrentClassScheduleMap(scheduleMap);
