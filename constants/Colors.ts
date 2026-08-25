@@ -44,6 +44,8 @@ export const LandingColors = {
     text: '#12181f',
     textMuted: '#5b6672',
     eyebrowBg: '#e7edff',
+    border: '#dfe3ea',
+    cardBg: '#ffffff',
   },
   dark: {
     background: '#000',
@@ -51,6 +53,8 @@ export const LandingColors = {
     text: '#fff',
     textMuted: '#9aa1ac',
     eyebrowBg: '#182238',
+    border: '#2a2e37',
+    cardBg: '#12151b',
   },
 };
 

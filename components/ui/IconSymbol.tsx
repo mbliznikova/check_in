@@ -21,6 +21,9 @@ const MAPPING: Record<string, React.ComponentProps<typeof MaterialIcons>['name']
   'dollarsign.circle.fill': 'payments',
   'person.2.fill': 'people',
   'calendar': 'calendar-today',
+  'envelope.fill': 'email',
+  'chevron.down': 'expand-more',
+  'chevron.up': 'expand-less',
 };
 
 export type IconSymbolName = keyof typeof MAPPING;

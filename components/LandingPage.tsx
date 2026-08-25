@@ -8,6 +8,7 @@ import {
   StyleSheet,
   LayoutChangeEvent,
   useWindowDimensions,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,6 +23,9 @@ const DARK_BAND = '#151b26';
 
 const CONTAINER_MAX_WIDTH = 1160;
 const WIDE_BREAKPOINT = 760;
+const CONTACT_DROPDOWN_MIN_WIDTH = 240;
+const CONTACT_DROPDOWN_MAX_WIDTH = 320;
+const CONTACT_EMAIL = 'support.schoolcheck@gmail.com';
 
 // Real screenshot pixel dimensions — used to compute an explicit height from
 // the measured container width. Image + resizeMode="contain" doesn't reliably
@@ -72,6 +76,7 @@ export default function LandingPage() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [featuresY, setFeaturesY] = useState(0);
+  const [contactOpen, setContactOpen] = useState<'nav' | 'footer' | null>(null);
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
   const colorScheme = useColorScheme();
@@ -96,6 +101,35 @@ export default function LandingPage() {
     setFeaturesY(e.nativeEvent.layout.y);
   };
 
+  const toggleContact = (source: 'nav' | 'footer') => {
+    setContactOpen((prev) => {
+      const next = prev === source ? null : source;
+      if (next) mixpanel.track('Landing Contact Clicked', { location: source });
+      return next;
+    });
+  };
+
+  const renderContactPanel = (source: 'nav' | 'footer') => (
+    <View
+      style={[
+        styles.contactDropdown,
+        source === 'footer' ? styles.contactDropdownUp : styles.contactDropdownDown,
+        { backgroundColor: colors.cardBg, borderColor: colors.border },
+      ]}
+    >
+      <Text style={[styles.contactDropdownLabel, { color: colors.textMuted }]}>Get in touch</Text>
+      <TouchableOpacity style={styles.contactRow} onPress={() => Linking.openURL(`mailto:${CONTACT_EMAIL}`)}>
+        <View style={[styles.contactIcon, { backgroundColor: colors.eyebrowBg }]}>
+          <IconSymbol name="envelope.fill" size={16} color={ACCENT_COLOR} />
+        </View>
+        <View style={styles.contactTextCol}>
+          <Text style={[styles.contactEmail, { color: colors.text }]}>{CONTACT_EMAIL}</Text>
+          <Text style={[styles.contactHint, { color: colors.textMuted }]}>Questions, feedback, or help</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
   useEffect(() => {
     mixpanel.track('Landing Page Viewed');
   }, []);
@@ -115,6 +149,20 @@ export default function LandingPage() {
             <TouchableOpacity onPress={() => goFeatures('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
+            <View style={styles.contactWrap}>
+              <TouchableOpacity
+                style={[styles.contactPill, { borderColor: colors.border }]}
+                onPress={() => toggleContact('nav')}
+              >
+                <Text style={[styles.linkText, { color: colors.text }]}>Contact</Text>
+                <IconSymbol
+                  name={contactOpen === 'nav' ? 'chevron.up' : 'chevron.down'}
+                  size={16}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+              {contactOpen === 'nav' && renderContactPanel('nav')}
+            </View>
             <TouchableOpacity onPress={() => goSignIn('nav')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
@@ -223,11 +271,24 @@ export default function LandingPage() {
             <TouchableOpacity onPress={() => goFeatures('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Product</Text>
             </TouchableOpacity>
+            <View style={styles.contactWrap}>
+              <TouchableOpacity onPress={() => toggleContact('footer')}>
+                <Text style={[styles.linkText, { color: colors.text }]}>Contact</Text>
+              </TouchableOpacity>
+              {contactOpen === 'footer' && renderContactPanel('footer')}
+            </View>
             <TouchableOpacity onPress={() => goSignIn('footer')}>
               <Text style={[styles.linkText, { color: colors.text }]}>Sign in</Text>
             </TouchableOpacity>
           </View>
         </View>
+        {contactOpen && (
+          <TouchableOpacity
+            style={styles.contactOverlay}
+            activeOpacity={1}
+            onPress={() => setContactOpen(null)}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -252,6 +313,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 16,
     paddingBottom: 12,
+    zIndex: 5,
   },
   brandRow: {
     flexDirection: 'row',
@@ -284,6 +346,80 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 15,
     fontWeight: '500',
+  },
+  contactWrap: {
+    position: 'relative',
+  },
+  contactPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    borderWidth: 1,
+    borderRadius: 100,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+  },
+  contactDropdown: {
+    position: 'absolute',
+    right: 0,
+    minWidth: CONTACT_DROPDOWN_MIN_WIDTH,
+    maxWidth: CONTACT_DROPDOWN_MAX_WIDTH,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 16,
+    zIndex: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  contactDropdownDown: {
+    top: '100%',
+    marginTop: 8,
+  },
+  contactDropdownUp: {
+    bottom: '100%',
+    marginBottom: 8,
+  },
+  contactDropdownLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    marginBottom: 12,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  contactIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contactTextCol: {
+    flex: 1,
+  },
+  contactEmail: {
+    fontSize: 14,
+    fontWeight: '600',
+    flexShrink: 1,
+  },
+  contactHint: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+  contactOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
   },
   navPillButton: {
     paddingVertical: 8,
