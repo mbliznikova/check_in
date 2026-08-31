@@ -133,6 +133,7 @@ type WeekCalendarProps = {
     selectedDay?: string;
     onPrevDay?: () => void;
     onNextDay?: () => void;
+    schoolTimezone?: string | null;
 };
 
 const WeekCalendar = ({
@@ -146,6 +147,7 @@ const WeekCalendar = ({
     selectedDay,
     onPrevDay,
     onNextDay,
+    schoolTimezone,
 }: WeekCalendarProps) => {
     const { width: screenWidth } = useWindowDimensions();
     const DAY_COL_WIDTH = viewMode === 'day'
@@ -280,6 +282,12 @@ const WeekCalendar = ({
                 </View>
             </View>
 
+            {schoolTimezone && (
+                <Text style={[styles.tzLabel, { color: themeColors.textMuted }]}>
+                    All times shown in {schoolTimezone}
+                </Text>
+            )}
+
             {/* Day name headers — week mode only; day mode shows the date in the nav row */}
             {viewMode !== 'day' && (
                 <View style={[styles.dayHeaderRow, { borderBottomColor: themeColors.border }]}>
@@ -374,6 +382,11 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         textAlign: 'center',
+    },
+    tzLabel: {
+        fontSize: 11,
+        textAlign: 'center',
+        paddingBottom: 6,
     },
     dayHeaderRow: {
         flexDirection: 'row',

@@ -5,6 +5,10 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors, TOGGLE_TEXT } from '@/constants/Colors';
 import { commonStyles } from '@/constants/commonStyles';
 
+import { useApi } from '@/api/client';
+import { useUserRole } from '@/context/UserContext';
+import { isValidArrayResponse } from '@/api/validators';
+import { SchoolType } from '@/types/school';
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
 import { ClassOccurrenceType } from '@/types/class';
@@ -37,10 +41,37 @@ export default function OccurrencesScreen() {
 
     const occurrences = useClassOccurrences();
     const classData = useClassData();
+    const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     useEffect(() => {
         mixpanel.track(paramClassId !== null ? 'Class occurrences viewed by class' : 'Class occurrences viewed');
     }, []);
+
+    const [schoolTimezone, setSchoolTimezone] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (schoolId === null) return;
+
+        let cancelled = false;
+        const loadSchoolTimezone = async () => {
+            try {
+                const response = await apiFetch("/schools/", { method: "GET" });
+                if (!response.ok) return;
+
+                const responseData = await response.json();
+                if (!isValidArrayResponse(responseData, "response")) return;
+
+                const match = (responseData.response as SchoolType[]).find(s => s.id === schoolId);
+                if (!cancelled && match) setSchoolTimezone(match.timezone);
+            } catch (err) {
+                console.error("Error while fetching school timezone: ", err);
+            }
+        };
+
+        loadSchoolTimezone();
+        return () => { cancelled = true; };
+    }, [schoolId]);
 
     useEffect(() => {
         setWeekStartDate(getMondayOfWeek(new Date()));
@@ -195,6 +226,7 @@ export default function OccurrencesScreen() {
                 selectedDay={selectedDay}
                 onPrevDay={prevDay}
                 onNextDay={nextDay}
+                schoolTimezone={schoolTimezone}
             />
 
             {/* FAB: Add occurrence */}

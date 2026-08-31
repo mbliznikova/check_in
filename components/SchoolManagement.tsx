@@ -27,10 +27,12 @@ const SchoolManagement = () => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
+    const [timezone, setTimezone] = useState("");
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [editSchoolError, setEditSchoolError] = useState<string | null>(null);
 
     const [isCreateSuccessful, setIsCreateSuccessful] = useState(false);
     const [isEditSuccessful, setIsEditSuccessful] = useState(false);
@@ -42,22 +44,22 @@ const SchoolManagement = () => {
     const [inviteLink, setInviteLink] = useState('');
 
 
-    const addSchoolToState = (schoolId: number, name: string, clerkOrgId: string, phone: string, address: string) => {
+    const addSchoolToState = (schoolId: number, name: string, clerkOrgId: string, phone: string, address: string, timezone: string) => {
         const newSchools = [...schools];
-        newSchools.push({ id: schoolId, name, clerkOrgId, phone, address });
+        newSchools.push({ id: schoolId, name, clerkOrgId, phone, address, timezone });
         newSchools.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
         setSchools(newSchools);
         console.log(`Added new school to state: ${name} : ${schoolId}`);
     };
 
-    const editSchoolInState = (targetSchoolId: number, name: string, phone: string, address: string) => {
+    const editSchoolInState = (targetSchoolId: number, name: string, phone: string, address: string, timezone: string) => {
         if (!targetSchoolId) {
             console.warn(`No school with id ${targetSchoolId}`);
             return;
         }
         setSchools(prevSchools => prevSchools.map(school =>
             school.id === targetSchoolId
-                ? { ...school, name, phone, address }
+                ? { ...school, name, phone, address, timezone }
                 : school
         ).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())));
         console.log(`Updated school ${targetSchoolId}`);
@@ -94,7 +96,7 @@ const SchoolManagement = () => {
         }
     };
 
-    const createSchool = async (name: string, phone: string, address: string) => {
+    const createSchool = async (name: string, phone: string, address: string, timezone: string) => {
         if (!createOrganization) {
             console.warn('createOrganization is not yet available. Please try again.');
             return;
@@ -113,6 +115,7 @@ const SchoolManagement = () => {
             clerkOrgId: newOrg.id,
             phone,
             address,
+            timezone,
         };
 
         console.log('data is: ' + JSON.stringify(data));
@@ -138,6 +141,7 @@ const SchoolManagement = () => {
                     newOrg.id,
                     responseData.phone ?? phone,
                     responseData.address ?? address,
+                    responseData.timezone ?? timezone,
                 );
                 reloadUser();
                 mixpanel.track('School created');
@@ -149,13 +153,13 @@ const SchoolManagement = () => {
         }
     };
 
-    const editSchool = async (newName: string, newPhone: string, newAddress: string) => {
+    const editSchool = async (newName: string, newPhone: string, newAddress: string, newTimezone: string) => {
         if (schoolId === null) {
             console.warn("No school selected to edit");
             return;
         }
 
-        const data = { name: newName, phone: newPhone, address: newAddress };
+        const data = { name: newName, phone: newPhone, address: newAddress, timezone: newTimezone };
 
         try {
             const response = await apiFetch(`/schools/${schoolId}/edit/`, {
@@ -172,9 +176,15 @@ const SchoolManagement = () => {
                     console.warn(`Function editSchool. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
                 }
 
+                setEditSchoolError(null);
                 setIsEditSuccessful(true);
-                editSchoolInState(schoolId, newName, newPhone, newAddress);
+                editSchoolInState(schoolId, newName, newPhone, newAddress, newTimezone);
                 mixpanel.track('School edited');
+            } else if (response.status === 400) {
+                const errorData = await response.json().catch(() => null);
+                setEditSchoolError(
+                    errorData?.timezone?.[0] ?? errorData?.detail ?? 'Invalid timezone. Please pick a valid timezone.'
+                );
             } else {
                 console.warn(`Function editSchool. Request was unsuccessful: ${response.status}, ${response.statusText}`);
             }
@@ -278,6 +288,7 @@ const SchoolManagement = () => {
                                     setName(school.name);
                                     setPhone(school.phone);
                                     setAddress(school.address);
+                                    setTimezone(school.timezone);
                                     setIsEditModalVisible(true);
                                 }}
                             >
@@ -337,16 +348,20 @@ const SchoolManagement = () => {
                 onModalClose={() => {
                     setIsEditModalVisible(false);
                     setIsEditSuccessful(false);
+                    setEditSchoolError(null);
                     setSchoolId(null);
                     setName('');
                     setPhone('');
                     setAddress('');
+                    setTimezone('');
                 }}
                 oldName={name}
                 oldPhone={phone}
                 oldAddress={address}
+                oldTimezone={timezone}
                 onEditSchool={editSchool}
                 isSuccess={isEditSuccessful}
+                errorMessage={editSchoolError}
             />
         );
     };

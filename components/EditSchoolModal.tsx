@@ -4,17 +4,21 @@ import { Modal, View, Text, TextInput, StyleSheet, Pressable } from "react-nativ
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
+import { DESTRUCTIVE_COLOR } from '@/constants/Colors';
 
 import ScreenTitle from "./ScreenTitle";
+import TimezonePicker from './TimezonePicker';
 
 type EditSchoolModalProps = {
     isVisible: boolean;
     oldName: string;
     oldPhone: string;
     oldAddress: string;
+    oldTimezone: string;
     onModalClose: () => void;
-    onEditSchool: (name: string, phone: string, address: string) => void;
+    onEditSchool: (name: string, phone: string, address: string, timezone: string) => void;
     isSuccess: boolean;
+    errorMessage?: string | null;
 };
 
 const EditSchoolModal = ({
@@ -22,9 +26,11 @@ const EditSchoolModal = ({
     oldName,
     oldPhone,
     oldAddress,
+    oldTimezone,
     onModalClose,
     onEditSchool,
     isSuccess = false,
+    errorMessage = null,
 }: EditSchoolModalProps) => {
 
     const textStyle = useThemeTextStyle();
@@ -33,12 +39,15 @@ const EditSchoolModal = ({
     const [newName, setNewName] = useState(oldName);
     const [newPhone, setNewPhone] = useState(oldPhone);
     const [newAddress, setNewAddress] = useState(oldAddress);
+    const [newTimezone, setNewTimezone] = useState(oldTimezone);
+    const [isTimezonePickerVisible, setIsTimezonePickerVisible] = useState(false);
 
     const ifNoChanges = (): boolean => {
         return (
             oldName === newName &&
             oldPhone === newPhone &&
-            oldAddress === newAddress
+            oldAddress === newAddress &&
+            oldTimezone === newTimezone
         );
     };
 
@@ -99,6 +108,33 @@ const EditSchoolModal = ({
                             onChangeText={(val) => { setNewAddress(val); }}
                         />
                     </View>
+                    <View style={[styles.itemContainer, styles.itemRow]}>
+                        <Text style={[textStyle, styles.itemContainer]}>
+                            Edit timezone:
+                        </Text>
+                        <Pressable
+                            style={[commonStyles.inputField, { flex: 1 }]}
+                            onPress={() => { setIsTimezonePickerVisible(true); }}
+                        >
+                            <Text style={textStyle}>
+                                {newTimezone || 'Select...'}
+                            </Text>
+                        </Pressable>
+                    </View>
+                    {errorMessage && (
+                        <Text style={[styles.errorText, { color: DESTRUCTIVE_COLOR }]}>
+                            {errorMessage}
+                        </Text>
+                    )}
+                    <TimezonePicker
+                        isVisible={isTimezonePickerVisible}
+                        currentValue={newTimezone}
+                        onSelect={(tz) => {
+                            setNewTimezone(tz);
+                            setIsTimezonePickerVisible(false);
+                        }}
+                        onClose={() => { setIsTimezonePickerVisible(false); }}
+                    />
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                         <Pressable
                             onPress={() => {
@@ -106,7 +142,7 @@ const EditSchoolModal = ({
                                     console.log('No changes made');
                                     return;
                                 }
-                                onEditSchool(newName, newPhone, newAddress);
+                                onEditSchool(newName, newPhone, newAddress, newTimezone);
                             }}
                             style={modalStyles.modalConfirmButton}
                         >
@@ -160,6 +196,11 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    errorText: {
+        alignSelf: 'stretch',
+        textAlign: 'center',
+        paddingHorizontal: 10,
     },
 });
 
