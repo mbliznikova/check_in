@@ -464,18 +464,22 @@ const styles = StyleSheet.create({
     mobileNavRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 30,
-        paddingHorizontal: 12,
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 8,
+        gap: 8,
     },
     mobileNavCenter: {
         flex: 1,
         alignItems: 'center',
+        gap: 2,
     },
     mobileFilterRow: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        paddingHorizontal: 12,
-        paddingBottom: 6,
+        paddingHorizontal: 16,
+        paddingTop: 4,
+        paddingBottom: 10,
     },
     navButton: {
         paddingVertical: 5,
