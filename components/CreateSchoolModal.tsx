@@ -1,16 +1,17 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, TextInput } from 'react-native';
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
+import TimezonePicker from './TimezonePicker';
 
 type CreateSchoolModalProps = {
     isVisible: boolean;
     onModalClose: () => void;
-    onCreateSchool: (name: string, phone: string, address: string) => void;
+    onCreateSchool: (name: string, phone: string, address: string, timezone: string) => void;
     isCreateSuccess: boolean;
 };
 
@@ -26,6 +27,16 @@ const CreateSchoolModal = ({
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
+    const [timezone, setTimezone] = useState("");
+    const [isTimezonePickerVisible, setIsTimezonePickerVisible] = useState(false);
+
+    useEffect(() => {
+        try {
+            setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        } catch (err) {
+            console.error('Error while guessing device timezone: ', err);
+        }
+    }, []);
 
     const renderCreateForm = () => {
         return (
@@ -61,13 +72,36 @@ const CreateSchoolModal = ({
                         onChangeText={(newAddress) => { setAddress(newAddress); }}
                     />
                 </View>
+                <View style={[styles.itemContainer, styles.itemRow]}>
+                    <Text style={[textStyle, styles.itemContainer]}>
+                        Timezone:
+                    </Text>
+                    <Pressable
+                        style={commonStyles.inputField}
+                        onPress={() => { setIsTimezonePickerVisible(true); }}
+                    >
+                        <Text style={textStyle}>
+                            {timezone || 'Select...'}
+                        </Text>
+                    </Pressable>
+                </View>
+                <TimezonePicker
+                    isVisible={isTimezonePickerVisible}
+                    currentValue={timezone}
+                    onSelect={(newTimezone) => {
+                        setTimezone(newTimezone);
+                        setIsTimezonePickerVisible(false);
+                    }}
+                    onClose={() => { setIsTimezonePickerVisible(false); }}
+                />
                 <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
                     <Pressable
                         onPress={() => {
-                            onCreateSchool(name, phone, address);
+                            onCreateSchool(name, phone, address, timezone);
                             setName("");
                             setPhone("");
                             setAddress("");
+                            setTimezone("");
                         }}
                         style={[modalStyles.modalConfirmButton, name === "" && { opacity: 0.5 }]}
                         disabled={name === ""}

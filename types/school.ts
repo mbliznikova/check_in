@@ -4,6 +4,7 @@ export type SchoolType = {
     clerkOrgId: string;
     phone: string;
     address: string;
+    timezone: string;
 };
 
 export type StaffMemberType = {

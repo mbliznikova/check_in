@@ -1,15 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors, TOGGLE_TEXT } from '@/constants/Colors';
 import { commonStyles } from '@/constants/commonStyles';
 
+import { useApi } from '@/api/client';
+import { useUserRole } from '@/context/UserContext';
+import { isValidArrayResponse } from '@/api/validators';
+import { SchoolType } from '@/types/school';
 import { useClassOccurrences } from '@/hooks/useClassOccurrences';
 import { useClassData } from '@/hooks/useClassData';
 import { ClassOccurrenceType } from '@/types/class';
 import { mixpanel } from '@/utils/mixpanel';
-import WeekCalendar from '@/components/WeekCalendar';
+import WeekCalendar, { MOBILE_BREAKPOINT } from '@/components/WeekCalendar';
 import OccurrenceFormModal from '@/components/OccurrenceFormModal';
 
 function offsetDay(dateStr: string, days: number): string {
@@ -30,6 +34,8 @@ function getMondayOfWeek(date: Date): Date {
 export default function OccurrencesScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const C = Colors[colorScheme];
+    const { width: screenWidth } = useWindowDimensions();
+    const isMobile = screenWidth <= MOBILE_BREAKPOINT;
 
     const params = useLocalSearchParams<{ classId?: string; className?: string }>();
     const paramClassId = params.classId ? Number(params.classId) : null;
@@ -37,10 +43,37 @@ export default function OccurrencesScreen() {
 
     const occurrences = useClassOccurrences();
     const classData = useClassData();
+    const { apiFetch } = useApi();
+    const { schoolId } = useUserRole();
 
     useEffect(() => {
         mixpanel.track(paramClassId !== null ? 'Class occurrences viewed by class' : 'Class occurrences viewed');
     }, []);
+
+    const [schoolTimezone, setSchoolTimezone] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (schoolId === null) return;
+
+        let cancelled = false;
+        const loadSchoolTimezone = async () => {
+            try {
+                const response = await apiFetch("/schools/", { method: "GET" });
+                if (!response.ok) return;
+
+                const responseData = await response.json();
+                if (!isValidArrayResponse(responseData, "response")) return;
+
+                const match = (responseData.response as SchoolType[]).find(s => s.id === schoolId);
+                if (!cancelled && match) setSchoolTimezone(match.timezone);
+            } catch (err) {
+                console.error("Error while fetching school timezone: ", err);
+            }
+        };
+
+        loadSchoolTimezone();
+        return () => { cancelled = true; };
+    }, [schoolId]);
 
     useEffect(() => {
         setWeekStartDate(getMondayOfWeek(new Date()));
@@ -171,18 +204,6 @@ export default function OccurrencesScreen() {
                 </View>
             </View>
 
-            {/* Class filter pill */}
-            {filterClassName !== null && (
-                <View style={styles.filterRow}>
-                    <View style={styles.filterPill}>
-                        <Text style={styles.filterText}>Showing: {filterClassName}</Text>
-                        <Pressable onPress={() => { setFilterClassId(null); setFilterClassName(null); }} style={styles.clearButton}>
-                            <Text style={styles.clearText}>✕</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            )}
-
             {/* Week Calendar */}
             <WeekCalendar
                 occurrences={visibleOccurrences}
@@ -195,16 +216,32 @@ export default function OccurrencesScreen() {
                 selectedDay={selectedDay}
                 onPrevDay={prevDay}
                 onNextDay={nextDay}
+                schoolTimezone={schoolTimezone}
+                filterClassName={filterClassName}
+                onClearFilter={() => { setFilterClassId(null); setFilterClassName(null); }}
             />
 
-            {/* FAB: Add occurrence */}
-            <Pressable
-                style={styles.fab}
-                onPress={() => handleAddPress(new Date().toISOString().slice(0, 10))}
-            >
-                <View style={styles.fabIconH} />
-                <View style={styles.fabIconV} />
-            </Pressable>
+            {/* FAB: Add occurrence — floats over the calendar on wide screens; on narrow
+                screens it moves into its own footer strip so it can't cover an occurrence. */}
+            {isMobile ? (
+                <View style={[styles.fabFooter, { borderTopColor: C.border }]}>
+                    <Pressable
+                        style={styles.fabInline}
+                        onPress={() => handleAddPress(new Date().toISOString().slice(0, 10))}
+                    >
+                        <View style={styles.fabIconH} />
+                        <View style={styles.fabIconV} />
+                    </Pressable>
+                </View>
+            ) : (
+                <Pressable
+                    style={styles.fab}
+                    onPress={() => handleAddPress(new Date().toISOString().slice(0, 10))}
+                >
+                    <View style={styles.fabIconH} />
+                    <View style={styles.fabIconV} />
+                </Pressable>
+            )}
 
             {/* Create / Edit modal */}
             {formModal.visible && (
@@ -265,32 +302,20 @@ const styles = StyleSheet.create({
     toggleText: {
         fontSize: 12,
     },
-    filterRow: {
+    fabFooter: {
         flexDirection: 'row',
+        justifyContent: 'flex-end',
         paddingHorizontal: 16,
         paddingVertical: 8,
+        borderTopWidth: 1,
     },
-    filterPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    fabInline: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: '#1a73e8',
-        borderRadius: 20,
-        paddingVertical: 4,
-        paddingHorizontal: 12,
-        gap: 8,
-    },
-    filterText: {
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    clearButton: {
-        paddingHorizontal: 4,
-    },
-    clearText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '700',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     fab: {
         position: 'absolute',
