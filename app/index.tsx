@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { useAuth } from '@clerk/clerk-expo';
 import { useUserRole } from '@/context/UserContext';
 import LandingPage from '@/components/LandingPage';
@@ -17,7 +17,10 @@ export default function Index() {
   }
 
   if (!isSignedIn) {
-    return <LandingPage />;
+    if (Platform.OS === 'web') {
+      return <LandingPage />;
+    }
+    return <Redirect href="/sign-in" />;
   }
 
   return <Redirect href={role === null ? '/schools' : '/check-in'} />;
