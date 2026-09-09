@@ -185,8 +185,8 @@ export default function LandingPage() {
               Know who showed up. Every class, every time.
             </Text>
             <Text style={[styles.heroSubtitle, { color: colors.textMuted }]}>
-              Runs in any browser — nothing to install — with mobile apps for the studio floor.
-              Attendance, rosters, payments, and scheduling, from the front desk or your phone.
+              Runs in any browser.
+              Attendance, payments, and scheduling, from the front desk or your phone.
             </Text>
             <TouchableOpacity style={styles.primaryButton} onPress={() => goSignUp('hero')}>
               <Text style={styles.primaryButtonText}>Get started</Text>
@@ -210,7 +210,7 @@ export default function LandingPage() {
               Everything a studio needs to track attendance
             </Text>
             <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
-              Replaces the paper roster, the spreadsheet, and the group chat.
+              Replaces the paper roster and the spreadsheet.
             </Text>
             <View style={[styles.featureGrid, isWide && styles.featureGridWide]}>
               {FEATURES.map((feature) => (
