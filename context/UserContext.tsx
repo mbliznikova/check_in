@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '@clerk/clerk-expo';
-import { useApi } from '@/api/client';
-import { fetchCurrentUser } from '@/api/currentUser';
-import { configureSchoolId } from '@/api/client';
+import { useApi, configureSchoolId, resetSchoolReady, rejectSchoolReady } from '@/api/client';
+import { fetchCurrentUser, provisionUser } from '@/api/currentUser';
 
 type MembershipType = { schoolId: number; role: string; schoolName: string };
 
@@ -14,6 +13,7 @@ type UserContextType = {
     error: string | null;
     switchSchool: (schoolId: number) => void;
     reloadUser: () => void;
+    retrySetup: () => void;
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -39,7 +39,10 @@ export function UserProvider({children}: {children: ReactNode}) {
         setRole(membership.role);
     };
 
+    // The everyday read: GET /me/. Used for in-app refreshes (switch school)
+    // where the user is already known to exist.
     const loadUserInfo = async () => {
+        resetSchoolReady();
         const userInfo = await fetchCurrentUser(apiFetch);
 
         if (userInfo) {
@@ -49,12 +52,41 @@ export function UserProvider({children}: {children: ReactNode}) {
             configureSchoolId(userInfo.schoolId);
         } else {
             setError('Failed to load user info');
+            rejectSchoolReady('fetchCurrentUser failed');
         }
         setIsLoading(false);
     };
 
+    // The chokepoint: ensure the backend user exists (POST /me/provision/),
+    // then do the everyday read. Runs on sign-in, on relaunch with a
+    // persisted session, and as the Retry action after a failure here —
+    // never on a routine in-app refresh.
+    const initUserSession = async () => {
+        setIsLoading(true);
+        setError(null);
+
+        const provisionResult = await provisionUser(apiFetch);
+
+        if (provisionResult === 'email_conflict') {
+            setError("An account already exists with this email, but it isn't verified yet. Verify your email, then tap Retry.");
+            rejectSchoolReady('email conflict');
+            setIsLoading(false);
+            return;
+        }
+
+        if (provisionResult === 'error') {
+            setError("We couldn't set up your account. Check your connection and try again.");
+            rejectSchoolReady('provisioning failed');
+            setIsLoading(false);
+            return;
+        }
+
+        await loadUserInfo();
+    };
+
     const reloadUser = () => {
         setIsLoading(true);
+        setError(null);
         loadUserInfo();
     };
 
@@ -65,17 +97,18 @@ export function UserProvider({children}: {children: ReactNode}) {
             setRole(null);
             setSchoolId(null);
             setMemberships([]);
+            setError(null);
             configureSchoolId(null);
             setIsLoading(false);
             return;
         }
 
-        loadUserInfo();
+        initUserSession();
     },
         [isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <UserContext.Provider value={{role, schoolId, memberships, isLoading, error, switchSchool, reloadUser}}>
+        <UserContext.Provider value={{role, schoolId, memberships, isLoading, error, switchSchool, reloadUser, retrySetup: initUserSession}}>
             {children}
         </UserContext.Provider>
     );

@@ -12,10 +12,11 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { SignedIn, SignedOut } from '@clerk/clerk-expo';
 
 import { useUserRole } from '@/context/UserContext';
+import LoadErrorView from '@/components/LoadErrorView';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const {role, isLoading, schoolId} = useUserRole();
+  const {role, isLoading, error, schoolId, retrySetup} = useUserRole();
 
   if (isLoading) {
     return (
@@ -23,6 +24,10 @@ export default function TabLayout() {
         <ActivityIndicator/>
       </View>
     );
+  }
+
+  if (error) {
+    return <LoadErrorView message={error} onRetry={retrySetup} />;
   }
 
   const show = (roles: string[]) => role !== null && roles.includes(role);

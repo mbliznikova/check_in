@@ -6,9 +6,16 @@ if (!API_BASE_URL) throw new Error("EXPO_PUBLIC_API_BASE_URL is not set");
 let currentSchoolId: number | null = null;
 
 let resolveSchoolReady: (() => void) | null = null;
-const schoolReady = new Promise<void>((resolve) => {
-    resolveSchoolReady = resolve;
-});
+let rejectSchoolReadyFn: ((err: Error) => void) | null = null;
+
+function createSchoolReadyPromise(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        resolveSchoolReady = resolve;
+        rejectSchoolReadyFn = reject;
+    });
+}
+
+let schoolReady = createSchoolReadyPromise();
 
 export function configureSchoolId(schoolId: number | null) {
     currentSchoolId = schoolId;
@@ -17,6 +24,19 @@ export function configureSchoolId(schoolId: number | null) {
         resolveSchoolReady();
         resolveSchoolReady = null;
     }
+    rejectSchoolReadyFn = null;
+}
+
+export function resetSchoolReady() {
+    schoolReady = createSchoolReadyPromise();
+}
+
+export function rejectSchoolReady(message: string) {
+    if (rejectSchoolReadyFn) {
+        rejectSchoolReadyFn(new Error(message));
+        rejectSchoolReadyFn = null;
+    }
+    resolveSchoolReady = null;
 }
 
 export type ApiFetch = (endpoint: string, options?: RequestInit, schoolIdOverride?: number) => Promise<Response>;
@@ -28,7 +48,7 @@ export function useApi() {
         endpoint: string,
         options: RequestInit = {},
         schoolIdOverride?: number) {
-            const skipSchoolReady = endpoint === "/me/" || endpoint.startsWith("/invitations/");
+            const skipSchoolReady = endpoint === "/me/" || endpoint === "/me/provision/" || endpoint.startsWith("/invitations/");
 
             if (!skipSchoolReady) {
                 await schoolReady;
