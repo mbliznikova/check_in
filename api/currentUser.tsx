@@ -52,3 +52,29 @@ export const fetchCurrentUser = async (apiFetch: ApiFetch) => {
         return null;
     }
 };
+
+export type ProvisionResult = 'ok' | 'email_conflict' | 'error';
+
+export const provisionUser = async (apiFetch: ApiFetch): Promise<ProvisionResult> => {
+    try {
+        const response = await apiFetch("/me/provision/", { method: "POST" });
+
+        if (response.ok) {
+            return 'ok';
+        }
+
+        if (response.status === 409) {
+            return 'email_conflict';
+        }
+
+        console.warn(
+            "Function provisionUser. Request was unsuccessful: ",
+            response.status, response.statusText
+        );
+        return 'error';
+
+    } catch (err) {
+        console.error("Error while provisioning the user: ", err);
+        return 'error';
+    }
+};
