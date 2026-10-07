@@ -48,7 +48,7 @@ export function useApi() {
         endpoint: string,
         options: RequestInit = {},
         schoolIdOverride?: number) {
-            const skipSchoolReady = endpoint === "/me/" || endpoint === "/me/provision/" || endpoint.startsWith("/invitations/");
+            const skipSchoolReady = endpoint === "/me/" || endpoint === "/me/provision/" || endpoint === "/me/delete/" || endpoint.startsWith("/invitations/");
 
             if (!skipSchoolReady) {
                 await schoolReady;

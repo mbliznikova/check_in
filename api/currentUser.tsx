@@ -78,3 +78,25 @@ export const provisionUser = async (apiFetch: ApiFetch): Promise<ProvisionResult
         return 'error';
     }
 };
+
+export type DeleteAccountResult = 'ok' | 'error';
+
+export const deleteAccount = async (apiFetch: ApiFetch): Promise<DeleteAccountResult> => {
+    try {
+        const response = await apiFetch("/me/delete/", { method: "DELETE" });
+
+        if (response.ok || response.status === 502) {
+            return 'ok';
+        }
+
+        console.warn(
+            "Function deleteAccount. Request was unsuccessful: ",
+            response.status, response.statusText
+        );
+        return 'error';
+
+    } catch (err) {
+        console.error("Error while deleting the account: ", err);
+        return 'error';
+    }
+};

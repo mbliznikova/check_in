@@ -6,6 +6,7 @@ import {
   StyleSheet,
   type StyleProp,
   type TextInputProps,
+  type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -20,6 +21,8 @@ type AuthTextFieldProps = {
   autoCapitalize?: TextInputProps['autoCapitalize'];
   keyboardType?: TextInputProps['keyboardType'];
   containerStyle?: StyleProp<ViewStyle>;
+  editable?: boolean;
+  labelStyle?: StyleProp<TextStyle>;
 };
 
 export default function AuthTextField({
@@ -31,6 +34,8 @@ export default function AuthTextField({
   autoCapitalize = 'none',
   keyboardType,
   containerStyle,
+  editable = true,
+  labelStyle,
 }: AuthTextFieldProps) {
   const colorScheme = useColorScheme();
   const colors = AuthColors[colorScheme];
@@ -38,7 +43,7 @@ export default function AuthTextField({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <Text style={[styles.label, { color: colors.label }]}>{label}</Text>
+      <Text style={[styles.label, { color: colors.label }, labelStyle]}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -47,6 +52,7 @@ export default function AuthTextField({
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        editable={editable}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         style={[

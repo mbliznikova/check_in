@@ -63,4 +63,31 @@ const staticModalStyles = StyleSheet.create({
         borderRadius: 15,
         backgroundColor: DESTRUCTIVE_COLOR,
     },
+    modalDisabled: {
+        opacity: 0.5,
+    },
+    modalInfo: {
+        padding: 20,
+    },
+    modalTitle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    modalButtonsRow: {
+        flexDirection: 'row',
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+    },
+    modalErrorText: {
+        color: DESTRUCTIVE_COLOR,
+        textAlign: 'center',
+        marginVertical: 10,
+    },
+    modalActionLink: {
+        textDecorationLine: 'underline',
+    },
 });
