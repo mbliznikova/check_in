@@ -144,7 +144,7 @@ const StudentManagement = () => {
 
     const addStudentToUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
-        newSet.add(`${firstName} ${lastName}`)
+        newSet.add(`${firstName.trim()} ${lastName.trim()}`)
         console.log(`Added ${firstName} ${lastName} to uniqueness`);
 
         setStudentsSet(newSet);
@@ -153,14 +153,14 @@ const StudentManagement = () => {
     // TODO: make sure the parameters are not empty?
     const removeStudentFromUniqueness = (firstName: string, lastName: string) => {
         const newSet = new Set(studentsSet);
-        newSet.delete(`${firstName} ${lastName}`)
+        newSet.delete(`${firstName.trim()} ${lastName.trim()}`)
         console.log(`Removed ${firstName} ${lastName} from uniqueness`);
 
         setStudentsSet(newSet);
     };
 
     const ifStudentNameUnique = (firstName: string, lastName: string): boolean => {
-        const studentToCheck = `${firstName} ${lastName}`;
+        const studentToCheck = `${firstName.trim()} ${lastName.trim()}`;
 
         return !studentsSet.has(studentToCheck);
     };
@@ -248,7 +248,7 @@ const StudentManagement = () => {
         }
     };
 
-    const createStudent = async (firstName: string, lastName: string, isLiabilityChecked: boolean, contacts: string) => {
+    const createStudent = async (firstName: string, lastName: string, isLiabilityChecked: boolean, contacts: string): Promise<'ok' | 'error'> => {
         const data = {
             "firstName": firstName,
             "lastName": lastName,
@@ -268,8 +268,8 @@ const StudentManagement = () => {
             });
 
             if (!response.ok) {
-                const errorMessage = `Function createStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`;
-                throw Error(errorMessage);
+                console.warn(`Function createStudent. Request was unsuccessful: ${response.status}, ${response.statusText}`);
+                return 'error';
             } else {
                 console.log('Student was created successfully!');
 
@@ -291,12 +291,18 @@ const StudentManagement = () => {
                     );
 
                     addStudentToUniqueness(responseData.firstName, responseData.lastName);
+
+                    return 'ok';
                 } else {
                     console.warn(`Function createStudent. The response from backend is NOT valid! ${JSON.stringify(responseData)}`);
+                    // Request succeeded server-side despite the unexpected shape - resync the list instead of leaving it stale.
+                    fetchStudents();
+                    return 'error';
                 }
             }
         } catch(error) {
             console.error(`Error while sending the data to the server at creating student: ${error}`);
+            return 'error';
         }
     };
 
@@ -388,7 +394,7 @@ const StudentManagement = () => {
         const allStudentsSet: Set<string> = new Set();
 
         students.forEach((std) => {
-            allStudentsSet.add(`${std.firstName} ${std.lastName}`)
+            allStudentsSet.add(`${std.firstName.trim()} ${std.lastName.trim()}`)
         });
 
         setStudentsSet(allStudentsSet);
