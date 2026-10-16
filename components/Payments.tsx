@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 
 // import { URLSearchParams } from 'node:url'
 
@@ -43,6 +44,7 @@ const Payments = () => {
     const { apiFetch } = useApi();
 
     const colorScheme = useColorScheme();
+    const tabBarOverflow = useBottomTabOverflow();
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -651,7 +653,7 @@ const Payments = () => {
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             {renderSelector()}
             </View>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: tabBarOverflow }}>
                 <ScrollView horizontal={true}>
                     <View style={{minWidth: screenWidth }}>
                         {renderHeaderRow()}
