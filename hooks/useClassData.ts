@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
@@ -80,13 +81,15 @@ export function useClassData() {
     const [editModal, setEditModal] = useState({ isVisible: false, isSuccess: false });
     const [deleteModal, setDeleteModal] = useState({ isVisible: false, isSuccess: false });
 
-    useEffect(() => {
-        if (!schoolId) return;
-        Promise.all([
-            fetchClasses(),
-            fetchPrices(),
-        ]).finally(() => setLoading(false));
-    }, [schoolId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (!schoolId) return;
+            Promise.all([
+                fetchClasses(),
+                fetchPrices(),
+            ]).finally(() => setLoading(false));
+        }, [schoolId])
+    );
 
     useEffect(() => {
         const classSet: Set<string> = new Set();

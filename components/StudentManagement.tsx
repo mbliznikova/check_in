@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { SafeAreaView, View, StyleSheet, FlatList, Text, Pressable, ActivityIndicator } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
+import { useFocusEffect } from 'expo-router';
 
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
@@ -385,10 +386,12 @@ const StudentManagement = () => {
         }
     };
 
-    useEffect(() => {
-        if (!schoolId) return;
-        fetchStudents();
-    }, [schoolId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (!schoolId) return;
+            fetchStudents();
+        }, [schoolId])
+    );
 
     useEffect(() => {
         const allStudentsSet: Set<string> = new Set();

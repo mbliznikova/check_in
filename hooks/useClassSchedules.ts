@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
@@ -46,10 +47,12 @@ export function useClassSchedules() {
     const [currentClassScheduleMap, setCurrentClassScheduleMap] = useState<Map<number, [number, string][]>>(new Map());
     const [scheduleModal, setScheduleModal] = useState({ isVisible: false, isSuccess: false });
 
-    useEffect(() => {
-        if (!schoolId) return;
-        fetchSchedules();
-    }, [schoolId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (!schoolId) return;
+            fetchSchedules();
+        }, [schoolId])
+    );
 
     // TODO(separate PR): schedule.day here is the raw backend day id, not the
     // normalized 1-7 index used elsewhere (see fetchClassSchedules). checkIfScheduleUnique

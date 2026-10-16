@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {View, StyleSheet, FlatList, ActivityIndicator, Dimensions, Platform } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
@@ -51,7 +52,8 @@ const School = () => {
 
     const checkedInStudents = useMemo(() => assignStudentsToOccurrences(), [students, classOccurrenceList]);
 
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
         if (!schoolId) return;
         const fetchClassOccurrences = async () => {
             try {
@@ -179,7 +181,8 @@ const School = () => {
             fetchStudents(),
             fetchAttendedStudents(),
         ]).finally(() => setLoading(false));
-    }, [schoolId]);
+        }, [schoolId])
+    );
 
     useEffect(() => {
         if (attendance.length === 0) return;

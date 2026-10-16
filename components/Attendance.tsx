@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {View, SafeAreaView, StyleSheet, Text, FlatList, Pressable, Modal, TextInput, ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { useApi } from "@/api/client";
@@ -127,7 +128,11 @@ const Attendance = () => {
         setDatesInitialized(true);
     }, []);
 
-    useEffect(() => {
+    const fetchAttendancesRef = useRef(fetchAttendances);
+    fetchAttendancesRef.current = fetchAttendances;
+
+    useFocusEffect(
+        useCallback(() => {
         if (!schoolId || !datesInitialized) return;
         const fetchPayments = async () => {
             // Assume for now that the query returns the payment data only for the current month
@@ -154,11 +159,11 @@ const Attendance = () => {
        }
 
         Promise.all([
-            fetchAttendances(),
+            fetchAttendancesRef.current(),
             fetchPayments(),
         ]).finally(() => setLoading(false));
-    },
-    [schoolId, datesInitialized]);
+        }, [schoolId, datesInitialized])
+    );
 
     useEffect(() => {
         getBalance();
