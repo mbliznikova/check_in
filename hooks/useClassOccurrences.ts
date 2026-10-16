@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
 import { isValidArrayResponse } from "@/api/validators";
@@ -75,10 +76,12 @@ export function useClassOccurrences() {
     const [allOccurrencesMap, setAllOccurrencesMap] = useState<Map<number, ClassOccurrenceType>>(new Map());
     const [occurrencesSet, setOccurrencesSet] = useState<Set<string>>(new Set());
     const [currentClassOccurrenceMap, setCurrentClassOccurrenceMap] = useState<Map<string, [number, string][]>>(new Map());
-    useEffect(() => {
-        if (!schoolId) return;
-        fetchAllClassOccurrences();
-    }, [schoolId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (!schoolId) return;
+            fetchAllClassOccurrences();
+        }, [schoolId])
+    );
 
     useEffect(() => {
         const occurrencesSetTemp: Set<string> = new Set();

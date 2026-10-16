@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable, Modal, TextInput } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // import { URLSearchParams } from 'node:url'
@@ -426,14 +427,20 @@ const Payments = () => {
         setDatesInitialized(true);
     }, []);
 
-    useEffect(() => {
-        if (!datesInitialized) return;
-        fetchPrices();
-        fetchStudents();
-        fetchPayments();
-        fetchSummary();
-    },
-    [datesInitialized]);
+    const fetchPaymentsRef = useRef(fetchPayments);
+    fetchPaymentsRef.current = fetchPayments;
+    const fetchSummaryRef = useRef(fetchSummary);
+    fetchSummaryRef.current = fetchSummary;
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!datesInitialized) return;
+            fetchPrices();
+            fetchStudents();
+            fetchPaymentsRef.current();
+            fetchSummaryRef.current();
+        }, [datesInitialized])
+    );
 
     useEffect(() => {
         // TODO: make sure the payment is loaded if there are payments at all?.. Avoid case when no payments made yet this month and it blocks

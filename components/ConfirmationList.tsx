@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {StyleSheet, FlatList, SafeAreaView, ActivityIndicator} from 'react-native';
+import { useFocusEffect } from 'expo-router';
 
 import { useApi } from "@/api/client";
 import { useUserRole } from "@/context/UserContext";
@@ -37,7 +38,8 @@ const ConfirmationList = () => {
 
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
         if (!schoolId) return;
         const fetchAttendances = async () => {
             try {
@@ -70,8 +72,8 @@ const ConfirmationList = () => {
         }
 
         fetchAttendances();
-    },
-    [schoolId]);
+        }, [schoolId])
+    );
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
