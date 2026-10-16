@@ -4,6 +4,7 @@ import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Pressable
 import { useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
+import { useModalStyles } from '@/constants/modalStyles';
 
 // import { URLSearchParams } from 'node:url'
 
@@ -45,6 +46,7 @@ const Payments = () => {
 
     const colorScheme = useColorScheme();
     const tabBarOverflow = useBottomTabOverflow();
+    const modalStyles = useModalStyles();
 
     const screenWidth = Dimensions.get('window').width;
 
@@ -574,9 +576,9 @@ const Payments = () => {
                 transparent={true}
                 onRequestClose={closeModal}
             >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
-                        <View style={styles.modalInfo}>
+                <View style={modalStyles.modalContainer}>
+                    <View style={modalStyles.modalView}>
+                        <View style={modalStyles.modalInfo}>
                             <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor, { fontWeight: "bold" }]}>
                                 {paymentAction === 'add'
                                     ? `Do you want to add $${selectedPrice} for ${selectedStudentName}, ${selectedClassName} class?`
@@ -586,15 +588,15 @@ const Payments = () => {
                                 }
                             </Text>
                         </View>
-                        <View style={styles.modalButtonsContainer}>
+                        <View style={modalStyles.modalButtonsRow}>
                             <Pressable
-                                style={styles.modalConfirmButton}
+                                style={modalStyles.modalConfirmButton}
                                 onPress={handleConfirm}
                             >
                                 <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>OK</Text>
                             </Pressable>
                             <Pressable
-                                style={styles.modalCancelButton}
+                                style={modalStyles.modalCancelButton}
                                 onPress={closeModal}
                             >
                                 <Text style={[colorScheme === 'dark' ? styles.lightColor : styles.darkColor]}>Cancel</Text>
@@ -708,46 +710,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 10,
         borderWidth: 1,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '50%',
-        height: '40%',
-        backgroundColor: 'black', //TODO: make it adjustable
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    modalInfo: {
-        padding: 20,
-    },
-    modalButtonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 20,
-        alignItems: 'center',
-        width: '30%',
-    },
-    modalConfirmButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'green',
-    },
-    modalCancelButton: {
-        alignItems: 'center',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
-        borderRadius: 15,
-        backgroundColor: 'grey',
     },
     paidText: {
         color: 'green',
