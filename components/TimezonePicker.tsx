@@ -5,6 +5,7 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 import { DESTRUCTIVE_COLOR } from '@/constants/Colors';
+import { IANA_TIMEZONES } from '@/constants/timezones';
 
 import ScreenTitle from './ScreenTitle';
 
@@ -17,14 +18,16 @@ type TimezonePickerProps = {
 
 const getAllTimezones = (): { zones: string[]; error: string | null } => {
     try {
-        const zones = Intl.supportedValuesOf('timeZone');
-        if (!zones || zones.length === 0) {
-            return { zones: [], error: 'Timezone list unavailable.' };
+        if (typeof Intl.supportedValuesOf === 'function') {
+            const zones = Intl.supportedValuesOf('timeZone');
+            if (zones && zones.length > 0) {
+                return { zones, error: null };
+            }
         }
-        return { zones, error: null };
+        return { zones: IANA_TIMEZONES, error: null };
     } catch (err) {
         console.error('Error while reading supported timezones: ', err);
-        return { zones: [], error: 'Timezone list unavailable.' };
+        return { zones: IANA_TIMEZONES, error: null };
     }
 };
 
