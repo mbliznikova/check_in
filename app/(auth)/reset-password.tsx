@@ -1,5 +1,5 @@
 import { useSignIn } from '@clerk/clerk-expo'
-import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { Text, View, StyleSheet } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthColors, DESTRUCTIVE_COLOR, ACCENT_COLOR } from '@/constants/Colors';
@@ -13,9 +13,8 @@ import React, { useState, useEffect } from "react";
 export default function Page() {
   const colorScheme = useColorScheme();
   const colors = AuthColors[colorScheme];
-  const { returnTo, email: emailParam } = useLocalSearchParams<{ returnTo?: string; email?: string }>()
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>()
   const { signIn, setActive, isLoaded } = useSignIn()
-  const router = useRouter()
 
   const [email, setEmail] = useState(emailParam ?? '')
   const [code, setCode] = useState('')
@@ -70,7 +69,7 @@ export default function Page() {
 
         if (result.status === 'complete') {
           await setActive({ session: result.createdSessionId })
-          router.replace((returnTo as Href) ?? '/')
+          // (auth)/_layout.tsx's reactive redirect handles navigation once isSignedIn flips true
         } else {
           setErrorMsg('Additional steps required. Check console.');
           console.error(JSON.stringify(result, null, 2))

@@ -4,7 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthColors, ACCENT_COLOR } from '@/constants/Colors';
 import { mixpanel } from '@/utils/mixpanel';
 import { useSignUp } from '@clerk/clerk-expo'
-import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
+import { Link } from 'expo-router'
 import AuthShell from '@/components/AuthShell';
 import AuthTextField from '@/components/AuthTextField';
 import AuthPrimaryButton from '@/components/AuthPrimaryButton';
@@ -12,8 +12,6 @@ import AuthCodeInput from '@/components/AuthCodeInput';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
-  const router = useRouter()
-  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>()
 
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -62,7 +60,7 @@ export default function SignUpScreen() {
 
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace((returnTo as Href) ?? '/')
+        // (auth)/_layout.tsx's reactive redirect handles navigation once isSignedIn flips true
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2))
       }
