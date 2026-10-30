@@ -1,5 +1,4 @@
 import { useClerk } from '@clerk/clerk-expo'
-import * as Linking from 'expo-linking'
 import { Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 
@@ -12,8 +11,7 @@ export const SignOutButton = () => {
   const handleSignOut = async () => {
     try {
       await signOut()
-      // Redirect to your desired page
-      Linking.openURL(Linking.createURL('/'))
+      // (tabs)/_layout.tsx's <SignedOut><Redirect .../></SignedOut> handles navigation
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling

@@ -1,6 +1,6 @@
 import { useSignIn } from '@clerk/clerk-expo'
 // import { SignIn as WebSignIn } from '@clerk/clerk-expo/web' // due to temporarily turned off sso, see #60
-import { Link, useRouter, useLocalSearchParams, type Href } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { Text, View, StyleSheet } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthColors, DESTRUCTIVE_COLOR, ACCENT_COLOR } from '@/constants/Colors';
@@ -16,7 +16,6 @@ export default function Page() {
   const colors = AuthColors[colorScheme];
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>()
   const { signIn, setActive, isLoaded } = useSignIn()
-  const router = useRouter()
 
   const [emailAddress, setEmailAddress] = useState('')
   const [password, setPassword] = useState('')
@@ -59,7 +58,7 @@ export default function Page() {
 
     } else if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace((returnTo as Href) ?? '/')
+        // (auth)/_layout.tsx's reactive redirect handles navigation once isSignedIn flips true
       } else {
         setErrorMsg('Additional steps required. Check console.');
         console.error(JSON.stringify(signInAttempt, null, 2))
@@ -85,7 +84,7 @@ export default function Page() {
 
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace((returnTo as Href) ?? '/')
+        // (auth)/_layout.tsx's reactive redirect handles navigation once isSignedIn flips true
       } else {
         setErrorMsg('Verification incomplete. Check console.');
         console.error(JSON.stringify(signInAttempt, null, 2))
