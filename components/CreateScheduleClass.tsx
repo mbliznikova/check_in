@@ -8,7 +8,7 @@ import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
-import { DateInputField, TimeInputField } from './DateTimeInputFields';
+import { DateInputField, TimeInputField, DEFAULT_TIME } from './DateTimeInputFields';
 import { DAY_NAMES } from '@/constants/scheduling';
 
 type ClassCreationModalProps = {
@@ -81,7 +81,7 @@ const CreateScheduleClass = ({
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
 
     const [occurrenceDate, setOccurrenceDate] = useState<string>(new Date().toISOString().slice(0, 10));
-    const [occurrenceTime, setOccurrenceTime] = useState<string>("");
+    const [occurrenceTime, setOccurrenceTime] = useState<string>(DEFAULT_TIME);
     const [isOccurrenceCreated, setIsOccurrenceCreated] = useState<boolean>(false);
     const [occurrenceIntervals, setOccurrenceIntervals] = useState<[string, string][]>([]);
     const [isOccurrenceIntervalsOpen, setIsOccurrenceIntervalsOpen] = useState<boolean>(false);
@@ -114,7 +114,7 @@ const CreateScheduleClass = ({
         setTimeSlots([]);
         setSelectedSlotIndex(-1);
         setOccurrenceDate(new Date().toISOString().slice(0, 10));
-        setOccurrenceTime("");
+        setOccurrenceTime(DEFAULT_TIME);
         setIsOccurrenceCreated(false);
         setOccurrenceIntervals([]);
         setIsOccurrenceIntervalsOpen(false);

@@ -6,6 +6,8 @@ import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors, INPUT_BORDER_COLOR } from '@/constants/Colors';
 
+export const DEFAULT_TIME = '12:00';
+
 type DateTimeFieldProps = {
     value: string;
     onChange: (value: string) => void;
@@ -92,7 +94,7 @@ export const TimeInputField = ({ value, onChange }: DateTimeFieldProps) => {
             </View>
         );
     }
-    const [hours, minutes] = value ? value.split(':').map(Number) : [12, 0];
+    const [hours, minutes] = (value || DEFAULT_TIME).split(':').map(Number);
     const timeObj = new Date();
     timeObj.setHours(hours, minutes, 0, 0);
     if (Platform.OS === 'ios') {

@@ -8,7 +8,7 @@ import { useModalStyles } from '@/constants/modalStyles';
 import { commonStyles } from '@/constants/commonStyles';
 import Checkbox from './Checkbox';
 import ScreenTitle from './ScreenTitle';
-import { DateInputField, TimeInputField } from './DateTimeInputFields';
+import { DateInputField, TimeInputField, DEFAULT_TIME } from './DateTimeInputFields';
 import { ClassOccurrenceType, ClassType } from '@/types/class';
 
 type OccurrenceFormModalProps = {
@@ -69,7 +69,7 @@ const OccurrenceFormModal = ({
     const [createDate, setCreateDate] = useState<string>(
         initialDate ?? new Date().toISOString().slice(0, 10)
     );
-    const [createTime, setCreateTime] = useState<string>('');
+    const [createTime, setCreateTime] = useState<string>(DEFAULT_TIME);
     const [createDuration, setCreateDuration] = useState<number>(classDuration ?? 60);
     const [createNotes, setCreateNotes] = useState<string>('');
     const [selectedClass, setSelectedClass] = useState<ClassType | null>(null);
