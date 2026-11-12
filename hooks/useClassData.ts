@@ -211,7 +211,7 @@ export function useClassData() {
         newName: string,
         newDuration: number,
         newRecurrence: boolean,
-    ) => {
+    ): Promise<boolean> => {
         const dataToUpdate: Record<string, string | number | boolean> = {};
         const current = { name: currentName, durationMinutes: currentDuration, isRecurring: currentRecurrence };
         const next = { name: newName, durationMinutes: newDuration, isRecurring: newRecurrence };
@@ -242,12 +242,14 @@ export function useClassData() {
                     )
                 );
                 mixpanel.track('Class edited');
+                return true;
             } else {
                 console.warn(`Function editClass. Request was unsuccessful: ${response.status, response.statusText}`);
             }
         } catch (error) {
             console.error(`Error while sending the data to the server when editing class: ${error}`);
         }
+        return false;
     };
 
     const deleteClass = async (classId: number, className: string) => {

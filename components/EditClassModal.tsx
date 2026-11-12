@@ -73,63 +73,6 @@ const EditClassModal = ({
         );
     };
 
-    // TODO: should I delete occurences when making class recurrent?
-    const renderConfirmationToRecurrent = () => {
-        return (
-            <View style={modalStyles.modalContainer}>
-                <View style={modalStyles.modalView}>
-                    <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
-                            Make this class recurrent?
-                        </Text>
-                    </View>
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
-                        <Pressable
-                            style={modalStyles.modalConfirmButton}
-                            onPress={() => {}} // TODO: remove occurrences?
-                        >
-                            <Text style={[textStyle]}>OK</Text>
-                        </Pressable>
-                        <Pressable
-                            style={modalStyles.modalConfirmButton}
-                            onPress={onModalClose}
-                        >
-                            <Text style={[textStyle]}>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
-        );
-    };
-
-    const renderConfirmationToNonRecurrent = () => {
-        return (
-            <View style={modalStyles.modalContainer}>
-                <View style={modalStyles.modalView}>
-                    <View style={styles.modalInfo}>
-                        <Text style={[textStyle, {fontWeight: "bold"}]}>
-                            Make this class non-recurrent? All schedules will be deleted.
-                        </Text>
-                    </View>
-                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
-                        <Pressable
-                            style={modalStyles.modalConfirmButton}
-                            onPress={() => {}}
-                        >
-                                <Text style={[textStyle]}>OK</Text>
-                        </Pressable>
-                        <Pressable
-                            style={modalStyles.modalConfirmButton}
-                            onPress={onModalClose}
-                        >
-                                <Text style={[textStyle]}>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
-        );
-    };
-
     const renderEditForm = () => {
         return (
             <View style={modalStyles.modalContainer}>
