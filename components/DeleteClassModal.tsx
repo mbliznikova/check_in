@@ -1,6 +1,8 @@
 import { Modal, View, Text, StyleSheet, Pressable } from "react-native";
 import { useThemeTextStyle } from '@/hooks/useThemeTextStyle';
 import { useModalStyles } from '@/constants/modalStyles';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
 
 type DeleteClassModalProps = {
     isVisible: boolean;
@@ -20,6 +22,7 @@ const DeleteClassModal = ({
 
     const textStyle = useThemeTextStyle();
     const modalStyles = useModalStyles();
+    const colorScheme = useColorScheme() ?? 'light';
 
     const renderModalDelete = () => {
         return (
@@ -28,6 +31,9 @@ const DeleteClassModal = ({
                     <View style={styles.modalInfo}>
                         <Text style={[textStyle, styles.modalInfoText]}>
                             Do you want to delete {className} class?
+                        </Text>
+                        <Text style={[styles.modalNoteText, { color: Colors[colorScheme].textMuted }]}>
+                            Schedule will be deleted. Attendance history is kept. This week&apos;s sessions stay — delete manually if needed.
                         </Text>
                     </View>
                     <View style={[styles.modalButtonsContainer, styles.modalManyButtonsContainer]}>
@@ -92,6 +98,10 @@ const styles = StyleSheet.create({
     modalInfoText: {
         fontSize: 18,
         fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalNoteText: {
+        marginTop: 12,
         textAlign: 'center',
     },
     modalButtonsContainer: {

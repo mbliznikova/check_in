@@ -9,6 +9,7 @@ import { commonStyles } from '@/constants/commonStyles';
 
 import ScreenTitle from './ScreenTitle';
 import { DateInputField, TimeInputField, DEFAULT_TIME } from './DateTimeInputFields';
+import { formatDayLabel } from './WeekCalendar';
 import { DAY_NAMES } from '@/constants/scheduling';
 
 type ClassCreationModalProps = {
@@ -494,10 +495,10 @@ const CreateScheduleClass = ({
             return (
                 <View style={styles.confirmationBlock}>
                     <Text style={[textStyle, styles.confirmationTitleText]}>
-                        {`Schedule class ${className}`}
+                        {`${className} class scheduled`}
                     </Text>
                     <Text style={[textStyle, styles.confirmationSubtitleText, { color: Colors[colorScheme].textMuted }]}>
-                        {`Occurrence scheduled for ${occurrenceDate} at ${occurrenceTime}`}
+                        {`Takes place ${formatDayLabel(occurrenceDate)} at ${occurrenceTime}`}
                     </Text>
                     <View style={styles.scheduleActionsRow}>
                         <Pressable style={modalStyles.modalConfirmButton} onPress={handleModalClose}>
@@ -510,7 +511,7 @@ const CreateScheduleClass = ({
 
         return (
             <View style={styles.screenContainer}>
-                <ScreenTitle titleText={`Schedule class ${className}`}/>
+                <ScreenTitle titleText={`Pick date and time for ${className}`}/>
 
                 <View style={commonStyles.formContainer}>
                     <View style={commonStyles.fieldGroup}>
