@@ -146,6 +146,7 @@ const ClassManagement = () => {
                     createdClassId={classData.createdClassId}
                     scheduleData={classSchedules.currentClassScheduleMap}
                     isSheduleSuccess={classSchedules.isScheduleSuccess}
+                    onScheduleSuccessDismiss={classSchedules.resetScheduleSuccess}
                     onCreateOccurrence={classOccurrences.createClassOccurrence}
                     onRequestingTimeIntervals={classOccurrences.fetchAvailableTimeIntervalsOccurrence}
                     onOccurrenceUniquenessCheck={classOccurrences.checkIfOccurrenceUnique}
@@ -197,6 +198,9 @@ const ClassManagement = () => {
                                 setPendingScheduleSetup(true);
                                 setSelectedClass(prev => ({ ...prev, name: newName, duration: newDuration, isRecurring: true }));
                             }
+                            if (isEdited && !newRecurrence && selectedClass.isRecurring) {
+                                classSchedules.removeClassSchedulesFromState(selectedClass.id);
+                            }
                         }
                     }}
                     onEditPrice={(priceId, newAmount, classId) => {
@@ -214,6 +218,7 @@ const ClassManagement = () => {
                     oldClassRecurrence={selectedClass.isRecurring}
                     oldClassPrice={selectedClass.price}
                     priceId={selectedClass.priceId}
+                    scheduleCount={classSchedules.getClassScheduleCount(selectedClass.id)}
                     isSuccess={classData.isEditSuccess}
                 />
             )}
@@ -234,6 +239,7 @@ const ClassManagement = () => {
                     className={selectedClass.name}
                     classDuration={selectedClass.duration}
                     isSheduleSuccess={classSchedules.isScheduleSuccess}
+                    onSuccessDismiss={classSchedules.resetScheduleSuccess}
                 />
             )}
 

@@ -22,6 +22,7 @@ type EditClassModalProps = {
     onEditPrice: (priceId: number, newAmount: number, classId: number) => void;
     onCreatePrice: (classId: number, newAmount: number, className: string) => void;
     onClassUniquenessCheck: (name: string) => boolean;
+    scheduleCount: number;
     isSuccess: boolean;
 };
 
@@ -38,6 +39,7 @@ const EditClassModal = ({
     onEditPrice,
     onCreatePrice,
     onClassUniquenessCheck,
+    scheduleCount,
     isSuccess = false,
 }: EditClassModalProps) => {
 
@@ -50,6 +52,85 @@ const EditClassModal = ({
     const [newClassRecurrence, setNewClassRecurrence] = useState(oldClassRecurrence);
     const [newClassPrice, setNewClassPrice] = useState(oldClassPrice);
     const [successMessage, setSuccessMessage] = useState('');
+    const [isOneOffConfirmOpen, setIsOneOffConfirmOpen] = useState(false);
+    // Captured at save time: the parent updates oldClassRecurrence after a successful
+    // switch, so it can't be compared against afterwards.
+    const [isSwitchedToWeekly, setIsSwitchedToWeekly] = useState(false);
+
+    const renderOneOffConfirmation = () => {
+        const scheduleText = scheduleCount > 0
+            ? `This will delete ${scheduleCount} weekly schedule${scheduleCount === 1 ? '' : 's'}.`
+            : 'This will delete the weekly schedules.';
+        return (
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
+                    <View style={modalStyles.modalInfo}>
+                        <Text style={[textStyle, modalStyles.modalTitle]}>
+                            Switch {oldClassName} to one-off?
+                        </Text>
+                        <Text style={{ color: Colors[colorScheme].textMuted, textAlign: 'center' }}>
+                            {scheduleText} They are deleted permanently and must be re-added by hand if you switch back to weekly.
+                        </Text>
+                    </View>
+                    <View style={modalStyles.modalButtonsRow}>
+                        <Pressable
+                            style={modalStyles.modalDeleteButton}
+                            onPress={() => {
+                                setIsOneOffConfirmOpen(false);
+                                saveChanges();
+                            }}
+                        >
+                            <Text style={[textStyle]}>Switch</Text>
+                        </Pressable>
+                        <Pressable
+                            style={modalStyles.modalCancelButton}
+                            onPress={() => {
+                                setNewClassRecurrence(oldClassRecurrence);
+                                setIsOneOffConfirmOpen(false);
+                            }}
+                        >
+                            <Text style={[textStyle]}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
+    const saveChanges = () => {
+        const nameChanged = newClassName !== oldClassName;
+        const durationChanged = newClassDuration !== oldClassDuration;
+        const recurrenceChanged = newClassRecurrence !== oldClassRecurrence;
+        const classChanged = nameChanged || durationChanged || recurrenceChanged;
+        const priceChanged = oldClassPrice !== newClassPrice;
+
+        const changes: string[] = [];
+
+        if (classChanged) {
+            onEditClass(newClassName, newClassDuration, newClassRecurrence);
+            if (nameChanged) changes.push(`name changed to "${newClassName}"`);
+            if (durationChanged) changes.push(`duration changed to ${newClassDuration} min`);
+            if (recurrenceChanged) changes.push(`repeats set to ${newClassRecurrence ? 'Weekly' : 'One-off'}`);
+        }
+        if (priceChanged) {
+            if (priceId !== null) {
+                onEditPrice(priceId, newClassPrice, classId);
+            } else {
+                // No price record exists yet for this class (e.g. it was
+                // created at the default price of 0 before that was fixed) —
+                // create one instead of trying to PATCH a nonexistent record.
+                onCreatePrice(classId, newClassPrice, newClassName);
+            }
+            changes.push(`price changed to ${newClassPrice}`);
+        }
+
+        const switchedToWeekly = recurrenceChanged && newClassRecurrence;
+        setIsSwitchedToWeekly(switchedToWeekly);
+        setSuccessMessage(
+            `Class was updated successfully — ${changes.join(', ')}.` +
+            (switchedToWeekly ? ' Next, add a weekly schedule.' : '')
+        );
+    };
 
     const renderSuccessConfirmation = () => {
         return (
@@ -65,7 +146,7 @@ const EditClassModal = ({
                             style={modalStyles.modalConfirmButton}
                             onPress={onModalClose}
                         >
-                                <Text style={[textStyle]}>OK</Text>
+                                <Text style={[textStyle]}>{isSwitchedToWeekly ? 'Add schedule' : 'OK'}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -176,27 +257,13 @@ const EditClassModal = ({
                                     return;
                                 }
 
-                                const changes: string[] = [];
-
-                                if (classChanged) {
-                                    onEditClass(newClassName, newClassDuration, newClassRecurrence);
-                                    if (nameChanged) changes.push(`name changed to "${newClassName}"`);
-                                    if (durationChanged) changes.push(`duration changed to ${newClassDuration} min`);
-                                    if (recurrenceChanged) changes.push(`repeats set to ${newClassRecurrence ? 'Weekly' : 'One-off'}`);
-                                }
-                                if (priceChanged) {
-                                    if (priceId !== null) {
-                                        onEditPrice(priceId, newClassPrice, classId);
-                                    } else {
-                                        // No price record exists yet for this class (e.g. it was
-                                        // created at the default price of 0 before that was fixed) —
-                                        // create one instead of trying to PATCH a nonexistent record.
-                                        onCreatePrice(classId, newClassPrice, newClassName);
-                                    }
-                                    changes.push(`price changed to ${newClassPrice}`);
+                                // Weekly -> one-off deletes the class's schedules on the backend; confirm first.
+                                if (recurrenceChanged && !newClassRecurrence) {
+                                    setIsOneOffConfirmOpen(true);
+                                    return;
                                 }
 
-                                setSuccessMessage(`Class was updated successfully — ${changes.join(', ')}.`);
+                                saveChanges();
                             }}
                             style={modalStyles.modalConfirmButton}
                         >
@@ -220,7 +287,9 @@ const EditClassModal = ({
             transparent={true}
             onRequestClose={onModalClose}
         >
-            {isSuccess ? renderSuccessConfirmation() : renderEditForm()}
+            {isSuccess
+                ? renderSuccessConfirmation()
+                : isOneOffConfirmOpen ? renderOneOffConfirmation() : renderEditForm()}
         </Modal>
     );
 };

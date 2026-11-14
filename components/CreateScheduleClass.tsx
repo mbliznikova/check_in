@@ -27,6 +27,7 @@ type ClassCreationModalProps = {
     createdClassId: number | null;
     scheduleData: Map<number, [number, string][]>;
     isSheduleSuccess: boolean;
+    onScheduleSuccessDismiss: () => void;
     onCreateOccurrence: (
         className: string,
         plannedDate: string,
@@ -55,6 +56,7 @@ const CreateScheduleClass = ({
     createdClassId,
     scheduleData = new Map(),
     isSheduleSuccess = false,
+    onScheduleSuccessDismiss,
     onCreateOccurrence,
     onRequestingTimeIntervals,
     onOccurrenceUniquenessCheck,
@@ -76,8 +78,6 @@ const CreateScheduleClass = ({
     const [isAddDayOpen, setIsAddDayOpen] = useState(false);
     const [isAddTimeOpen, setIsAddTimeOpen] = useState(false);
 
-    const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
-
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
 
@@ -87,10 +87,6 @@ const CreateScheduleClass = ({
     const [occurrenceIntervals, setOccurrenceIntervals] = useState<[string, string][]>([]);
     const [isOccurrenceIntervalsOpen, setIsOccurrenceIntervalsOpen] = useState<boolean>(false);
 
-
-    useEffect(() => {
-        setIsConfirmationOpen(isSheduleSuccess)
-    }, [isSheduleSuccess]);
 
     useEffect(() => {
         if (isCreateSuccess && !isRecurring) {
@@ -111,7 +107,6 @@ const CreateScheduleClass = ({
         setTime("");
         setIsAddDayOpen(false);
         setIsAddTimeOpen(false);
-        setIsConfirmationOpen(false);
         setTimeSlots([]);
         setSelectedSlotIndex(-1);
         setOccurrenceDate(new Date().toISOString().slice(0, 10));
@@ -607,8 +602,8 @@ const CreateScheduleClass = ({
                             style={modalStyles.modalConfirmButton}
                             onPress={() => {
                                 setIsAddTimeOpen(false);
-                                setIsConfirmationOpen(false);
                                 setSelectedSlotIndex(-1);
+                                onScheduleSuccessDismiss();
                             }}
                         >
                                 <Text style={[textStyle]}>OK</Text>
@@ -626,12 +621,8 @@ const CreateScheduleClass = ({
             onRequestClose={handleModalClose}
         >
             <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background }}>
-                {isConfirmationOpen && (
-                    <View style={styles.successOverlay}>
-                        {renderSuccessConfirmation()}
-                    </View>
-                )}
-                {renderCreateScheduleForm()}
+                {/* Success replaces the form so only one dialog is on screen at a time. */}
+                {isSheduleSuccess ? renderSuccessConfirmation() : renderCreateScheduleForm()}
             </View>
         </Modal>
 
@@ -878,17 +869,6 @@ const styles = StyleSheet.create({
         marginLeft: 6,
         fontSize: 12,
         color: 'red',
-    },
-    successOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 10,
     },
 });
 
