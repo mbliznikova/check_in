@@ -71,7 +71,7 @@ function formatWeekRange(weekStartDate: Date): string {
     return `${weekStartDate.toLocaleDateString('en-US', opts)} – ${end.toLocaleDateString('en-US', { ...opts, year: 'numeric' })}`;
 }
 
-function formatDayLabel(dateStr: string): string {
+export function formatDayLabel(dateStr: string): string {
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }

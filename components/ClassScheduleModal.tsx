@@ -5,7 +5,7 @@ import { Colors, INPUT_BORDER_COLOR } from '@/constants/Colors';
 import { useModalStyles } from '@/constants/modalStyles';
 import ScreenTitle from './ScreenTitle';
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { DAY_NAMES } from '@/constants/scheduling';
 import { commonStyles } from '@/constants/commonStyles';
 
@@ -29,6 +29,7 @@ type ClassScheduleModalProps = {
     className: string | null;
     classDuration: number | null;
     isSheduleSuccess: boolean;
+    onSuccessDismiss: () => void;
 };
 
 const ClassScheduleModal = ({
@@ -43,6 +44,7 @@ const ClassScheduleModal = ({
     className,
     classDuration,
     isSheduleSuccess = false,
+    onSuccessDismiss,
 }: ClassScheduleModalProps) => {
 
     const textStyle = useThemeTextStyle();
@@ -54,8 +56,6 @@ const ClassScheduleModal = ({
 
     const [dayToSchedule, setDayToSchedule] = useState<number | null>(null);
     const [timeToSchedule, setTimeToSchedule] = useState("");
-
-    const [isConfirmationOpen, setIsConfirmationOpen] = useState(isSheduleSuccess);
 
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number>(-1);
@@ -69,10 +69,6 @@ const ClassScheduleModal = ({
         day: number;
         time: string;
     } | null>(null);
-
-    useEffect(() => {
-        setIsConfirmationOpen(isSheduleSuccess)
-    }, [isSheduleSuccess]);
 
     const getRemainedDays = (): number[] => {
         const remainedDays: number[] = [];
@@ -396,23 +392,25 @@ const ClassScheduleModal = ({
 
     const renderSuccessConfirmation = () => {
         return (
-            <View style={modalStyles.modalView}>
-                <View style={styles.modalInfo}>
-                    <Text style={[textStyle, styles.confirmationText]}>
-                        Class was scheduled successfully!
-                    </Text>
-                </View>
-                <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
-                    <Pressable
-                        style={modalStyles.modalConfirmButton}
-                        onPress={() => {
-                            setIsAddTimeOpen(false);
-                            setIsConfirmationOpen(false);
-                            setSelectedSlotIndex(-1);
-                        }}
-                    >
-                        <Text style={[textStyle]}>OK</Text>
-                    </Pressable>
+            <View style={modalStyles.modalContainer}>
+                <View style={modalStyles.modalView}>
+                    <View style={styles.modalInfo}>
+                        <Text style={[textStyle, styles.confirmationText]}>
+                            Class was scheduled successfully!
+                        </Text>
+                    </View>
+                    <View style={[styles.modalButtonsContainer, styles.modalSingleButtonContainer]}>
+                        <Pressable
+                            style={modalStyles.modalConfirmButton}
+                            onPress={() => {
+                                setIsAddTimeOpen(false);
+                                setSelectedSlotIndex(-1);
+                                onSuccessDismiss();
+                            }}
+                        >
+                            <Text style={[textStyle]}>OK</Text>
+                        </Pressable>
+                    </View>
                 </View>
             </View>
         );
@@ -425,12 +423,8 @@ const ClassScheduleModal = ({
             onRequestClose={onModalClose}
         >
             <View style={{flex: 1, height: '100%', backgroundColor: (Platform.OS === 'ios' && !isIpad) ? Colors[colorScheme].background : undefined}}>
-                {renderSchedule()}
-                {isConfirmationOpen && (
-                    <View style={styles.confirmationOverlay}>
-                        {renderSuccessConfirmation()}
-                    </View>
-                )}
+                {/* Success replaces the form so only one dialog is on screen at a time. */}
+                {isSheduleSuccess ? renderSuccessConfirmation() : renderSchedule()}
                 {pendingDelete && (
                     <View style={styles.confirmationOverlay}>
                         {renderDeleteChoice()}

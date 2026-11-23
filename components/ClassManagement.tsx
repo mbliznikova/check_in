@@ -30,6 +30,9 @@ const ClassManagement = () => {
     const classOccurrences = useClassOccurrences();
 
     const [selectedClass, setSelectedClass] = useState<SelectedClassState>(INITIAL_SELECTED_CLASS);
+    // Set when a class is switched one-off -> weekly, so closing the edit modal
+    // opens the schedule modal (weekly occurrences only generate from schedules).
+    const [pendingScheduleSetup, setPendingScheduleSetup] = useState(false);
 
     const resetSelectedClass = () => setSelectedClass(INITIAL_SELECTED_CLASS);
 
@@ -143,6 +146,7 @@ const ClassManagement = () => {
                     createdClassId={classData.createdClassId}
                     scheduleData={classSchedules.currentClassScheduleMap}
                     isSheduleSuccess={classSchedules.isScheduleSuccess}
+                    onScheduleSuccessDismiss={classSchedules.resetScheduleSuccess}
                     onCreateOccurrence={classOccurrences.createClassOccurrence}
                     onRequestingTimeIntervals={classOccurrences.fetchAvailableTimeIntervalsOccurrence}
                     onOccurrenceUniquenessCheck={classOccurrences.checkIfOccurrenceUnique}
@@ -171,11 +175,17 @@ const ClassManagement = () => {
                     isVisible={classData.isEditModalVisible}
                     onModalClose={() => {
                         classData.closeEditModal();
-                        resetSelectedClass();
+                        if (pendingScheduleSetup && selectedClass.id !== null) {
+                            setPendingScheduleSetup(false);
+                            classSchedules.fetchClassSchedules(selectedClass.id);
+                            classSchedules.openScheduleModal();
+                        } else {
+                            resetSelectedClass();
+                        }
                     }}
-                    onEditClass={(newName, newDuration, newRecurrence) => {
+                    onEditClass={async (newName, newDuration, newRecurrence) => {
                         if (selectedClass.id !== null) {
-                            classData.editClass(
+                            const isEdited = await classData.editClass(
                                 selectedClass.id,
                                 selectedClass.name,
                                 selectedClass.duration,
@@ -184,6 +194,13 @@ const ClassManagement = () => {
                                 newDuration,
                                 newRecurrence,
                             );
+                            if (isEdited && newRecurrence && !selectedClass.isRecurring) {
+                                setPendingScheduleSetup(true);
+                                setSelectedClass(prev => ({ ...prev, name: newName, duration: newDuration, isRecurring: true }));
+                            }
+                            if (isEdited && !newRecurrence && selectedClass.isRecurring) {
+                                classSchedules.removeClassSchedulesFromState(selectedClass.id);
+                            }
                         }
                     }}
                     onEditPrice={(priceId, newAmount, classId) => {
@@ -201,6 +218,7 @@ const ClassManagement = () => {
                     oldClassRecurrence={selectedClass.isRecurring}
                     oldClassPrice={selectedClass.price}
                     priceId={selectedClass.priceId}
+                    scheduleCount={classSchedules.getClassScheduleCount(selectedClass.id)}
                     isSuccess={classData.isEditSuccess}
                 />
             )}
@@ -221,6 +239,7 @@ const ClassManagement = () => {
                     className={selectedClass.name}
                     classDuration={selectedClass.duration}
                     isSheduleSuccess={classSchedules.isScheduleSuccess}
+                    onSuccessDismiss={classSchedules.resetScheduleSuccess}
                 />
             )}
 

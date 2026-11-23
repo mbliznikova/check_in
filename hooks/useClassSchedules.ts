@@ -190,6 +190,10 @@ export function useClassSchedules() {
             }
             const scheduleId = responseData.scheduleId;
             setScheduleModal(prev => ({ ...prev, isSuccess: true }));
+            setAllSchedulesList(prev => [
+                ...prev,
+                { id: scheduleId, classModel: Number(classToScheduleId), day: dayId, dayName, classTime: time },
+            ]);
             addScheduleToState(scheduleId, dayId, time);
             addScheduleToUniqueness(dayId, time);
             mixpanel.track('Class scheduled');
@@ -205,6 +209,7 @@ export function useClassSchedules() {
                 const responseData = await response.json();
                 if (isValidDeleteScheduleResponse(responseData, scheduleId)) {
                     console.log(`Function deleteClassSchedule. The response from backend is valid.`);
+                    setAllSchedulesList(prev => prev.filter(schedule => schedule.id !== scheduleId));
                     removeScheduleFromState(scheduleId, day);
                     removeScheduleFromUniqueness(day, time);
                     mixpanel.track('Class schedule deleted');
@@ -244,6 +249,19 @@ export function useClassSchedules() {
         return !schedulesSet.has(`${dayId}-${time}`);
     };
 
+    const getClassScheduleCount = (classId: number): number => {
+        return allSchedulesList.filter(schedule => schedule.classModel === classId).length;
+    };
+
+    // Backend deletes a class's schedules when it's switched to one-off; mirror that locally
+    // so the count and the uniqueness set don't keep the deleted slots.
+    const removeClassSchedulesFromState = (classId: number) => {
+        setAllSchedulesList(prev => prev.filter(schedule => schedule.classModel !== classId));
+    };
+
+    // Called when the success popup is dismissed, so the next schedule add flips it to true again.
+    const resetScheduleSuccess = () => setScheduleModal(prev => ({ ...prev, isSuccess: false }));
+
     const openScheduleModal = () => setScheduleModal(prev => ({ ...prev, isVisible: true }));
     const closeScheduleModal = () => {
         setScheduleModal({ isVisible: false, isSuccess: false });
@@ -265,6 +283,9 @@ export function useClassSchedules() {
         openScheduleModal,
         closeScheduleModal,
         clearScheduleContext,
+        resetScheduleSuccess,
+        removeClassSchedulesFromState,
+        getClassScheduleCount,
         fetchClassSchedules,
         scheduleClass,
         deleteClassSchedule,
